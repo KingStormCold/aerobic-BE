@@ -1,0 +1,13 @@
+--Insert User----
+INSERT INTO `users` (`email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+('tuan@gmail.com', NULL, '$2y$12$U8fGInQPKdsKB34hzqq19uyg/0.g3sik9257cZRFnliW5bPn9EYGG', NULL, NULL, NULL);
+
+--Insert Role----
+INSERT INTO `roles` (`name`, `created_at`, `updated_at`) VALUES
+('ADMIN', NULL, NULL),
+('USER', NULL, NULL);
+
+--Insert UserRoles----
+INSERT INTO `users_roles` (`users_id`, `roles_id`, `created_at`, `updated_at`) VALUES
+(1, 1, NULL, NULL),
+(1, 2, NULL, NULL);
