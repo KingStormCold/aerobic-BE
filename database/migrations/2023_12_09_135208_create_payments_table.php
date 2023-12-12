@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users_roles', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->id();
-
+            $table->float('price');
             $table->unsignedBiginteger('users_id')->unsigned();
             $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
-
-            $table->unsignedBiginteger('roles_id')->unsigned();
-            $table->foreign('roles_id')->references('id')->on('roles')->onDelete('cascade');
+            $table->unsignedBiginteger('course_id')->unsigned();
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users_roles');
+        Schema::dropIfExists('payments');
     }
 };

@@ -36,7 +36,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json($validator->errors(), 400);
         }
 
         if (!$token = auth()->attempt($validator->validated())) {
@@ -169,5 +169,17 @@ class AuthController extends Controller
             'message' => 'User successfully changed password',
             'user' => $user,
         ], 201);
+    }
+
+    public function isAuthorization($roleName): bool
+    {
+        $roles = $this->getRoles();
+        $result = false;
+        foreach ($roles as $role) {
+            if ($role == $roleName) {
+                $result = true;
+            }
+        }
+        return $result;
     }
 }

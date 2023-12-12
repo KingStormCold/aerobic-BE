@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +30,9 @@ Route::group([
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user-profile', [AuthController::class, 'userProfile']);
     Route::post('/change-pass', [AuthController::class, 'changePassWord']);
+
+    Route::get('/get-parent-categories', [CategoryController::class, 'getParentCategories']);
+    Route::post('/category', [CategoryController::class, 'insertCategory']);
+    Route::put('/category/{id}', [CategoryController::class, 'updateCategory']);
+    Route::delete('/category/{id}', [CategoryController::class, 'deleteCategory']);
 });
