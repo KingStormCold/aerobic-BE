@@ -4,7 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\SubjectController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,4 +35,9 @@ Route::group([
     Route::post('/category', [CategoryController::class, 'insertCategory']);
     Route::put('/category/{id}', [CategoryController::class, 'updateCategory']);
     Route::delete('/category/{id}', [CategoryController::class, 'deleteCategory']);
+
+    Route::get('/get-subject', [SubjectController::class, 'getSubjectsByCategory']);
+    Route::post('/subject', [SubjectController::class, 'insertSubject']);
+    Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
+    Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
 });
