@@ -58,7 +58,9 @@ class CategoryController extends Controller
 
             Category::create([
                 'name' => $request->category_name,
-                'parent_id' => $request->parent_id == null ? '' : $request->parent_id
+                'parent_id' => $request->parent_id == null ? '' : $request->parent_id,
+                'created_by' => $authController->getEmail(),
+                'updated_by' => $authController->getEmail()
             ]);
             return response()->json([
                 'result' => 'succes'
@@ -113,11 +115,13 @@ class CategoryController extends Controller
 
             $category->name = $request->category_name;
             $category->parent_id = $request->parent_id == null ? '' : $request->parent_id;
+            $category->updated_by = $authController->getEmail();
             $category->save();
             return response()->json([
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::debug($e);
             return response()->json([
                 'error_message' => $e
             ], 500);

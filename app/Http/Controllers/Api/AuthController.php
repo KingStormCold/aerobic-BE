@@ -119,13 +119,12 @@ class AuthController extends Controller
     public function getRoles()
     {
         $user = auth()->user();
-        if( $user){
+        if ($user) {
             $currentUser = User::with('roles')->findOrFail($user->id);
             return $this->mapRole($currentUser->roles);
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-       
     }
 
     public function mapRole($roles)
@@ -186,5 +185,12 @@ class AuthController extends Controller
             }
         }
         return $result;
+    }
+
+    public function getEmail(): string
+    {
+        $user = auth()->user();
+        $currentUser = User::find($user->id);
+        return $currentUser->email;
     }
 }
