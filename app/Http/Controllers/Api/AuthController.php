@@ -119,13 +119,12 @@ class AuthController extends Controller
     public function getRoles()
     {
         $user = auth()->user();
-        if( $user){
-            $currentUser = User::with('roles')->findOrFail($user->id);
-            return $this->mapRole($currentUser->roles);
+        if ($user){
+        $currentUser = User::with('roles')->findOrFail($user->id);
+        return $this->mapRole($currentUser->roles);
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-       
     }
 
     public function mapRole($roles)
