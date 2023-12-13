@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CourseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SubjectController;
@@ -40,4 +41,10 @@ Route::group([
     Route::post('/subject', [SubjectController::class, 'insertSubject']);
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
+
+
+    Route::get('/get-parent-course', [CourseController::class, 'getParentCourse']);
+    Route::post('/course', [CourseController::class, 'insertCourse']);
+    Route::put('/course/{id}', [CourseController::class, 'updateCourse']);
+    Route::delete('/course/{id}', [CourseController::class, 'deleteCourse']);
 });
