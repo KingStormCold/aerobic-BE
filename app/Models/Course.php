@@ -12,6 +12,5 @@ class Course extends Model
 
     protected $table = 'courses';
 
-    protected $guarded = [];
-    
+    public $fillable = ['name', 'description', 'level', 'price', 'subject_id', 'created_by', 'promotional_price', 'updated_by'];
 }
