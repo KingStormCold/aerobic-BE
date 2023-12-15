@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->text('content');
             $table->string('image', 255);
             $table->float('promotional_price');
-            $table->unsignedBiginteger('categories_id')->unsigned();
-            $table->foreign('categories_id')->references('id')->on('categories')->onDelete('cascade');
-            $table->string('created_by', 100)->default('');
-            $table->string('updated_by', 100)->default('');
+            
+            $table->string('created_by', 100);
+            $table->string('updated_by', 100);
+           
+            $table->unsignedBiginteger('category_id')->unsigned();
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->timestamps();
         });
     }
