@@ -17,12 +17,12 @@ return new class extends Migration
             $table->string('description', 255);
             $table->tinyInteger('level');
             $table->float('price');
-            $table->float('promotional_price');
-            $table->unsignedBiginteger('subjects_id')->unsigned();
-            $table->foreign('subjects_id')->references('id')->on('subjects')->onDelete('cascade');
+            $table->float('promotional_price')->default(0);
             $table->string('created_by', 100)->default('');
-            $table->string('updated_by', 100)->default('');    
-            $table->timestamps();
+            $table->string('updated_by', 100)->default('');
+            $table->unsignedBiginteger('subject_id')->unsigned();
+            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
+            $table->timestamps(); 
         });
     }
 

@@ -32,24 +32,38 @@ class CourseController extends Controller
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'Course_name' => 'required|string|max:100|unique:courses,name',
-                'Course_description' => 'required|string|max:500',
-                'Course_level' => 'required|integer|unique:courses,level',
-                'Course_price' => 'required|numeric',
-                'Course_subject_id' => 'required|exists:subjects,id',
+                'name' => 'required|string|max:100|unique:courses,name',
+                'description' => 'required|string|max:255',
+                'level' => [
+                    'required',
+                    'integer',
+                    function ($attribute, $value, $fail) use ($request) {
+                        $existingLevel = Course::where('subject_id', $request->subject_id)
+                            ->where('level', $value)
+                            ->first();
+
+                        if ($existingLevel) {
+                            $fail('Cấp độ đã tồn tại cho môn học này');
+                        }
+                    },
+                ],
+                'price' => 'required|numeric',
+                'subject_id' => 'required|exists:subjects,id',
+                //'promotional_price' => 'required',
             ], [
-                'Course_name.required' => 'Tên khóa học không được trống',
-                'Course_name.unique' => 'Tên khóa học đã tồn tại',
-                'Course_name.max' => 'Tên khóa học không được vượt quá 100 ký tự',
-                'Course_description.required' => 'Mô tả khóa học không được trống',
-                'Course_description.max' => 'Mô tả khóa học không được vượt quá 500 ký tự',
-                'Course_level.required' => 'Cấp độ khóa học không được trống',
-                'Course_level.integer' => 'Cấp độ khóa học phải là một số nguyên',
-                'Course_level.unique' => 'Cấp độ khóa học đã tồn tại',
-                'Course_price.required' => 'Giá khóa học không được trống',
-                'Course_price.numeric' => 'Giá khóa học phải là một số',
-                'Course_subject_id.required' => 'ID môn học không được trống',
-                'Course_subject_id.exists' => 'ID môn học không tồn tại trong danh sách môn học',
+                'name.required' => 'Tên khóa học không được trống',
+                'name.unique' => 'Tên khóa học đã tồn tại',
+                'name.max' => 'Tên khóa học không được vượt quá 100 ký tự',
+                'description.required' => 'Mô tả khóa học không được trống',
+                'description.max' => 'Mô tả khóa học không được vượt quá 255 ký tự',
+                'level.required' => 'Cấp độ khóa học không được trống',
+                'level.integer' => 'Cấp độ khóa học phải là một số nguyên',
+                'level.unique' => 'Cấp độ khóa học đã tồn tại',
+                'price.required' => 'Giá khóa học không được trống',
+                'price.numeric' => 'Giá khóa học phải là một số',
+                'subject_id.required' => 'ID môn học không được trống',
+                'subject_id.exists' => 'ID môn học không tồn tại trong danh sách môn học',
+                //'promotional_price.required' => 'Cấp độ khóa học không được trống',
             ]);
 
             if ($validator->fails()) {
@@ -58,21 +72,25 @@ class CourseController extends Controller
                 ], 400);
             }
 
-            if ($request->subject_id != null) {
-                $Course = Course::find($request->subject_id);
-                if ($Course == null) {
-                    return response()->json([
-                        'error_message' => 'Danh mục cha không đúng'
-                    ], 400);
-                }
+            $authController = new AuthController();
+            $userProfileResponse = $authController->userProfile();
+            $userProfileData = json_decode($userProfileResponse->getContent(), true);
+
+            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
+                return response()->json([
+                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
+                ], 400);
             }
+            $createdBy = $userProfileData['data']['email'];
 
             Course::create([
-                'name' => $request->Course_name,
-                'description' => $request->Course_description,
-                'level' => $request->Course_level,
-                'price' => $request->Course_price,
-                'subject_id' => $request->Course_subject_id,
+                'name' => $request->name,
+                'description' => $request->description,
+                'level' => $request->level,
+                'price' => $request->price,
+                'subject_id' => $request->subject_id,
+                'promotional_price' => $request->promotional_price,
+                'created_by' => $createdBy,
             ]);
 
             return response()->json([
@@ -106,23 +124,38 @@ class CourseController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
-                'Course_name' => 'required|string|max:100|unique:courses,name,' . $course->id,
-                'Course_description' => 'required|string|max:500',
-                'Course_level' => 'required|integer',
-                'Course_price' => 'required|numeric',
-                'Course_subject_id' => 'required|exists:subjects,id',
+                'name' => 'required|string|max:100|unique:courses,name,' . $course->id,
+                'description' => 'required|string|max:500',
+                'level' => [
+                    'required',
+                    'integer',
+                    function ($attribute, $value, $fail) use ($request, $course) {
+                        if ($value != $course->level) {
+                            $existingLevel = Course::where('subject_id', $request->subject_id)
+                                ->where('level', $value)
+                                ->first();
+
+                            if ($existingLevel) {
+                                $fail('Cấp độ đã tồn tại cho môn học này');
+                            }
+                        }
+                    },
+                ],
+                'price' => 'required|numeric',
+                'subject_id' => 'required|exists:subjects,id',
             ], [
-                'Course_name.required' => 'Tên khóa học không được trống',
-                'Course_name.unique' => 'Tên khóa học đã tồn tại',
-                'Course_name.max' => 'Tên khóa học không được vượt quá 100 ký tự',
-                'Course_description.required' => 'Mô tả khóa học không được trống',
-                'Course_description.max' => 'Mô tả khóa học không được vượt quá 500 ký tự',
-                'Course_level.required' => 'Cấp độ khóa học không được trống',
-                'Course_level.integer' => 'Cấp độ khóa học phải là một số nguyên',
-                'Course_price.required' => 'Giá khóa học không được trống',
-                'Course_price.numeric' => 'Giá khóa học phải là một số',
-                'Course_subject_id.required' => 'ID môn học không được trống',
-                'Course_subject_id.exists' => 'ID môn học không tồn tại trong danh sách môn học',
+                'name.required' => 'Tên khóa học không được trống',
+                'name.unique' => 'Tên khóa học đã tồn tại',
+                'name.max' => 'Tên khóa học không được vượt quá 100 ký tự',
+                'description.required' => 'Mô tả khóa học không được trống',
+                'description.max' => 'Mô tả khóa học không được vượt quá 500 ký tự',
+                'level.required' => 'Cấp độ khóa học không được trống',
+                'level.integer' => 'Cấp độ khóa học phải là một số nguyên',
+                'level.unique' => 'Cấp độ khóa học đã tồn tại',
+                'price.required' => 'Giá khóa học không được trống',
+                'price.numeric' => 'Giá khóa học phải là một số',
+                'subject_id.required' => 'ID môn học không được trống',
+                'subject_id.exists' => 'ID môn học không tồn tại trong danh sách môn học',
             ]);
 
             if ($validator->fails()) {
@@ -131,12 +164,24 @@ class CourseController extends Controller
                 ], 400);
             }
 
+            $userProfileResponse = $authController->userProfile();
+            $userProfileData = json_decode($userProfileResponse->getContent(), true);
+
+            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
+                return response()->json([
+                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
+                ], 400);
+            }
+
+            $updatedBy = $userProfileData['data']['email'];
+
             $course->update([
                 'name' => $request->name,
                 'description' => $request->description,
                 'level' => $request->level,
                 'price' => $request->price,
                 'subject_id' => $request->subject_id,
+                'updated_by' => $updatedBy,
             ]);
 
             return response()->json([
@@ -148,6 +193,7 @@ class CourseController extends Controller
             ], 500);
         }
     }
+
 
 
     public function deleteCourse($id)
