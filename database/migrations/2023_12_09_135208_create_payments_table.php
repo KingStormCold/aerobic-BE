@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->float('price');
+            $table->tinyInteger('subject_full');
             $table->unsignedBiginteger('users_id')->unsigned();
             $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedBiginteger('course_id')->unsigned();
-            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+            $table->unsignedBiginteger('courses_id')->unsigned();
+            $table->foreign('courses_id')->references('id')->on('courses')->onDelete('cascade');
             $table->timestamps();
         });
     }
