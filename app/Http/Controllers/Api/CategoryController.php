@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use CloudCreativity\LaravelJsonApi\Pagination\CursorStrategy;
 use Throwable;
 
 class CategoryController extends Controller
@@ -20,6 +21,52 @@ class CategoryController extends Controller
             'categories' => $categories
         ], 200);
     }
+
+    public function getCategories()
+    {
+        try {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('ADMIN_CATEGORY');
+            if (!$isAuthorization) {
+                return response()->json([
+                    'code' => 'CATE_001',
+                    'message' => 'Bạn không có quyền.'
+                ], 401);
+            }
+            $categories = Category::orderByDesc('parent_id')->paginate(10);
+            return response()->json([
+                'categories' => $categories->items(),
+                'totalPage' => $categories->lastPage(),
+                'pageNum' => $categories->currentPage(),
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
+    }
+
+    public function getCategory($id)
+    {
+        $authController = new AuthController();
+        $isAuthorization = $authController->isAuthorization('ADMIN_CATEGORY');
+        if (!$isAuthorization) {
+            return response()->json([
+                'code' => 'CATE_001',
+                'message' => 'Bạn không có quyền.'
+            ], 401);
+        }
+        $category = Category::find($id);
+        if ($category == null) {
+            return response()->json([
+                'error_message' => 'Không tìm thấy category'
+            ], 400);
+        }
+        return response()->json([
+            'category' => $category
+        ], 200);
+    }
+
 
     public function insertCategory(Request $request)
     {
@@ -58,7 +105,9 @@ class CategoryController extends Controller
 
             Category::create([
                 'name' => $request->category_name,
-                'parent_id' => $request->parent_id == null ? '' : $request->parent_id
+                'parent_id' => $request->parent_id == null ? '' : $request->parent_id,
+                'created_by' => $authController->getEmail(),
+                'updated_by' => $authController->getEmail()
             ]);
             return response()->json([
                 'result' => 'succes'
@@ -113,11 +162,13 @@ class CategoryController extends Controller
 
             $category->name = $request->category_name;
             $category->parent_id = $request->parent_id == null ? '' : $request->parent_id;
+            $category->updated_by = $authController->getEmail();
             $category->save();
             return response()->json([
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::debug($e);
             return response()->json([
                 'error_message' => $e
             ], 500);
