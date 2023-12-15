@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('content');
-            $table->string('image');
-            $table->string('full_subject');
-            $table->float('price_full');
+            $table->text('content');
+            $table->string('image', 255);
+            $table->float('promotional_price');
+            
+            $table->string('created_by', 100);
+            $table->string('updated_by', 100);
+           
             $table->unsignedBiginteger('category_id')->unsigned();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->timestamps();
