@@ -35,7 +35,7 @@ class CategoryController extends Controller
             }
             $categories = Category::orderByDesc('parent_id')->paginate(10);
             return response()->json([
-                'categories' => $categories->items(),
+                'categories' => $this->customCategories($categories->items()),
                 'totalPage' => $categories->lastPage(),
                 'pageNum' => $categories->currentPage(),
             ], 200);
@@ -44,6 +44,30 @@ class CategoryController extends Controller
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
             ], 500);
         }
+    }
+
+    public function customCategories($categories)
+    {
+        $result = [];
+        foreach ($categories as $category) {
+            $parentName = "";
+            if ($category->parent_id !== "") {
+                $parentCategory = Category::find($category->parent_id);
+                $parentName = $parentCategory->name;
+            }
+            $data = [
+                "id" => $category->id,
+                "name" => $category->name,
+                "parent_id" => $category->parent_id,
+                "parent_name" => $parentName,
+                "created_by" => $category->created_by,
+                "updated_by" => $category->updated_by,
+                "created_at" => $category->created_at,
+                "updated_at" => $category->updated_at
+            ];
+            array_push($result, $data);
+        }
+        return $result;
     }
 
     public function getCategory($id)
