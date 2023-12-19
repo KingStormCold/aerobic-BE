@@ -35,7 +35,7 @@ class CategoryController extends Controller
             }
             $categories = Category::orderByDesc('parent_id')->paginate(10);
             return response()->json([
-                'categories' => $this->customCategories($categories->items()),
+                'categories' => $this->customCategories($categories->items()),              
                 'totalPage' => $categories->lastPage(),
                 'pageNum' => $categories->currentPage(),
             ], 200);
@@ -218,4 +218,16 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    /**Lấy danh sách các môn học dựa trên một điều kiện về danh mục */
+    public function getChildCategories()
+    {
+        $categories = Category::where('parent_id', '>', "0")->get();
+        
+        return response()->json([
+            'categories' => $categories
+        ], 200);
+    }
+    
+    
 }
