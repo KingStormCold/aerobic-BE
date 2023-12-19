@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
 
@@ -106,10 +107,12 @@ class AuthController extends Controller
     {
         $user = auth()->user();
         $currentUser = User::with('roles')->findOrFail($user->id);
-        $roles = $this->mapRole($currentUser->roles);
+        $roleList = UserRole::where('users_id', $user->id)->get();
+        $roles = $this->mapRole($roleList);
         return response()->json([
             'data' => [
                 'id' => $currentUser->id,
+                'fullname' => $currentUser->fullname,
                 'email' => $currentUser->email,
                 'roles' => $roles
             ],
@@ -120,8 +123,8 @@ class AuthController extends Controller
     {
         $user = auth()->user();
         if ($user) {
-            $currentUser = User::with('roles')->findOrFail($user->id);
-            return $this->mapRole($currentUser->roles);
+            $roleList = UserRole::where('users_id', $user->id)->get();
+            return $this->mapRole($roleList);
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
@@ -131,7 +134,7 @@ class AuthController extends Controller
     {
         $result = [];
         foreach ($roles as $role) {
-            array_push($result, $role->name);
+            array_push($result, $role->roles_name);
         };
         return $result;
     }

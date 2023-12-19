@@ -15,22 +15,116 @@ use Throwable;
 class UserController extends Controller
 {
 
-    public function getUser()
+
+    public function getRoles()
+    {
+        $authController = new AuthController();
+        $isAuthorization = $authController->isAuthorization('ADMIN_USER');
+        if (!$isAuthorization) {
+            return response()->json([
+                'message' => 'Bạn không có quyền.'
+            ], 401);
+        }
+        $result = [];
+        $roles = Role::get();
+        foreach ($roles as $role) {
+            $data = [
+                "name" => $role->name
+            ];
+            array_push($result, $data);
+        }
+        return response()->json([
+            'roles' => $result,
+        ], 200);
+    }
+
+    public function getParentUsers()
     {
         $usersWithRoles = User::with('roles')->get();
-    
+
         $formattedUsers = $usersWithRoles->map(function ($user) {
             return [
                 'user' => $user,
                 'roles' => $user->roles->pluck('name'),
             ];
         });
-    
+
         return response()->json([
             'users_with_roles' => $formattedUsers,
         ], 200);
     }
-    
+
+    public function getUsers()
+    {
+        try {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('ADMIN_USER');
+            if (!$isAuthorization) {
+                return response()->json([
+                    'message' => 'Bạn không có quyền.'
+                ], 401);
+            }
+            $users = User::orderByDesc('created_at')->paginate(10);
+            return response()->json([
+                'users' => $this->customUsers($users->items()),
+                'totalPage' => $users->lastPage(),
+                'pageNum' => $users->currentPage(),
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
+    }
+
+    public function customUsers($users)
+    {
+        $result = [];
+        foreach ($users as $user) {
+            $roles = UserRole::where('users_id', $user->id)->get();
+            $roleList = [];
+            foreach ($roles as $role) {
+                array_push($roleList, $role->roles_name);
+            }
+            $data = [
+                "id" => $user->id,
+                "email" => $user->email,
+                "fullname" => $user->fullname,
+                "status" => $user->status,
+                "phone" => $user->phone,
+                "roles" => $roleList,
+                "created_by" => $user->created_by,
+                "updated_by" => $user->updated_by,
+                "created_at" => $user->created_at,
+                "updated_at" => $user->updated_at
+            ];
+            array_push($result, $data);
+        }
+        return $result;
+    }
+
+    public function getUser($id)
+    {
+        $authController = new AuthController();
+        $isAuthorization = $authController->isAuthorization('ADMIN_USER');
+        if (!$isAuthorization) {
+            return response()->json([
+                'message' => 'Bạn không có quyền.'
+            ], 401);
+        }
+        $user = User::find($id);
+        if ($user == null) {
+            return response()->json([
+                'error_message' => 'Không tìm thấy user'
+            ], 400);
+        }
+        return response()->json([
+            'user' => $user
+        ], 200);
+    }
+
+
+
 
     public function insertUser(Request $request)
     {
@@ -42,16 +136,15 @@ class UserController extends Controller
                     'message' => 'Bạn không có quyền.'
                 ], 401);
             }
-        
+
             $validator = Validator::make($request->all(), [
                 'user_email' => 'required|email|unique:users,email',
                 'user_password' => 'required|min:6',
                 'user_fullname' => 'required|max:100',
-                'user_status' => 'required|numeric',
+                'user_role_id' => 'required|array',
+                'user_role_id.*' => 'exists:roles,name',
                 'user_phone' => 'required|numeric|digits:10',
-                'user_money' => 'required|numeric',
-                'user_role_id' => 'required|array',  
-                'user_role_id.*' => 'exists:roles,id', 
+                'user_status' => 'required|numeric',
             ], [
                 'user_email.required' => 'Email không được trống',
                 'user_email.email' => 'Email phải đúng định dạng',
@@ -60,33 +153,20 @@ class UserController extends Controller
                 'user_password.min' => 'Password phải ít nhất 6 kí tự',
                 'user_fullname.required' => 'Họ và tên không được để trống',
                 'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-                'user_status.required' => 'Trạng thái không được để trống',
-                'user_status.numeric' => 'Trạng thái phải là số',
-                'user_phone.required' => 'Số điện thoại không được để trống',
-                'user_phone.numeric' => 'Số điện thoại phải là số',
-                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
-                'user_money.required' => 'Số tiền không được để trống',
-                'user_money.numeric' => 'Số tiền phải là số',
                 'user_role_id.required' => 'Vai trò người dùng không được trống',
                 'user_role_id.array' => 'Vai trò người dùng phải là một mảng',
                 'user_role_id.*.exists' => 'Vai trò người dùng không tồn tại',
+                'user_phone.required' => 'Số điện thoại không được để trống',
+                'user_phone.numeric' => 'Số điện thoại phải là số',
+                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
+                'user_status.required' => 'Trạng thái không được để trống',
+                'user_status.numeric' => 'Trạng thái phải là số',
             ]);
-            
-
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
                 foreach ($errors as $key => $error) {
                     return response()->json([
                         'error_message' => $error
-                    ], 400);
-                }
-            }
-
-            if ($request->roles_id != null) {
-                $userParent = User::find($request->roles_id);
-                if ($userParent == null) {
-                    return response()->json([
-                        'error_message' => 'Danh mục cha không đúng'
                     ], 400);
                 }
             }
@@ -97,32 +177,26 @@ class UserController extends Controller
                 'fullname' => $request->user_fullname,
                 'status' => $request->user_status,
                 'phone' => $request->user_phone,
-                'money' => $request->user_money,
+                'money' => 0,
                 'created_by' => auth()->user()->email,
-                
             ]);
-        
-            // Lấy ID của người dùng vừa tạo
-            $userId = $user->id;
-        
+
             // Thêm quyền cho người dùng thông qua bảng trung gian
             $user->roles()->attach($request->user_role_id);
-        
+
             return response()->json([
                 'result' => 'success',
             ], 200);
-       
-            } catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error_message' => 'lỗi hệ thống'
             ], 500);
         }
-    
     }
 
     public function updateUser($id, Request $request)
     {
-        // try {
+        try {
             $authController = new AuthController();
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
@@ -138,27 +212,21 @@ class UserController extends Controller
                 ], 400);
             }
             $validator = Validator::make($request->all(), [
-                'user_fullname' => 'required|max:100,'.$user->id,
+                'user_role_id' => 'required|array',
+                'user_role_id.*' => 'exists:roles,name',
+                'user_phone' => 'required|numeric|digits:10,' . $user->id,
+                'user_money' => 'numeric',
                 'user_status' => 'required|numeric',
-                'user_phone' => 'required|numeric|digits:10',
-                'user_money' => 'required|numeric',
-                'user_role_id' => 'required|array',  
-                'user_role_id.*' => 'exists:roles,id', 
             ], [
-                'user_fullname.required' => 'Họ và tên không được để trống',
-                'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-                'user_status.required' => 'Trạng thái không được để trống',
-                'user_status.numeric' => 'Trạng thái phải là số',
-                'user_phone.required' => 'Số điện thoại không được để trống',
-                'user_phone.numeric' => 'Số điện thoại phải là số',
-                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
-                'user_money.required' => 'Số tiền không được để trống',
-                'user_money.numeric' => 'Số tiền phải là số',
                 'user_role_id.required' => 'Vai trò người dùng không được trống',
                 'user_role_id.array' => 'Vai trò người dùng phải là một mảng',
                 'user_role_id.*.exists' => 'Vai trò người dùng không tồn tại',
+                'user_phone.required' => 'Số điện thoại không được để trống',
+                'user_phone.numeric' => 'Số điện thoại phải là số',
+                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
+                'user_money.numeric' => 'Số tiền phải là số',
             ]);
-            
+
 
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
@@ -177,35 +245,27 @@ class UserController extends Controller
                     ], 400);
                 }
             }
-
-            
-
             // Cập nhật thông tin trong bảng users
             $user->fullname = $request->input('user_fullname');
             $user->status = $request->input('user_status');
             $user->phone = $request->input('user_phone');
 
             // Kiểm tra nếu giá trị user_updated_by không phải là null
-            if ($request->has('user_updated_by')) {
-            $user->updated_by = $request->input('user_updated_by');
-            }
+            $user->updated_by = auth()->user()->email;
 
             $user->save();
 
             // Cập nhật vai trò trong bảng users_roles
             $user->roles()->sync($request->input('user_role_id'));
 
-            
-    
             return response()->json([
                 'result' => 'success',
             ], 200);
-
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'error_message' => 'lỗi hệ thống'
-        //     ], 500);
-        // }
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'lỗi hệ thống'
+            ], 500);
+        }
     }
 
     public function deleteUser($id)

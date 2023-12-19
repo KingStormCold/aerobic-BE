@@ -52,8 +52,13 @@ Route::group([
     Route::put('/course/{id}', [CourseController::class, 'updateCourse']);
     Route::delete('/course/{id}', [CourseController::class, 'deleteCourse']);
 
-    Route::get('/get-user', [UserController::class, 'getUser']);
+    
+    Route::get('/get-parent-users', [UserController::class, 'getParentUsers']);
+    Route::get('/get-users', [UserController::class, 'getUsers']);
+    Route::get('/user/{id}', [UserController::class, 'getUser']);
     Route::post('/user', [UserController::class, 'insertUser']);
     Route::put('/user/{id}', [UserController::class, 'updateUser']);
     Route::delete('/user/{id}', [UserController::class, 'deleteUser']);
+    Route::get('/get-roles', [UserController::class, 'getRoles']);
+
 });
