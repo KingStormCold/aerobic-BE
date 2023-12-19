@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('content');
             $table->string('image', 255);
             $table->float('promotional_price');
-            
+            $table->string('name', 255);
             $table->string('created_by', 100);
             $table->string('updated_by', 100);
            

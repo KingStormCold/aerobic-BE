@@ -39,8 +39,10 @@ Route::group([
     Route::post('/category', [CategoryController::class, 'insertCategory']);
     Route::put('/category/{id}', [CategoryController::class, 'updateCategory']);
     Route::delete('/category/{id}', [CategoryController::class, 'deleteCategory']);
+    Route::get('/get-child-categories', [CategoryController::class, 'getChildCategories']);
 
-    Route::get('/get-subject', [SubjectController::class, 'getSubjectsByCategory']);
+    Route::get('/get-subjects', [SubjectController::class, 'getSubjects']);
+    Route::get('/get-subject/{id}', [SubjectController::class, 'getSubject']);
     Route::post('/subject', [SubjectController::class, 'insertSubject']);
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
