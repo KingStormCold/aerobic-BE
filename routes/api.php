@@ -53,10 +53,17 @@ Route::group([
     Route::delete('/course/{id}', [CourseController::class, 'deleteCourse']);
 
     
-    Route::get('/get-parent-users', [UserController::class, 'getParentUsers']);
+    
     Route::get('/get-users', [UserController::class, 'getUsers']);
     Route::get('/user/{id}', [UserController::class, 'getUser']);
     Route::post('/user', [UserController::class, 'insertUser']);
+    Route::put('/user/{id}', [UserController::class, 'updateUser']);
+    Route::delete('/user/{id}', [UserController::class, 'deleteUser']);
+    Route::get('/get-roles', [UserController::class, 'getRoles']);
+
+    Route::get('/get-videos', [UserController::class, 'getVideos']);
+    Route::get('/test/{id}', [UserController::class, 'gettest']);
+    Route::post('/test', [UserController::class, 'insertTest']);
     Route::put('/user/{id}', [UserController::class, 'updateUser']);
     Route::delete('/user/{id}', [UserController::class, 'deleteUser']);
     Route::get('/get-roles', [UserController::class, 'getRoles']);

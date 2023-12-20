@@ -38,22 +38,6 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function getParentUsers()
-    {
-        $usersWithRoles = User::with('roles')->get();
-
-        $formattedUsers = $usersWithRoles->map(function ($user) {
-            return [
-                'user' => $user,
-                'roles' => $user->roles->pluck('name'),
-            ];
-        });
-
-        return response()->json([
-            'users_with_roles' => $formattedUsers,
-        ], 200);
-    }
-
     public function getUsers()
     {
         try {
@@ -139,10 +123,10 @@ class UserController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'user_email' => 'required|email|unique:users,email',
-                'user_password' => 'required|min:6',
+                'user_password' => 'required|min:6|confirmed',
                 'user_fullname' => 'required|max:100',
-                'user_role_id' => 'required|array',
-                'user_role_id.*' => 'exists:roles,name',
+                'user_role_name' => 'required|array',
+                'user_role_name.*' => 'exists:roles,name',
                 'user_phone' => 'required|numeric|digits:10',
                 'user_status' => 'required|numeric',
             ], [
@@ -151,11 +135,12 @@ class UserController extends Controller
                 'user_email.unique' => 'Email đã tồn tại',
                 'user_password.required' => 'Password không được để trống',
                 'user_password.min' => 'Password phải ít nhất 6 kí tự',
+                'user_password.confirmed' => 'xác nhận lại Password ko đúng',
                 'user_fullname.required' => 'Họ và tên không được để trống',
                 'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-                'user_role_id.required' => 'Vai trò người dùng không được trống',
-                'user_role_id.array' => 'Vai trò người dùng phải là một mảng',
-                'user_role_id.*.exists' => 'Vai trò người dùng không tồn tại',
+                'user_role_name.required' => 'Vai trò người dùng không được trống',
+                'user_role_name.array' => 'Vai trò người dùng phải là một mảng',
+                'user_role_name.*.exists' => 'Vai trò người dùng không tồn tại',
                 'user_phone.required' => 'Số điện thoại không được để trống',
                 'user_phone.numeric' => 'Số điện thoại phải là số',
                 'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
@@ -182,7 +167,7 @@ class UserController extends Controller
             ]);
 
             // Thêm quyền cho người dùng thông qua bảng trung gian
-            $user->roles()->attach($request->user_role_id);
+            $user->roles()->attach($request->user_role_name);
 
             return response()->json([
                 'result' => 'success',
@@ -212,15 +197,18 @@ class UserController extends Controller
                 ], 400);
             }
             $validator = Validator::make($request->all(), [
-                'user_role_id' => 'required|array',
-                'user_role_id.*' => 'exists:roles,name',
-                'user_phone' => 'required|numeric|digits:10,' . $user->id,
+                'user_fullname' => 'required|max:100,'. $user->id,
+                'user_role_name' => 'required|array',
+                'user_role_name.*' => 'exists:roles,name',
+                'user_phone' => 'required|numeric|digits:10',
                 'user_money' => 'numeric',
                 'user_status' => 'required|numeric',
             ], [
-                'user_role_id.required' => 'Vai trò người dùng không được trống',
-                'user_role_id.array' => 'Vai trò người dùng phải là một mảng',
-                'user_role_id.*.exists' => 'Vai trò người dùng không tồn tại',
+                'user_fullname.required' => 'Họ và tên không được để trống',
+                'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
+                'user_role_name.required' => 'Vai trò người dùng không được trống',
+                'user_role_name.array' => 'Vai trò người dùng phải là một mảng',
+                'user_role_name.*.exists' => 'Vai trò người dùng không tồn tại',
                 'user_phone.required' => 'Số điện thoại không được để trống',
                 'user_phone.numeric' => 'Số điện thoại phải là số',
                 'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
@@ -237,8 +225,8 @@ class UserController extends Controller
                 }
             }
 
-            if ($request->roles_id != null) {
-                $userParent = User::find($request->roles_id);
+            if ($request->roles_name != null) {
+                $userParent = User::find($request->roles_name);
                 if ($userParent == null) {
                     return response()->json([
                         'error_message' => 'Danh mục cha không đúng'
@@ -246,7 +234,7 @@ class UserController extends Controller
                 }
             }
             // Cập nhật thông tin trong bảng users
-            $user->fullname = $request->input('user_fullname');
+            $user->money = $request->input('user_money');
             $user->status = $request->input('user_status');
             $user->phone = $request->input('user_phone');
 
@@ -256,7 +244,7 @@ class UserController extends Controller
             $user->save();
 
             // Cập nhật vai trò trong bảng users_roles
-            $user->roles()->sync($request->input('user_role_id'));
+            $user->roles()->sync($request->input('user_role_name'));
 
             return response()->json([
                 'result' => 'success',
