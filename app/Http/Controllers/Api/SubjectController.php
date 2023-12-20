@@ -279,4 +279,20 @@ class SubjectController extends Controller
             ], 500);
         }
     }
+
+    public function showSubject()
+    {
+        $result = [];
+        $subjects = Subject::get();
+        foreach ($subjects as $subject) {
+            $data = [
+                "id" => $subject->id,
+                "name" => $subject->name,
+            ];
+            array_push($result, $data);
+        }
+        return response()->json([
+            'subjects' => $result
+        ], 200);
+    }
 }

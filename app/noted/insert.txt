@@ -7,7 +7,13 @@ INSERT INTO `roles` (`name`, `created_at`, `updated_at`) VALUES
 ('ADMIN', NULL, NULL),
 ('USER', NULL, NULL);
 
+ADMIN_SUBJECT
+ADMIN_COURSE
+ADMIN_VIDEO
+ADMIN_CATEGORY
+
 --Insert UserRoles----
 INSERT INTO `users_roles` (`users_id`, `roles_id`, `created_at`, `updated_at`) VALUES
 (1, 1, NULL, NULL),
 (1, 2, NULL, NULL);
+
