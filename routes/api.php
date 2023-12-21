@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\SubjectController;
+use App\Http\Controllers\Api\AnswerController;
+use App\Http\Controllers\Api\PaymentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -56,4 +58,13 @@ Route::group([
     Route::post('/user', [UserController::class, 'insertUser']);
     Route::put('/user/{id}', [UserController::class, 'updateUser']);
     Route::delete('/user/{id}', [UserController::class, 'deleteUser']);
+
+    Route::get('/get-answers', [AnswerController::class, 'getAnswers']);
+    Route::get('/get-answer', [AnswerController::class, 'getAnswer']);
+    Route::post('/answer', [AnswerController::class, 'insertAnswer']);
+    Route::put('/answer/{id}', [AnswerController::class, 'updateAnswer']);
+    Route::delete('/answer/{id}', [AnswerController::class, 'deleteAnser']);
+    
+    Route::get('/get-payments', [PaymentController::class, 'getPayments']);
+    Route::get('/get-details', [PaymentController::class, 'getDetail']);
 });

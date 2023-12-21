@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->float('price');
             $table->tinyInteger('subject_full');
+            $table->string('created_by', 100);
+            $table->string('updated_by', 100);
             $table->unsignedBiginteger('users_id')->unsigned();
             $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBiginteger('courses_id')->unsigned();

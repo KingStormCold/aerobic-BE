@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('answer_test');
             $table->string('serial_answer');
+            $table->string('created_by', 100);
+            $table->string('updated_by', 100);
             $table->unsignedBiginteger('test_id')->unsigned();
             $table->foreign('test_id')->references('id')
                 ->on('tests')->onDelete('cascade');
