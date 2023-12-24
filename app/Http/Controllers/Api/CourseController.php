@@ -49,18 +49,18 @@ class CourseController extends Controller
         foreach ($courses as $course) {
             $subjectName = "";
             if ($course->subject_id !== "") {
-                $subject_name = Subject::find($course->id);
+                $subject_name = Subject::find($course->subject_id);
                 $subjectName = $subject_name->name;
             }
             $data = [
                 "id" => $course->id,
                 "name" => $course->name,
                 "subject_id" => $course->subject_id,
-                "subjectName" => $subjectName,
-                "description" => $course->name,
-                "level" => $course->name,
-                "price" => $course->name,
-                "promotional_price" => $course->name,
+                "subject_name" => $subjectName,
+                "description" => $course->description,
+                "level" => $course->level,
+                "price" => $course->price,
+                "promotional_price" => $course->promotional_price,
                 "created_by" => $course->created_by,
                 "updated_by" => $course->updated_by,
                 "created_at" => $course->created_at,
@@ -84,7 +84,7 @@ class CourseController extends Controller
         $courses = Course::find($id);
         if ($courses == null) {
             return response()->json([
-                'error_message' => 'Không tìm thấy course'
+                'error_message' => 'Không tìm thấy khoa học'
             ], 400);
         }
         return response()->json([

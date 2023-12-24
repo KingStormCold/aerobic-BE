@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('link_image');
+            $table->string('link_video');
             $table->string('finished');
+            $table->string('created_by', 100)->default('');
+            $table->string('updated_by', 100)->default('');
             $table->unsignedBiginteger('course_id')->unsigned();
-            $table->foreign('course_id')->references('id')
-                ->on('courses')->onDelete('cascade');
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
             $table->timestamps();
         });
     }
