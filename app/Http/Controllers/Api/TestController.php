@@ -6,25 +6,26 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Subject;
+use App\Models\Test;
 use App\Models\Video;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 
-class VideoController extends Controller
+class TestController extends Controller
 {
-    public function getVideo()
+    public function getTests()
     {
-        $videos = Video::where('course_id', '>', "0")->get();
+        $tests = Test::where('video_id', '>', "0")->get();
         return response()->json([
-            'videos' => $videos
+            'tests' => $tests
         ], 200);
     }
 
-    public function Videos()
+    public function test()
     {
         try {
             $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('ADMIN_VIDEO');
+            $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
@@ -32,12 +33,12 @@ class VideoController extends Controller
                 ], 401);
             }
 
-            $videos = Video::orderByDesc('course_id')->paginate(10);
+            $tests = Test::orderByDesc('video_id')->paginate(10);
 
             return response()->json([
-                'courses' => $this->customVideos($videos->items()),
-                'totalPage' => $videos->lastPage(),
-                'pageNum' => $videos->currentPage(),
+                'videos' => $this->customTests($tests->items()),
+                'totalPage' => $tests->lastPage(),
+                'pageNum' => $tests->currentPage(),
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -46,40 +47,38 @@ class VideoController extends Controller
         }
     }
 
-    public function customVideos($videos)
+    public function customTests($tests)
     {
         $result = [];
 
-        foreach ($videos as $video) {
-            $courseName = "";
-            if ($video->course_id !== "") {
-                $course = Course::find($video->course_id);
-                $courseName = $course->name;
+        foreach ($tests as $test) {
+            $videoName = "";
+            if ($test->video_id !== "") {
+                $video = Video::find($test->video_id);
+                $videoName = $video->name;
             }
             $data = [
-                "id" => $video->id,
-                "name" => $video->name,
-                "link_video" => $video->link_video,
-                "course_id" => $video->course_id,
-                "course_name" => $courseName,
-                "finished" => $video->finished,
-                "created_by" => $video->created_by,
-                "updated_by" => $video->updated_by,
-                "created_at" => $video->created_at,
-                "updated_at" => $video->updated_at,
+                "id" => $test->id,
+                "test_content" => $test->test_content,
+                "serial_answer" => $test->serial_answer,
+                "video_id" => $test->video_id,
+                "videoName" => $videoName,
+                "created_by" => $test->created_by,
+                "updated_by" => $test->updated_by,
+                "created_at" => $test->created_at,
+                "updated_at" => $test->updated_at,
             ];
 
             array_push($result, $data);
         }
-
         return $result;
     }
 
-    public function showVideos($id)
+    public function showTests($id)
     {
         try {
             $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('ADMIN_VIDEO');
+            $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
@@ -87,16 +86,16 @@ class VideoController extends Controller
                 ], 401);
             }
 
-            $video = Video::find($id);
+            $test = Test::find($id);
 
-            if (!$video) {
+            if (!$test) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy thông tin video'
+                    'error_message' => 'Không tìm thấy bài test'
                 ], 404);
             }
 
             return response()->json([
-                'videos' => $video
+                'test' => $test
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -105,11 +104,11 @@ class VideoController extends Controller
         }
     }
 
-    public function insertVideo(Request $request)
+    public function insertTest(Request $request)
     {
         try {
             $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('ADMIN_VIDEO');
+            $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
@@ -117,20 +116,17 @@ class VideoController extends Controller
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255|unique:videos,name',
-                'link_video' => 'required|string|max:255|unique:videos,link_video',
-                'course_id' => 'required|exists:courses,id',
-                'finished' => 'required',
+                'test_content' => 'required|unique:tests,test_content',
+                'serial_answer' => 'required|numeric',
+                'video_id' => 'required|numeric|exists:videos,id'
             ], [
-                'name.required' => 'Tên video không được để trống',
-                'name.unique' => 'Tên video đã tồn tại',
-                'name.max' => 'Tên video không được vượt quá 255 ký tự',
-                'link_video.required' => 'Link ảnh không được để trống',
-                'link_video.unique' => 'Link ảnh đã tồn tại',
-                'link_video.max' => 'Link ảnh không được vượt quá 255 ký tự',
-                'course_id.required' => 'không được để trống id khóa học',
-                'course_id.exists' => 'ID khóa học không tồn tại trong danh sách khóa học',
-                'finished.required' => 'Không được để trống mục đã hoàn thành',
+                'test_content.required' => 'test_content không được trống',
+                'test_content.unique' => 'test_content ko dc trùng',
+                'serial_answer.required' => 'serial_answer ko dc trống',
+                'serial_answer.numeric' => 'serial_answer phải là số',
+                'video_id.required' => 'video_id ko dc trống',
+                'video_id.numeric' => 'video_id phải là số',
+                'video_id.exists' => 'nguồn video ko đúng'
             ]);
 
             if ($validator->fails()) {
@@ -150,11 +146,10 @@ class VideoController extends Controller
             }
             $createdBy = $userProfileData['data']['email'];
 
-            Video::create([
-                'name' => $request->name,
-                'link_video' => $request->link_video,
-                'finished' => $request->finished,
-                'course_id' => $request->course_id,
+            Test::create([
+                'test_content' => $request->test_content,
+                'serial_answer' => $request->serial_answer,
+                'video_id' => $request->video_id,
                 'created_by' => $createdBy,
             ]);
 
@@ -168,11 +163,11 @@ class VideoController extends Controller
         }
     }
 
-    public function updateVideo(Request $request, $id)
+    public function updateTest(Request $request, $id)
     {
         try {
             $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('ADMIN_VIDEO');
+            $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
@@ -180,29 +175,26 @@ class VideoController extends Controller
                 ], 401);
             }
 
-            $video = Video::find($id);
+            $test = Test::find($id);
 
-            if (!$video) {
+            if (!$test) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy video'
+                    'error_message' => 'Không tìm thấy bài test'
                 ], 404);
             }
 
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255|unique:videos,name,' . $video->id,
-                'link_video' => 'required|string|max:255|unique:videos,link_video',
-                'finished' => 'required',
-                'course_id' => 'required|exists:courses,id',
+                'test_content' => 'required|unique:tests,test_content',
+                'serial_answer' => 'required|numeric',
+                'video_id' => 'required|numeric|exists:videos,id'
             ], [
-                'name.required' => 'Tên video không được trống',
-                'name.unique' => 'Tên video đã tồn tại',
-                'name.max' => 'Tên video không được vượt quá 255 ký tự',
-                'link_video.required' => 'Link ảnh không được trống',
-                'link_video.unique' => 'Link ảnh đã tồn tại',
-                'link_video.max' => 'Link ảnh không được vượt quá 255 ký tự',
-                'finished.required' => 'Không được để trống mục đã hoàn thành',
-                'course_id.required' => 'ID khóa học không được trống',
-                'course_id.exists' => 'ID khóa học không tồn tại trong danh sách khóa học',
+                'test_content.required' => 'test_content không được trống',
+                'test_content.unique' => 'test_content ko dc trùng',
+                'serial_answer.required' => 'serial_answer ko dc trống',
+                'serial_answer.numeric' => 'serial_answer phải là số',
+                'video_id.required' => 'video_id ko dc trống',
+                'video_id.numeric' => 'video_id phải là số',
+                'video_id.exists' => 'nguồn video ko đúng'
             ]);
 
             if ($validator->fails()) {
@@ -221,11 +213,10 @@ class VideoController extends Controller
             }
             $updatedBy = $userProfileData['data']['email'];
 
-            $video->update([
-                'name' => $request->name,
-                'link_video' => $request->link_video,
-                'finished' => $request->finished,
-                'course_id' => $request->course_id,
+            $test->update([
+                'test_content' => $request->test_content,
+                'serial_answer' => $request->serial_answer,
+                'video_id' => $request->video_id,
                 'updated_by' => $updatedBy,
             ]);
 
@@ -239,11 +230,11 @@ class VideoController extends Controller
         }
     }
 
-    public function deleteVideo($id)
+    public function deleteTest($id)
     {
         try {
             $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('ADMIN_VIDEO');
+            $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
@@ -251,15 +242,15 @@ class VideoController extends Controller
                 ], 401);
             }
 
-            $video = Video::find($id);
+            $test = Test::find($id);
 
-            if (!$video) {
+            if (!$test) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy Video'
+                    'error_message' => 'Không tìm thấy vài test'
                 ], 404);
             }
 
-            $video->delete();
+            $test->delete();
 
             return response()->json([
                 'result' => 'success'
@@ -271,19 +262,19 @@ class VideoController extends Controller
         }
     }
 
-    public function showVideoName()
+    public function showTestName()
     {
         $result = [];
-        $videos = Video::get();
-        foreach ($videos as $video) {
+        $tests = Test::get();
+        foreach ($tests as $test) {
             $data = [
-                "id" => $video->id,
-                "name" => $video->name,
+                "id" => $test->id,
+                "test_content" => $test->test_content,
             ];
             array_push($result, $data);
         }
         return response()->json([
-            'videos' => $result
+            'tests' => $result
         ], 200);
     }
 }

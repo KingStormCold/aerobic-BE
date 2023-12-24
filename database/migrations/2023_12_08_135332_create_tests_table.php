@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('tests', function (Blueprint $table) {
             $table->id();
-            $table->string('text_content');
-            $table->string('serial_answer');
+            $table->string('test_content');
+            $table->tinyInteger('serial_answer');
+            $table->string('created_by', 100)->default('');
+            $table->string('updated_by', 100)->default('');
             $table->unsignedBiginteger('video_id')->unsigned();
-            $table->foreign('video_id')->references('id')
-                ->on('videos')->onDelete('cascade');
+            $table->foreign('video_id')->references('id') ->on('videos')->onDelete('cascade');
             $table->timestamps();
         });
     }

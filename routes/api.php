@@ -1,12 +1,15 @@
 <?php
 
+use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\SubjectController;
+use App\Http\Controllers\Api\TestController;
 use App\Http\Controllers\Api\VideoController;
 
 /*
@@ -73,5 +76,23 @@ Route::group([
     Route::post('/insert-video', [VideoController::class, 'insertVideo']);
     Route::put('/video/{id}', [VideoController::class, 'updateVideo']);
     Route::delete('/video/{id}', [VideoController::class, 'deleteVideo']);
+    Route::get('/show-video-name', [VideoController::class, 'showVideoName']);
+
+    Route::get('/get-answers', [AnswerController::class, 'getAnswers']);
+    Route::get('/get-answer', [AnswerController::class, 'getAnswer']);
+    Route::post('/answer', [AnswerController::class, 'insertAnswer']);
+    Route::put('/answer/{id}', [AnswerController::class, 'updateAnswer']);
+    Route::delete('/answer/{id}', [AnswerController::class, 'deleteAnser']);
+
+    Route::get('/get-payments', [PaymentController::class, 'getPayments']);
+    Route::get('/get-details', [PaymentController::class, 'getDetail']);
+
+    Route::get('/get-tests', [TestController::class, 'getTests']);
+    Route::get('/test', [TestController::class, 'test']);
+    Route::get('/show-tests/{id}', [TestController::class, 'showTests']);
+    Route::post('/insert-test', [TestController::class, 'insertTest']);
+    Route::put('/test/{id}', [TestController::class, 'updateTest']);
+    Route::delete('/test/{id}', [TestController::class, 'deleteTest']);
+    Route::get('/show-test-name', [TestController::class, 'showTestName']);
 });
 

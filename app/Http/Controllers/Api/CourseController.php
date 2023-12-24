@@ -84,7 +84,7 @@ class CourseController extends Controller
         $courses = Course::find($id);
         if ($courses == null) {
             return response()->json([
-                'error_message' => 'Không tìm thấy course'
+                'error_message' => 'Không tìm thấy khoa học'
             ], 400);
         }
         return response()->json([
