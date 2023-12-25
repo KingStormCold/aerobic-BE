@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Course;
 use App\Models\Subject;
 use Exception;
@@ -12,9 +11,82 @@ use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
-    public function getParentCourse()
+    public function getCourse()
     {
         $courses = Course::where('subject_id', '>', "0")->get();
+        return response()->json([
+            'courses' => $courses
+        ], 200);
+    }
+
+    public function courses($id)
+    {
+        try {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('ADMIN_COURSE');
+            if (!$isAuthorization) {
+                return response()->json([
+                    'code' => 'CATE_001',
+                    'message' => 'Bạn không có quyền.'
+                ], 401);
+            }
+            $courses = Course::where('subject_id', $id)->paginate(10);
+            return response()->json([
+                'courses' => $this->customCourses($courses->items()),
+                'totalPage' => $courses->lastPage(),
+                'pageNum' => $courses->currentPage(),
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
+    }
+
+    public function customCourses($courses)
+    {
+        $result = [];
+        foreach ($courses as $course) {
+            $subjectName = "";
+            if ($course->subject_id !== "") {
+                $subject_name = Subject::find($course->subject_id);
+                $subjectName = $subject_name->name;
+            }
+            $data = [
+                "id" => $course->id,
+                "name" => $course->name,
+                "subject_id" => $course->subject_id,
+                "subject_name" => $subjectName,
+                "description" => $course->description,
+                "level" => $course->level,
+                "price" => $course->price,
+                "promotional_price" => $course->promotional_price,
+                "created_by" => $course->created_by,
+                "updated_by" => $course->updated_by,
+                "created_at" => $course->created_at,
+                "updated_at" => $course->updated_at,
+            ];
+            array_push($result, $data);
+        }
+        return $result;
+    }
+
+    public function showCourse($id)
+    {
+        $authController = new AuthController();
+        $isAuthorization = $authController->isAuthorization('ADMIN_COURSE');
+        if (!$isAuthorization) {
+            return response()->json([
+                'code' => 'CATE_001',
+                'message' => 'Bạn không có quyền.'
+            ], 401);
+        }
+        $courses = Course::find($id);
+        if ($courses == null) {
+            return response()->json([
+                'error_message' => 'Không tìm thấy khoa học'
+            ], 400);
+        }
         return response()->json([
             'courses' => $courses
         ], 200);
@@ -54,7 +126,7 @@ class CourseController extends Controller
                 'name.required' => 'Tên khóa học không được trống',
                 'name.unique' => 'Tên khóa học đã tồn tại',
                 'name.max' => 'Tên khóa học không được vượt quá 100 ký tự',
-                'description.required' => 'Mô tả khóa học không được trống',
+                'description.required' => 'Mô t trống',
                 'description.max' => 'Mô tả khóa học không được vượt quá 255 ký tự',
                 'level.required' => 'Cấp độ khóa học không được trống',
                 'level.integer' => 'Cấp độ khóa học phải là một số nguyên',
@@ -226,5 +298,21 @@ class CourseController extends Controller
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
             ], 500);
         }
+    }
+
+    public function showCourseName()
+    {
+        $result = [];
+        $courses = Course::get();
+        foreach ($courses as $course) {
+            $data = [
+                "id" => $course->id,
+                "name" => $course->name,
+            ];
+            array_push($result, $data);
+        }
+        return response()->json([
+            'courses' => $result
+        ], 200);
     }
 }

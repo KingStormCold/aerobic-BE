@@ -13,9 +13,15 @@ use Illuminate\Support\Facades\Validator;
 
 class TestController extends Controller
 {
-    
-
     public function getTests()
+    {
+        $tests = Test::where('video_id', '>', "0")->get();
+        return response()->json([
+            'tests' => $tests
+        ], 200);
+    }
+
+    public function test()
     {
         try {
             $authController = new AuthController();
@@ -27,7 +33,7 @@ class TestController extends Controller
                 ], 401);
             }
 
-            $tests = Test::orderByDesc('created_at')->paginate(10);
+            $tests = Test::orderByDesc('video_id')->paginate(10);
 
             return response()->json([
                 'videos' => $this->customTests($tests->items()),
@@ -46,23 +52,17 @@ class TestController extends Controller
         $result = [];
 
         foreach ($tests as $test) {
-            $videoName = "";  // Khởi tạo $videoName với giá trị mặc định
-            
+            $videoName = "";
             if ($test->video_id !== "") {
                 $video = Video::find($test->video_id);
-        
-                // Kiểm tra xem có video được tìm thấy hay không
-                if ($video) {
-                    $videoName = $video->name;
-                }
+                $videoName = $video->name;
             }
-        
             $data = [
                 "id" => $test->id,
                 "test_content" => $test->test_content,
                 "serial_answer" => $test->serial_answer,
                 "video_id" => $test->video_id,
-                "video_name" => $video->name,
+                "videoName" => $videoName,
                 "created_by" => $test->created_by,
                 "updated_by" => $test->updated_by,
                 "created_at" => $test->created_at,
@@ -117,35 +117,41 @@ class TestController extends Controller
             }
             $validator = Validator::make($request->all(), [
                 'test_content' => 'required|unique:tests,test_content',
-                'serial_answer' => 'required|numeric|between:1,4',
+                'serial_answer' => 'required|numeric',
                 'video_id' => 'required|numeric|exists:videos,id'
             ], [
                 'test_content.required' => 'test_content không được trống',
                 'test_content.unique' => 'test_content ko dc trùng',
                 'serial_answer.required' => 'serial_answer ko dc trống',
                 'serial_answer.numeric' => 'serial_answer phải là số',
-                'serial_answer.between' => 'serial_answer chỉ từ 1->4',
-                'video_id.numeric'=> 'video_id phải là số',
                 'video_id.required' => 'video_id ko dc trống',
+                'video_id.numeric' => 'video_id phải là số',
                 'video_id.exists' => 'nguồn video ko đúng'
             ]);
 
             if ($validator->fails()) {
-                $errors = $validator->errors()->all();
-                foreach ($errors as $key => $error) {
-                    return response()->json([
-                        'error_message' => $error
-                    ], 400);
-                }
+                return response()->json([
+                    'error_message' => $validator->errors()->first()
+                ], 400);
             }
-            $test = Test::create([
+
+            $authController = new AuthController();
+            $userProfileResponse = $authController->userProfile();
+            $userProfileData = json_decode($userProfileResponse->getContent(), true);
+
+            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
+                return response()->json([
+                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
+                ], 400);
+            }
+            $createdBy = $userProfileData['data']['email'];
+
+            Test::create([
                 'test_content' => $request->test_content,
                 'serial_answer' => $request->serial_answer,
-                'created_by' => auth()->user()->email,
                 'video_id' => $request->video_id,
+                'created_by' => $createdBy,
             ]);
-           
-            
 
             return response()->json([
                 'result' => 'success'
@@ -178,14 +184,17 @@ class TestController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
-                'test_content' => 'required|unique:tests,test_content,'.$test->id,
-                'serial_answer' => 'required|numeric|between:1,4',
+                'test_content' => 'required|unique:tests,test_content',
+                'serial_answer' => 'required|numeric',
+                'video_id' => 'required|numeric|exists:videos,id'
             ], [
                 'test_content.required' => 'test_content không được trống',
                 'test_content.unique' => 'test_content ko dc trùng',
-                'serial_answer.between' => 'serial_answer chỉ từ 1->4',
                 'serial_answer.required' => 'serial_answer ko dc trống',
-                'serial_answer.numeric' => 'serial_answer phải là số'
+                'serial_answer.numeric' => 'serial_answer phải là số',
+                'video_id.required' => 'video_id ko dc trống',
+                'video_id.numeric' => 'video_id phải là số',
+                'video_id.exists' => 'nguồn video ko đúng'
             ]);
 
             if ($validator->fails()) {
@@ -202,15 +211,14 @@ class TestController extends Controller
                     'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
                 ], 400);
             }
-            
             $updatedBy = $userProfileData['data']['email'];
 
             $test->update([
                 'test_content' => $request->test_content,
                 'serial_answer' => $request->serial_answer,
+                'video_id' => $request->video_id,
                 'updated_by' => $updatedBy,
             ]);
-        
 
             return response()->json([
                 'result' => 'success'
@@ -221,7 +229,6 @@ class TestController extends Controller
             ], 500);
         }
     }
-    
 
     public function deleteTest($id)
     {
@@ -255,19 +262,19 @@ class TestController extends Controller
         }
     }
 
-    public function showVideoName()
+    public function showTestName()
     {
         $result = [];
-        $videos = Video::get();
-        foreach ($videos as $video) {
+        $tests = Test::get();
+        foreach ($tests as $test) {
             $data = [
-                "id" => $video->id,
-                "name" => $video->name,
+                "id" => $test->id,
+                "test_content" => $test->test_content,
             ];
             array_push($result, $data);
         }
         return response()->json([
-            'videos' => $result
+            'tests' => $result
         ], 200);
     }
 }

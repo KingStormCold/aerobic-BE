@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use CloudCreativity\LaravelJsonApi\Pagination\CursorStrategy;
 use Throwable;
 
+use function PHPUnit\Framework\isEmpty;
+
 class CategoryController extends Controller
 {
 
@@ -35,7 +37,7 @@ class CategoryController extends Controller
             }
             $categories = Category::orderByDesc('parent_id')->paginate(10);
             return response()->json([
-                'categories' => $this->customCategories($categories->items()),              
+                'categories' => $this->customCategories($categories->items()),
                 'totalPage' => $categories->lastPage(),
                 'pageNum' => $categories->currentPage(),
             ], 200);
@@ -222,12 +224,33 @@ class CategoryController extends Controller
     /**Lấy danh sách các môn học dựa trên một điều kiện về danh mục */
     public function getChildCategories()
     {
-        $categories = Category::where('parent_id', '>', "0")->get();
-        
-        return response()->json([
-            'categories' => $categories
-        ], 200);
+        try {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('ADMIN_CATEGORY');
+            if (!$isAuthorization) {
+                return response()->json([
+                    'message' => 'Bạn không có quyền.'
+                ], 401);
+            }
+            $categories = Category::with('subjects')->where('parent_id', '>', "0")->get();
+            $result = [];
+            foreach ($categories as $category) {
+                if ($category->subjects->count() === 0) {
+                    $data = [
+                        "id" => $category->id,
+                        "name" => $category->name,
+                        "parent_id" => $category->parent_id,
+                    ];
+                    array_push($result, $data);
+                }
+            }
+            return response()->json([
+                'categories' => $result
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => $e
+            ], 500);
+        }
     }
-    
-    
 }

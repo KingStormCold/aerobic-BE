@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->string('description', 255);
+            $table->text('description');
             $table->tinyInteger('level');
-            $table->float('price');
-            $table->float('promotional_price')->default(0);
+            $table->bigInteger('price');
+            $table->bigInteger('promotional_price')->default(0);
             $table->string('created_by', 100)->default('');
             $table->string('updated_by', 100)->default('');
             $table->unsignedBiginteger('subject_id')->unsigned();
             $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
-            $table->timestamps(); 
+            $table->timestamps();
         });
     }
 

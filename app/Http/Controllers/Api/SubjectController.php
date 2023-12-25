@@ -30,7 +30,7 @@ class SubjectController extends Controller
                 ], 401);
             }
             $subjects = Subject::orderByDesc('category_id')->paginate(10);
-            
+
             return response()->json([
                 'subjects' => $this->customSubjects($subjects->items()),
                 // 'subjects' =>$subjects->items(),
@@ -38,7 +38,7 @@ class SubjectController extends Controller
                 'pageNum' => $subjects->currentPage(),
             ], 200);
         } catch (Exception $e) {
-            
+
             return response()->json([
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
             ], 500);
@@ -53,12 +53,12 @@ class SubjectController extends Controller
             $categoryName = "";
             if ($subject->category_id !== "") {
                 $category = Category::find($subject->category_id);
-                $categoryName= $category->name;
+                $categoryName = $category->name;
             }
             $data = [
                 "id" => $subject->id,
                 "content" => $subject->content,
-                "name"=> $subject->name,
+                "name" => $subject->name,
                 "image" => $subject->image,
                 "category_id" => $subject->category_id,
                 "promotional_price" => $subject->promotional_price,
@@ -116,16 +116,16 @@ class SubjectController extends Controller
                 ], 401);
             }
             // Kiểm tra và xử lý dữ liệu đầu vào
-            $validator = Validator::make($request->all(), [ 
+            $validator = Validator::make($request->all(), [
                 'subject_content' => 'required',
                 'subject_image' => 'required',
-                'promotionalPriceSubject' => 'required|numeric',
+                'promotional_price_subject' => 'required|numeric',
                 'category_id' => 'required|exists:categories,id'
             ], [
                 'subject_content.required' => 'Nội dung không được trống',
                 'subject_image.required' => 'Hình ảnh không được trống',
-                'promotionalPriceSubject.required' => 'giá khuyến mãi không được trống',
-                'promotionalPriceSubject.numeric' => 'giá khuyến mãi phai la so',
+                'promotional_price_subject.required' => 'giá khuyến mãi không được trống',
+                'promotional_price_subject.numeric' => 'giá khuyến mãi phai la so',
                 'category_id.exists' => 'Danh mục không đúng',
                 'category_id.required' => 'danh mục không được trống '
             ]);
@@ -152,7 +152,7 @@ class SubjectController extends Controller
             Subject::create([
                 'content' => $request->subject_content,
                 'image' => $request->subject_image,
-                'promotional_price' => $request->promotionalPriceSubject,
+                'promotional_price' => $request->promotional_price_subject,
                 'created_by' => auth()->user()->email,
                 'updated_by' => '',
                 'name' => $subjectName,
@@ -175,81 +175,81 @@ class SubjectController extends Controller
      */
     public function updateSubject($id,  Request $request)
     {
-        try {
-            // Xác minh quyền hạn của người dùng
-            $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
-            if (!$isAuthorization) {
+        // try {
+        // Xác minh quyền hạn của người dùng
+        $authController = new AuthController();
+        $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
+        if (!$isAuthorization) {
+            return response()->json([
+                'code' => 'Subject_001',
+                'message' => 'Bạn không có quyền.'
+            ], 401);
+        }
+        // Tìm môn học theo ID và kiểm tra sự tồn tại
+        $subject = Subject::find($id);
+        if ($subject == null) {
+            return response()->json([
+                'error_message' => 'Không tìm thấy subject'
+            ], 400);
+        }
+        // Kiểm tra và xử lý dữ liệu đầu vào
+        $validator = Validator::make($request->all(), [
+            'subject_content' => 'required',
+            'subject_image' => 'required',
+            'promotional_price_subject' => 'required|numeric',
+
+            'category_id' => 'required|exists:categories,id'
+
+        ], [
+            'subject_content.required' => 'Nội dung không được trống',
+            'subject_image.required' => 'Hình ảnh không được trống',
+            'promotional_price_subject.required' => 'Giá khuyến mãi không được trống',
+            'promotional_price_subject.numeric' => 'Giá khuyến mãi phai la so',
+            'category_id.exists' => 'Danh mục không đúng',
+            'category_id.required' => 'danh mục không được trống '
+        ]);
+        // Nếu có lỗi xác minh, trả về thông báo lỗi
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+
+            $categoryId = $request->input('category_id');
+            $categoryName = Category::where('id', $categoryId)->value('name');
+
+            foreach ($errors as $key => $error) {
                 return response()->json([
-                    'code' => 'Subject_001',
-                    'message' => 'Bạn không có quyền.'
-                ], 401);
-            }
-            // Tìm môn học theo ID và kiểm tra sự tồn tại
-            $subject = Subject::find($id);
-            if ($subject == null) {
-                return response()->json([
-                    'error_message' => 'Không tìm thấy subject'
+                    'error_message' => $error
                 ], 400);
             }
-            // Kiểm tra và xử lý dữ liệu đầu vào
-            $validator = Validator::make($request->all(), [
-                'subject_content' => 'required',
-                'subject_image' => 'required',
-                'promotionalPriceSubject' => 'required|numeric',
-       
-                'category_id' => 'required|exists:categories,id'
-
-            ], [
-                'subject_content.required' => 'Nội dung không được trống',
-                'subject_image.required' => 'Hình ảnh không được trống',
-                'promotionalPriceSubject.required' => 'Giá khuyến mãi không được trống',
-                'promotionalPriceSubject.numeric' => 'Giá khuyến mãi phai la so',
-                'category_id.exists' => 'Danh mục không đúng',
-                'category_id.required' => 'danh mục không được trống '
-            ]);
-            // Nếu có lỗi xác minh, trả về thông báo lỗi
-            if ($validator->fails()) {
-                $errors = $validator->errors()->all();
-
-                $categoryId = $request->input('category_id');        
-                $categoryName = Category::where('id', $categoryId)->value('name');
-
-                foreach ($errors as $key => $error) {
-                    return response()->json([
-                        'error_message' => $error
-                    ], 400);
-                }
-            }
-            // Kiểm tra sự tồn tại của danh mục cha nếu có
-            if ($request->category_id != null) {
-                $subjectParent = Category::find($request->category_id);
-                if ($subjectParent == null) {
-                    return response()->json([
-                        'error_message' => 'Danh mục cha không đúng'
-                    ], 400);
-                }
-            }
-            // Cập nhật thông tin môn học và lưu vào cơ sở dữ liệu
-            $subject->category_id = $request->input('category_id', 1);
-            $subject->content = $request->input('subject_content');
-            $subject->image = $request->input('subject_image');
-            $subject->promotional_price = $request->input('promotionalPriceSubject');
-            $subject->updated_by = auth()->user()->email;
-            $subject->save();
-
-
-
-
-            // Trả về phản hồi JSON với kết quả
-            return response()->json([
-                'result' => 'succes'
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-            ], 500);
         }
+        // Kiểm tra sự tồn tại của danh mục cha nếu có
+        if ($request->category_id != null) {
+            $subjectParent = Category::find($request->category_id);
+            if ($subjectParent == null) {
+                return response()->json([
+                    'error_message' => 'Danh mục cha không đúng'
+                ], 400);
+            }
+        }
+        // Cập nhật thông tin môn học và lưu vào cơ sở dữ liệu
+        $subject->category_id = $request->input('category_id', 1);
+        $subject->content = $request->input('subject_content');
+        $subject->image = $request->input('subject_image');
+        $subject->promotional_price = $request->input('promotional_price_subject');
+        $subject->updated_by = auth()->user()->email;
+        $subject->save();
+
+
+
+
+        // Trả về phản hồi JSON với kết quả
+        return response()->json([
+            'result' => 'succes'
+        ], 200);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+        //     ], 500);
+        // }
     }
 
 
@@ -278,5 +278,21 @@ class SubjectController extends Controller
                 'error_message' => $e
             ], 500);
         }
+    }
+
+    public function showSubject()
+    {
+        $result = [];
+        $subjects = Subject::get();
+        foreach ($subjects as $subject) {
+            $data = [
+                "id" => $subject->id,
+                "name" => $subject->name,
+            ];
+            array_push($result, $data);
+        }
+        return response()->json([
+            'subjects' => $result
+        ], 200);
     }
 }

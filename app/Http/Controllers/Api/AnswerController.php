@@ -15,7 +15,6 @@ use Illuminate\Validation\Rule;
 class AnswerController extends Controller
 {
 
-
     public function getAnswer()
     {
         $answers = Answer::get();
@@ -28,7 +27,6 @@ class AnswerController extends Controller
     {
         try {
             $authController = new AuthController();
-            $roles = $authController->getRoles();
             $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
@@ -63,6 +61,7 @@ class AnswerController extends Controller
             $data = [
                 "id" => $answer->id,
                 "answer_test" => $answer->answer_test,
+                "serialAnswer" => $answer->serial_answer,
                 "test_id" => $answer->test_id,
                 "serial_answer" => $serialAnswer,
                 "created_by" => $answer->created_by,
@@ -107,7 +106,7 @@ class AnswerController extends Controller
                 'serialAnswer.numeric' => 'Vị trí đáp án phải là số',
                 'serialAnswer.unique' => 'Vị trí đáp án không được trùng',
             ]);
-            
+
 
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();

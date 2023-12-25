@@ -31,7 +31,6 @@ class PaymentController extends Controller
              
              return response()->json([
                  'payments' => $this->custompayments($payments->items()),
-                 // 'subjects' =>$subjects->items(),
                  'totalPage' => $payments->lastPage(),
                  'pageNum' => $payments->currentPage(),
              ], 200);
@@ -82,13 +81,6 @@ class PaymentController extends Controller
         return $result;
     }
 
-
-
-
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function getDetail()
     {
         try {
@@ -150,28 +142,4 @@ class PaymentController extends Controller
        return $result;
    }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }
