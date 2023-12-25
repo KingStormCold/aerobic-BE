@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->text('content');
             $table->string('image', 255);
-            $table->float('promotional_price');
+            $table->bigInteger('promotional_price');
             $table->string('name', 255);
             $table->string('created_by', 100);
             $table->string('updated_by', 100);
-           
+
             $table->unsignedBiginteger('category_id')->unsigned();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->timestamps();

@@ -19,7 +19,7 @@ class CourseController extends Controller
         ], 200);
     }
 
-    public function Courses()
+    public function courses($id)
     {
         try {
             $authController = new AuthController();
@@ -30,7 +30,7 @@ class CourseController extends Controller
                     'message' => 'Bạn không có quyền.'
                 ], 401);
             }
-            $courses = Course::orderByDesc('subject_id')->paginate(10);
+            $courses = Course::where('subject_id', $id)->paginate(10);
             return response()->json([
                 'courses' => $this->customCourses($courses->items()),
                 'totalPage' => $courses->lastPage(),
@@ -144,17 +144,6 @@ class CourseController extends Controller
                 ], 400);
             }
 
-            $authController = new AuthController();
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $createdBy = $userProfileData['data']['email'];
-
             Course::create([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -162,7 +151,7 @@ class CourseController extends Controller
                 'price' => $request->price,
                 'subject_id' => $request->subject_id,
                 'promotional_price' => $request->promotional_price,
-                'created_by' => $createdBy,
+                'created_by' => $authController->getEmail()
             ]);
 
             return response()->json([
@@ -236,24 +225,13 @@ class CourseController extends Controller
                 ], 400);
             }
 
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-
-            $updatedBy = $userProfileData['data']['email'];
-
             $course->update([
                 'name' => $request->name,
                 'description' => $request->description,
                 'level' => $request->level,
                 'price' => $request->price,
                 'subject_id' => $request->subject_id,
-                'updated_by' => $updatedBy,
+                'updated_by' => $authController->getEmail()
             ]);
 
             return response()->json([
