@@ -52,6 +52,7 @@ Route::group([
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
     Route::get('/show-subject', [SubjectController::class, 'showSubject']);
+    Route::get('/full-subjects', [SubjectController::class, 'FullSubjects']);
 
     Route::get('/get-course', [CourseController::class, 'getCourse']);
     Route::get('/courses', [CourseController::class, 'Courses']);
@@ -94,5 +95,7 @@ Route::group([
     Route::put('/test/{id}', [TestController::class, 'updateTest']);
     Route::delete('/test/{id}', [TestController::class, 'deleteTest']);
     Route::get('/show-test-name', [TestController::class, 'showTestName']);
+
+    Route::get('/get-Menu', [CategoryController::class, 'getMenu']);
 });
 
