@@ -13,9 +13,4 @@ class Answer extends Model
     protected $table = 'answers';
 
     protected $guarded = [];
-
-    public function tests()
-    {
-        return $this->belongsTo(Test::class);
-    }
 }

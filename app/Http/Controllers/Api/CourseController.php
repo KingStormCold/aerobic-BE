@@ -144,17 +144,6 @@ class CourseController extends Controller
                 ], 400);
             }
 
-            $authController = new AuthController();
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $createdBy = $userProfileData['data']['email'];
-
             Course::create([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -162,7 +151,7 @@ class CourseController extends Controller
                 'price' => $request->price,
                 'subject_id' => $request->subject_id,
                 'promotional_price' => $request->promotional_price,
-                'created_by' => $createdBy,
+                'created_by' => $authController->getEmail()
             ]);
 
             return response()->json([
@@ -236,24 +225,13 @@ class CourseController extends Controller
                 ], 400);
             }
 
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-
-            $updatedBy = $userProfileData['data']['email'];
-
             $course->update([
                 'name' => $request->name,
                 'description' => $request->description,
                 'level' => $request->level,
                 'price' => $request->price,
                 'subject_id' => $request->subject_id,
-                'updated_by' => $updatedBy,
+                'updated_by' => $authController->getEmail()
             ]);
 
             return response()->json([

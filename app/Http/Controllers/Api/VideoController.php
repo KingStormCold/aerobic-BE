@@ -138,23 +138,12 @@ class VideoController extends Controller
                 ], 400);
             }
 
-            $authController = new AuthController();
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $createdBy = $userProfileData['data']['email'];
-
             Video::create([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
                 'finished' => $request->finished,
                 'course_id' => $request->course_id,
-                'created_by' => $createdBy,
+                'created_by' => $authController->getEmail()
             ]);
 
             return response()->json([
@@ -209,22 +198,12 @@ class VideoController extends Controller
                 ], 400);
             }
 
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $updatedBy = $userProfileData['data']['email'];
-
             $video->update([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
                 'finished' => $request->finished,
                 'course_id' => $request->course_id,
-                'updated_by' => $updatedBy,
+                'updated_by' => $authController->getEmail()
             ]);
 
             return response()->json([

@@ -12,4 +12,9 @@ class Test extends Model
     protected $table = 'tests';
 
     protected $guarded = [];
+
+    public function answers()
+    {
+        return $this->hasMany(Answer::class);
+    }
 }

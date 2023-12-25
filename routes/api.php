@@ -88,7 +88,7 @@ Route::group([
     Route::get('/get-details', [PaymentController::class, 'getDetail']);
 
     Route::get('/get-tests', [TestController::class, 'getTests']);
-    Route::get('/test', [TestController::class, 'test']);
+    Route::get('/test/{id}', [TestController::class, 'test']);
     Route::get('/show-tests/{id}', [TestController::class, 'showTests']);
     Route::post('/insert-test', [TestController::class, 'insertTest']);
     Route::put('/test/{id}', [TestController::class, 'updateTest']);
