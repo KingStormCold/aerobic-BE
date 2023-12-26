@@ -234,4 +234,53 @@ class AnswerController extends Controller
             ], 500);
         }
     }
+
+    public function fullAnswers()
+    {
+        try {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('USER');
+            if (!$isAuthorization) {
+                return response()->json([
+                    'code' => 'CATE_001',
+                    'message' => 'Bạn cần dăng kí thành viên và mua khóa học này.'
+                ], 401);
+            }
+
+            $answers = Answer::orderByDesc('created_at')->paginate(10);
+            return response()->json([
+                'answers' => $this->customfullAnswers($answers->items()),
+
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
+    }
+    public function customfullAnswers($answers)
+    {
+        $result = [];
+        foreach ($answers as $answer) {
+            $testName = "";
+            $test = Test::find($answer->test_id);
+            if ($test) {
+                
+                $testName= $test->name;
+            }
+            $data = [
+                "test_id" => $answer->test_id,
+                "test_name" => $testName,
+                "id_test" => $answer->id,
+                "answer_test" => $answer->answer_test,
+                "serial_answer" => $answer->serial_answer,               
+                "created_by" => $answer->created_by,
+                "updated_by" => $answer->updated_by,
+                "created_at" => $answer->created_at,
+                "updated_at" => $answer->updated_at
+            ];
+            array_push($result, $data);
+        }
+        return $result;
+    }
 }
