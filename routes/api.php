@@ -55,7 +55,7 @@ Route::group([
     Route::get('/full-subjects', [SubjectController::class, 'FullSubjects']);
 
     Route::get('/get-course', [CourseController::class, 'getCourse']);
-    Route::get('/courses', [CourseController::class, 'Courses']);
+    Route::get('/courses/{id}', [CourseController::class, 'courses']);
     Route::get('/showcourse/{id}', [CourseController::class, 'showCourse']);
     Route::post('/insert-course', [CourseController::class, 'insertCourse']);
     Route::put('/course/{id}', [CourseController::class, 'updateCourse']);
@@ -69,10 +69,10 @@ Route::group([
     Route::post('/user', [UserController::class, 'insertUser']);
     Route::put('/user/{id}', [UserController::class, 'updateUser']);
     Route::delete('/user/{id}', [UserController::class, 'deleteUser']);
-	Route::get('/get-roles', [UserController::class, 'getRoles']);
+    Route::get('/get-roles', [UserController::class, 'getRoles']);
 
- 	Route::get('/get-video', [VideoController::class, 'getVideo']);
-    Route::get('/videos', [VideoController::class, 'Videos']);
+    Route::get('/get-video', [VideoController::class, 'getVideo']);
+    Route::get('/videos/{id}', [VideoController::class, 'videos']);
     Route::get('/show-videos/{id}', [VideoController::class, 'showVideos']);
     Route::post('/insert-video', [VideoController::class, 'insertVideo']);
     Route::put('/video/{id}', [VideoController::class, 'updateVideo']);
@@ -89,13 +89,11 @@ Route::group([
     Route::get('/get-details', [PaymentController::class, 'getDetail']);
 
     Route::get('/get-tests', [TestController::class, 'getTests']);
-    Route::get('/test', [TestController::class, 'test']);
+    Route::get('/test/{id}', [TestController::class, 'test']);
     Route::get('/show-tests/{id}', [TestController::class, 'showTests']);
     Route::post('/insert-test', [TestController::class, 'insertTest']);
     Route::put('/test/{id}', [TestController::class, 'updateTest']);
     Route::delete('/test/{id}', [TestController::class, 'deleteTest']);
-    Route::get('/show-test-name', [TestController::class, 'showTestName']);
-
+    Route::get('/show-video-name', [TestController::class, 'showVideoName']);
     Route::get('/get-Menu', [CategoryController::class, 'getMenu']);
 });
-

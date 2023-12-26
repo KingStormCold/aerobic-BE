@@ -27,7 +27,6 @@ class AnswerController extends Controller
     {
         try {
             $authController = new AuthController();
-            $roles = $authController->getRoles();
             $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
@@ -107,7 +106,7 @@ class AnswerController extends Controller
                 'serialAnswer.numeric' => 'Vị trí đáp án phải là số',
                 'serialAnswer.unique' => 'Vị trí đáp án không được trùng',
             ]);
-            
+
 
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();

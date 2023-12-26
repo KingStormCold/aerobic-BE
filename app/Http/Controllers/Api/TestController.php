@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Answer;
 use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Subject;
@@ -21,7 +22,7 @@ class TestController extends Controller
         ], 200);
     }
 
-    public function test()
+    public function test($id)
     {
         try {
             $authController = new AuthController();
@@ -33,7 +34,7 @@ class TestController extends Controller
                 ], 401);
             }
 
-            $tests = Test::orderByDesc('video_id')->paginate(10);
+            $tests = Test::with('answers')->where('video_id', $id)->paginate(10);
 
             return response()->json([
                 'videos' => $this->customTests($tests->items()),
@@ -57,12 +58,22 @@ class TestController extends Controller
                 $video = Video::find($test->video_id);
                 $videoName = $video->name;
             }
+            $answerList = [];
+            foreach ($test->answers as $answer) {
+                $answerData = [
+                    "id" => $answer->id,
+                    "answer_content" => $answer->answer_test
+                ];
+                array_push($answerList, $answerData);
+            }
+
             $data = [
                 "id" => $test->id,
                 "test_content" => $test->test_content,
                 "serial_answer" => $test->serial_answer,
                 "video_id" => $test->video_id,
-                "videoName" => $videoName,
+                "video_name" => $videoName,
+                "answers" => $answerList,
                 "created_by" => $test->created_by,
                 "updated_by" => $test->updated_by,
                 "created_at" => $test->created_at,
@@ -118,15 +129,22 @@ class TestController extends Controller
             $validator = Validator::make($request->all(), [
                 'test_content' => 'required|unique:tests,test_content',
                 'serial_answer' => 'required|numeric',
-                'video_id' => 'required|numeric|exists:videos,id'
+                'video_id' => 'required|numeric|exists:videos,id',
+                'answer_1' => 'required',
+                'answer_2' => 'required',
+                'answer_3' => 'required',
+                'answer_4' => 'required'
             ], [
                 'test_content.required' => 'test_content không được trống',
                 'test_content.unique' => 'test_content ko dc trùng',
                 'serial_answer.required' => 'serial_answer ko dc trống',
                 'serial_answer.numeric' => 'serial_answer phải là số',
                 'video_id.required' => 'video_id ko dc trống',
-                'video_id.numeric' => 'video_id phải là số',
-                'video_id.exists' => 'nguồn video ko đúng'
+                'video_id.exists' => 'nguồn video ko đúng',
+                'answer_1.required' => 'câu trả lời 1 không được trống',
+                'answer_2.required' => 'câu trả lời 2 không được trống',
+                'answer_3.required' => 'câu trả lời 3 không được trống',
+                'answer_4.required' => 'câu trả lời 4 không được trống',
             ]);
 
             if ($validator->fails()) {
@@ -135,22 +153,43 @@ class TestController extends Controller
                 ], 400);
             }
 
-            $authController = new AuthController();
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $createdBy = $userProfileData['data']['email'];
-
-            Test::create([
+            $test = Test::create([
                 'test_content' => $request->test_content,
                 'serial_answer' => $request->serial_answer,
                 'video_id' => $request->video_id,
-                'created_by' => $createdBy,
+                'created_by' => $authController->getEmail()
+            ]);
+
+            Answer::create([
+                'answer_test' => $request->answer_1,
+                'serial_answer' => '1',
+                'created_by' => auth()->user()->email,
+                'updated_by' => '',
+                'test_id' => $test->id
+            ]);
+
+            Answer::create([
+                'answer_test' => $request->answer_2,
+                'serial_answer' => '2',
+                'created_by' => auth()->user()->email,
+                'updated_by' => '',
+                'test_id' => $test->id
+            ]);
+
+            Answer::create([
+                'answer_test' => $request->answer_3,
+                'serial_answer' => '3',
+                'created_by' => auth()->user()->email,
+                'updated_by' => '',
+                'test_id' => $test->id
+            ]);
+
+            Answer::create([
+                'answer_test' => $request->answer_4,
+                'serial_answer' => '4',
+                'created_by' => auth()->user()->email,
+                'updated_by' => '',
+                'test_id' => $test->id
             ]);
 
             return response()->json([
@@ -184,9 +223,10 @@ class TestController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
-                'test_content' => 'required|unique:tests,test_content',
+                'test_content' => 'required|unique:tests,test_content,' . $test->id,
                 'serial_answer' => 'required|numeric',
-                'video_id' => 'required|numeric|exists:videos,id'
+                'video_id' => 'required|numeric|exists:videos,id',
+                'answers' => 'required'
             ], [
                 'test_content.required' => 'test_content không được trống',
                 'test_content.unique' => 'test_content ko dc trùng',
@@ -203,22 +243,22 @@ class TestController extends Controller
                 ], 400);
             }
 
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $updatedBy = $userProfileData['data']['email'];
-
             $test->update([
                 'test_content' => $request->test_content,
                 'serial_answer' => $request->serial_answer,
                 'video_id' => $request->video_id,
-                'updated_by' => $updatedBy,
+                'updated_by' => $authController->getEmail()
             ]);
+            foreach ($request->answers as $answer) {
+                $answerId = $answer['id'];
+                $updateAnswer = Answer::find($answerId);
+                if ($updateAnswer !== null) {
+                    $updateAnswer->answer_test = $answer['answer_content'];
+                    $updateAnswer->updated_by = $authController->getEmail();
+                    $updateAnswer->created_by = $authController->getEmail();
+                    $updateAnswer->save();
+                }
+            }
 
             return response()->json([
                 'result' => 'success'

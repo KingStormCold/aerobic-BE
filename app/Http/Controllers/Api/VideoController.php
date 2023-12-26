@@ -20,7 +20,7 @@ class VideoController extends Controller
         ], 200);
     }
 
-    public function Videos()
+    public function videos($id)
     {
         try {
             $authController = new AuthController();
@@ -32,7 +32,7 @@ class VideoController extends Controller
                 ], 401);
             }
 
-            $videos = Video::orderByDesc('course_id')->paginate(10);
+            $videos = Video::where('course_id', $id)->paginate(10);
 
             return response()->json([
                 'courses' => $this->customVideos($videos->items()),
@@ -118,7 +118,7 @@ class VideoController extends Controller
             }
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255|unique:videos,name',
-                'link_video' => 'required|string|max:255|unique:videos,link_video',
+                'link_video' => 'required|string|max:255',
                 'course_id' => 'required|exists:courses,id',
                 'finished' => 'required',
             ], [
@@ -126,7 +126,6 @@ class VideoController extends Controller
                 'name.unique' => 'Tên video đã tồn tại',
                 'name.max' => 'Tên video không được vượt quá 255 ký tự',
                 'link_video.required' => 'Link ảnh không được để trống',
-                'link_video.unique' => 'Link ảnh đã tồn tại',
                 'link_video.max' => 'Link ảnh không được vượt quá 255 ký tự',
                 'course_id.required' => 'không được để trống id khóa học',
                 'course_id.exists' => 'ID khóa học không tồn tại trong danh sách khóa học',
@@ -139,23 +138,12 @@ class VideoController extends Controller
                 ], 400);
             }
 
-            $authController = new AuthController();
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $createdBy = $userProfileData['data']['email'];
-
             Video::create([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
                 'finished' => $request->finished,
                 'course_id' => $request->course_id,
-                'created_by' => $createdBy,
+                'created_by' => $authController->getEmail()
             ]);
 
             return response()->json([
@@ -190,7 +178,7 @@ class VideoController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255|unique:videos,name,' . $video->id,
-                'link_video' => 'required|string|max:255|unique:videos,link_video',
+                'link_video' => 'required|string|max:255',
                 'finished' => 'required',
                 'course_id' => 'required|exists:courses,id',
             ], [
@@ -198,7 +186,6 @@ class VideoController extends Controller
                 'name.unique' => 'Tên video đã tồn tại',
                 'name.max' => 'Tên video không được vượt quá 255 ký tự',
                 'link_video.required' => 'Link ảnh không được trống',
-                'link_video.unique' => 'Link ảnh đã tồn tại',
                 'link_video.max' => 'Link ảnh không được vượt quá 255 ký tự',
                 'finished.required' => 'Không được để trống mục đã hoàn thành',
                 'course_id.required' => 'ID khóa học không được trống',
@@ -211,22 +198,12 @@ class VideoController extends Controller
                 ], 400);
             }
 
-            $userProfileResponse = $authController->userProfile();
-            $userProfileData = json_decode($userProfileResponse->getContent(), true);
-
-            if ($userProfileResponse->getStatusCode() !== 200 || !isset($userProfileData['data']['email'])) {
-                return response()->json([
-                    'error_message' => 'Không thể lấy thông tin hồ sơ người dùng'
-                ], 400);
-            }
-            $updatedBy = $userProfileData['data']['email'];
-
             $video->update([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
                 'finished' => $request->finished,
                 'course_id' => $request->course_id,
-                'updated_by' => $updatedBy,
+                'updated_by' => $authController->getEmail()
             ]);
 
             return response()->json([
