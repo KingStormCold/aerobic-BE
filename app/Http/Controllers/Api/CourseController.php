@@ -293,47 +293,4 @@ class CourseController extends Controller
             'courses' => $result
         ], 200);
     }
-
-    public function fullCourses()
-    {
-        try {
-            $courses = Course::orderByDesc('created_at')->paginate(10);
-            return response()->json([
-                'courses' => $this->customfullCourses($courses->items()),
-
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-            ], 500);
-        }
-    }
-    public function customfullCourses($courses)
-    {
-        $result = [];
-        foreach ($courses as $course) {
-            $subjectName = "";
-            $subject = Subject::find($course->subject_id);
-            if ($subject) {
-                
-                $subjectName= $subject->name;
-            }
-            $data = [
-                "subject_id" => $course->subject_id,
-                "subject_name" => $subjectName,
-                "id_course" => $course->id,
-                "name" => $course->name,
-                "description" => $course->description,               
-                "level" => $course->level, 
-                "price" => $course->price,
-                "promotional_price" => $course->promotional_price,
-                "created_by" => $course->created_by,
-                "updated_by" => $course->updated_by,
-                "created_at" => $course->created_at,
-                "updated_at" => $course->updated_at
-            ];
-            array_push($result, $data);
-        }
-        return $result;
-    }
 }

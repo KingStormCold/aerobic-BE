@@ -357,10 +357,6 @@ class TestController extends Controller
                 "id_video" => $test->id,
                 "test_content" => $test->test_content,
                 "serial_answer" => $test->serial_answer,               
-                "created_by" => $test->created_by,
-                "updated_by" => $test->updated_by,
-                "created_at" => $test->created_at,
-                "updated_at" => $test->updated_at
             ];
             array_push($result, $data);
         }

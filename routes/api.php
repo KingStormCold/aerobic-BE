@@ -11,6 +11,10 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\SubjectController;
 use App\Http\Controllers\Api\TestController;
 use App\Http\Controllers\Api\VideoController;
+use App\Http\Controllers\Api\Client\CourseClientController;
+use App\Http\Controllers\Api\Client\VideoClientController;
+use App\Http\Controllers\Api\Client\TestClientController;
+use App\Http\Controllers\Api\Client\AnswerClientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,7 +62,7 @@ Route::group([
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
     Route::get('/show-subject', [SubjectController::class, 'showSubject']);
-    Route::get('/full-subjects', [SubjectController::class, 'FullSubjects']);
+    Route::get('/full-subjects', [SubjectController::class, 'fullSubjects']);
 
     Route::get('/get-course', [CourseController::class, 'getCourse']);
     Route::get('/courses/{id}', [CourseController::class, 'courses']);
@@ -67,7 +71,7 @@ Route::group([
     Route::put('/course/{id}', [CourseController::class, 'updateCourse']);
     Route::delete('/course/{id}', [CourseController::class, 'deleteCourse']);
     Route::get('/show-course-name', [CourseController::class, 'showCourseName']);
-    Route::get('/get-fullcourses-client', [CourseController::class, 'fullCourses']);
+    
 
     Route::get('/get-user', [UserController::class, 'getUser']);
     Route::get('/get-parent-users', [UserController::class, 'getParentUsers']);
@@ -85,14 +89,14 @@ Route::group([
     Route::put('/video/{id}', [VideoController::class, 'updateVideo']);
     Route::delete('/video/{id}', [VideoController::class, 'deleteVideo']);
     Route::get('/show-video-name', [VideoController::class, 'showVideoName']);
-    Route::get('/get-fullvideos-client', [VideoController::class, 'fullVideos']);
+    
 
     Route::get('/get-answers', [AnswerController::class, 'getAnswers']);
     Route::get('/get-answer', [AnswerController::class, 'getAnswer']);
     Route::post('/answer', [AnswerController::class, 'insertAnswer']);
     Route::put('/answer/{id}', [AnswerController::class, 'updateAnswer']);
     Route::delete('/answer/{id}', [AnswerController::class, 'deleteAnser']);
-    Route::get('/get-fullanswers-client', [AnswerController::class, 'fullAnswers']);
+    
 
     Route::get('/get-payments', [PaymentController::class, 'getPayments']);
     Route::get('/get-details', [PaymentController::class, 'getDetail']);
@@ -103,5 +107,15 @@ Route::group([
     Route::post('/insert-test', [TestController::class, 'insertTest']);
     Route::put('/test/{id}', [TestController::class, 'updateTest']);
     Route::delete('/test/{id}', [TestController::class, 'deleteTest']);
-    Route::get('/get-fulltests-client', [TestController::class, 'fullTests']);
+    
+});
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'client'
+], function ($router) {
+    Route::get('/get-fullcourses', [CourseClientController::class, 'fullCourses']);
+    Route::get('/get-fullvideos', [VideoClientController::class, 'fullVideos']);
+    Route::get('/get-fulltests', [TestClientController::class, 'fullTests']);
+    Route::get('/get-fullanswers', [AnswerClientController::class, 'fullAnswers']);
 });

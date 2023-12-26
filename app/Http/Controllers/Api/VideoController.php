@@ -304,10 +304,6 @@ class VideoController extends Controller
                 "name" => $video->name,
                 "link_video" => $video->link_video,               
                 "finished" => $video->finished, 
-                "created_by" => $video->created_by,
-                "updated_by" => $video->updated_by,
-                "created_at" => $video->created_at,
-                "updated_at" => $video->updated_at
             ];
             array_push($result, $data);
         }

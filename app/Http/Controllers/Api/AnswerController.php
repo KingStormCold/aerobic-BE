@@ -274,10 +274,6 @@ class AnswerController extends Controller
                 "id_test" => $answer->id,
                 "answer_test" => $answer->answer_test,
                 "serial_answer" => $answer->serial_answer,               
-                "created_by" => $answer->created_by,
-                "updated_by" => $answer->updated_by,
-                "created_at" => $answer->created_at,
-                "updated_at" => $answer->updated_at
             ];
             array_push($result, $data);
         }
