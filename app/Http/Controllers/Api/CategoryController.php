@@ -253,6 +253,7 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
     public function getMenu()
     {
         $categories = Category::where('parent_id', 0)->get();

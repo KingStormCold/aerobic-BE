@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Client\PaymentClientController;
+use App\Http\Controllers\Api\Client\CategoryClientController;
 use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
@@ -52,7 +54,7 @@ Route::group([
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
     Route::get('/show-subject', [SubjectController::class, 'showSubject']);
-    Route::get('/full-subjects', [SubjectController::class, 'FullSubjects']);
+   
 
     Route::get('/get-course', [CourseController::class, 'getCourse']);
     Route::get('/courses/{id}', [CourseController::class, 'courses']);
@@ -95,5 +97,16 @@ Route::group([
     Route::put('/test/{id}', [TestController::class, 'updateTest']);
     Route::delete('/test/{id}', [TestController::class, 'deleteTest']);
     Route::get('/show-video-name', [TestController::class, 'showVideoName']);
-    Route::get('/get-Menu', [CategoryController::class, 'getMenu']);
+    
+    Route::get('/full-subjects', [SubjectController::class, 'FullSubjects']);
+   
+   
+});
+
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'client'
+], function ($router) {
+    Route::post('/payment-register', [PaymentClientController::class, 'registerCourse']);
+    Route::get('/get-menu', [CategoryClientController::class, 'getMenu']);
 });
