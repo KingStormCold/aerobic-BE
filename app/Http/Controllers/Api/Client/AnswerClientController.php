@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\AuthController;
 
 class AnswerClientController extends Controller
 {
-    public function fullAnswers()
+    public function fullAnswers($answerId)
     {
         try {
             $authController = new AuthController();
@@ -27,9 +27,15 @@ class AnswerClientController extends Controller
                 ], 401);
             }
 
-            $answers = Answer::orderByDesc('created_at')->paginate(10);
+            $answers = Answer::where('test_id',$answerId)->orderByDesc('created_at')->get();
+            $test = Test::find($answerId);
+            if (!$test) {
+                return response()->json([
+                    'message' => 'Không tìm thấy bài test.'
+                ], 404);
+            }
             return response()->json([
-                'answers' => $this->customfullAnswers($answers->items()),
+                'answers' => $this->customfullAnswers($answers),
 
             ], 200);
         } catch (Exception $e) {
@@ -53,7 +59,7 @@ class AnswerClientController extends Controller
                 "test_name" => $testName,
                 "id_test" => $answer->id,
                 "answer_test" => $answer->answer_test,
-                "serial_answer" => $answer->serial_answer,               
+                // "serial_answer" => $answer->serial_answer,               
             ];
             array_push($result, $data);
         }

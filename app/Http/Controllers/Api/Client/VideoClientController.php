@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\AuthController;
 
 class VideoClientController extends Controller
 {
-    public function fullVideos()
+    public function fullVideos($courseId)
     {
         try {
             $authController = new AuthController();
@@ -25,9 +25,15 @@ class VideoClientController extends Controller
                 ], 401);
             }
 
-            $videos = Video::orderByDesc('created_at')->paginate(10);
+            $videos = Video::where('course_id',$courseId)->orderByDesc('created_at')->get();
+            $course = Course::find($courseId);
+            if (!$course) {
+                return response()->json([
+                    'message' => 'Không tìm thấy khóa học.'
+                ], 404);
+            }
             return response()->json([
-                'videos' => $this->customfullVideos($videos->items()),
+                'videos' => $this->customfullVideos($videos),
 
             ], 200);
         } catch (Exception $e) {
@@ -52,7 +58,7 @@ class VideoClientController extends Controller
                 "id_video" => $video->id,
                 "name" => $video->name,
                 "link_video" => $video->link_video,               
-                "finished" => $video->finished, 
+                // "finished" => $video->finished, 
             ];
             array_push($result, $data);
         }

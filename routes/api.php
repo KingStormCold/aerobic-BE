@@ -114,8 +114,8 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'client'
 ], function ($router) {
-    Route::get('/get-fullcourses', [CourseClientController::class, 'fullCourses']);
-    Route::get('/get-fullvideos', [VideoClientController::class, 'fullVideos']);
-    Route::get('/get-fulltests', [TestClientController::class, 'fullTests']);
-    Route::get('/get-fullanswers', [AnswerClientController::class, 'fullAnswers']);
+    Route::get('/get-courses/{subjectId}', [CourseClientController::class, 'fullCourses']);
+    Route::get('/get-videos/{courseId}', [VideoClientController::class, 'fullVideos']);
+    Route::get('/get-tests/{c}', [TestClientController::class, 'fullTests']);
+    Route::get('/get-answers/{answerId}', [AnswerClientController::class, 'fullAnswers']);
 });

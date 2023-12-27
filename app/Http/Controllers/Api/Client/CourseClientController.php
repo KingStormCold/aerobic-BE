@@ -11,12 +11,20 @@ use Illuminate\Support\Facades\Validator;
 
 class CourseClientController extends Controller
 {
-    public function fullCourses()
+    public function fullCourses($subjectId)
     {
         try {
-            $courses = Course::orderByDesc('created_at')->paginate(10);
+            $courses = Course::where('subject_id',$subjectId)->orderByDesc('level')->get();
+            $subject = Subject::find($subjectId);
+            if (!$subject) {
+                return response()->json([
+                    'message' => 'Không tìm thấy môn học.'
+                ], 404);
+            }
+            
+
             return response()->json([
-                'courses' => $this->customfullCourses($courses->items()),
+                'courses' => $this->customfullCourses($courses),
 
             ], 200);
         } catch (Exception $e) {
@@ -42,8 +50,6 @@ class CourseClientController extends Controller
                 "name" => $course->name,
                 "description" => $course->description,               
                 "level" => $course->level, 
-                "price" => $course->price,
-                "promotional_price" => $course->promotional_price,
             ];
             array_push($result, $data);
         }

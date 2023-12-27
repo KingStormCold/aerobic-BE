@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\AuthController;
 
 class TestClientController extends Controller
 {
-    public function fullTests()
+    public function fullTests($videoId)
     {
         try {
             $authController = new AuthController();
@@ -27,9 +27,15 @@ class TestClientController extends Controller
                 ], 401);
             }
 
-            $tests = Test::orderByDesc('created_at')->paginate(10);
+            $tests = Test::where('video_id',$videoId)->orderByDesc('created_at')->get();
+            $video = Video::find($videoId);
+            if (!$video) {
+                return response()->json([
+                    'message' => 'Không tìm thấy video.'
+                ], 404);
+            }
             return response()->json([
-                'tests' => $this->customfullTests($tests->items()),
+                'tests' => $this->customfullTests($tests),
 
             ], 200);
         } catch (Exception $e) {
@@ -53,7 +59,7 @@ class TestClientController extends Controller
                 "video_name" => $videoName,
                 "id_video" => $test->id,
                 "test_content" => $test->test_content,
-                "serial_answer" => $test->serial_answer,               
+                // "serial_answer" => $test->serial_answer,               
             ];
             array_push($result, $data);
         }
