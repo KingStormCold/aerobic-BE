@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
@@ -26,7 +26,7 @@ class CategoryClientController extends Controller
     public function buildMenu($categories)
     {
         $result = [];
-        
+
         foreach ($categories as $category) {
             $categoryData = [
                 'id' => $category->id,
@@ -36,7 +36,7 @@ class CategoryClientController extends Controller
             if (!$subCategories->isEmpty()) {
                 $categoryData['sub-menu'] = $this->buildMenu($subCategories);
             }
-        
+
             $result[] = $categoryData;
         }
         return $result;

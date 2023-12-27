@@ -291,8 +291,7 @@ class SubjectController extends Controller
         ], 200);
     }
 
-
-    public function FullSubjects()
+    public function fullSubjects()
     {
         try {
             $subjects = Subject::orderByDesc('category_id')->paginate(10);
@@ -323,15 +322,9 @@ class SubjectController extends Controller
                 "content" => $subject->content,               
                 "image" => $subject->image, 
                 "promotional_price" => $subject->promotional_price,
-                "created_by" => $subject->created_by,
-                "updated_by" => $subject->updated_by,
-                "created_at" => $subject->created_at,
-                "updated_at" => $subject->updated_at
             ];
             array_push($result, $data);
         }
         return $result;
     }
-
-
 }

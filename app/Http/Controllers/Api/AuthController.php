@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Password;
 
 
 class AuthController extends Controller
@@ -22,6 +24,7 @@ class AuthController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        
     }
 
     /**
@@ -55,9 +58,11 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|between:2,100',
+            'fullname' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|confirmed|min:6',
+            'phone' => 'required|digits:10',
+            'status' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -196,4 +201,67 @@ class AuthController extends Controller
         $currentUser = User::find($user->id);
         return $currentUser->email;
     }
+
+   
+
+// ...
+
+public function forgotPass(Request $request)
+{
+    $request->validate(['email' => 'required|email']);
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    $uuid = Str::uuid();
+    $user->uuid = $uuid;
+    $user->save();
+
+    // Send email with the UUID link here
+
+    return response()->json(['message' => 'Reset password link sent']);
+}
+
+public function postForgotPass(Request $request)
+{
+    // This method is not needed if you're using UUIDs
+}
+
+public function getPass(Request $request)
+{
+    $request->validate(['uuid' => 'required']);
+    $user = User::where('uuid', $request->uuid)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'Invalid UUID'], 400);
+    }
+
+    $user->uuid = '';
+    $user->save();
+
+    return response()->json(['message' => 'UUID is valid']);
+}
+
+public function postGetPass(Request $request)
+{
+    $request->validate([
+        'uuid' => 'required',
+        'password' => 'required|min:6|confirmed',
+    ]);
+
+    $user = User::where('uuid', $request->uuid)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'Invalid UUID'], 400);
+    }
+
+    $user->password = bcrypt($request->password);
+    $user->uuid = '';
+    $user->save();
+
+    return response()->json(['message' => 'Password has been reset']);
+}
+
 }
