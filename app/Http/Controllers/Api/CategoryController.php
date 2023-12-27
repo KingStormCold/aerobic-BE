@@ -253,4 +253,35 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    public function getMenu()
+    {
+        $categories = Category::where('parent_id', 0)->get();
+        $menu = $this->buildMenu($categories);
+        return response()->json([
+            'menu' => $menu,
+        ], 200);
+    }
+    public function buildMenu($categories)
+    {
+        $result = [];
+        
+        foreach ($categories as $category) {
+            $categoryData = [
+                'id' => $category->id,
+                'name' => $category->name,
+            ];
+            $subCategories = $this->getSubCategories($category->id);
+            if (!$subCategories->isEmpty()) {
+                $categoryData['sub-menu'] = $this->buildMenu($subCategories);
+            }
+        
+            $result[] = $categoryData;
+        }
+        return $result;
+    }
+    public function getSubCategories($parentId)
+ {
+      return Category::where('parent_id', $parentId)->get();
+ }
 }
