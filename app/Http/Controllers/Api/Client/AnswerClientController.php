@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\AuthController;
 
 class AnswerClientController extends Controller
 {
-    public function fullAnswers($answerId)
+    public function fullAnswers($testId)
     {
         try {
             $authController = new AuthController();
@@ -27,8 +27,8 @@ class AnswerClientController extends Controller
                 ], 401);
             }
 
-            $answers = Answer::where('test_id',$answerId)->orderByDesc('created_at')->get();
-            $test = Test::find($answerId);
+            $answers = Answer::where('test_id',$testId)->orderByDesc('created_at')->get();
+            $test = Test::find($testId);
             if (!$test) {
                 return response()->json([
                     'message' => 'Không tìm thấy bài test.'
