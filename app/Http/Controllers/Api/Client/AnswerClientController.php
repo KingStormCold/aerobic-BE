@@ -31,11 +31,11 @@ class AnswerClientController extends Controller
             $test = Test::find($testId);
             if (!$test) {
                 return response()->json([
-                    'message' => 'Không tìm thấy bài test.'
-                ], 404);
+                    'message' => 'Không tìm thấy bài kiểm tra.'
+                ], 400);
             }
             return response()->json([
-                'answers' => $this->customfullAnswers($answers),
+                'tests' => $this->customfullAnswers($answers),
 
             ], 200);
         } catch (Exception $e) {
@@ -47,22 +47,49 @@ class AnswerClientController extends Controller
     public function customfullAnswers($answers)
     {
         $result = [];
+        $testId = null;
+        $testName = "";
+        $serialAnswer = "";
+        $answerArray = [];
+
         foreach ($answers as $answer) {
-            $testName = "";
-            $test = Test::find($answer->test_id);
-            if ($test) {
-                
-                $testName= $test->name;
+            if ($testId != $answer->test_id) {
+                if ($testId != null) {
+                    $data = [
+                        "test_id" => $testId,
+                        "test_content" => $testName,
+                        "serial_answer" => $serialAnswer,
+                        "answers" =>  $answerArray
+                    ];
+                    $result = $data;
+                    $answerArray = [];
+                }
+                $testId = $answer->test_id;
+                $test = Test::find($testId);
+                if ($test) {
+                    $testName = $test->test_content;
+                    $serialAnswer = $test->serial_answer;
+                }
             }
-            $data = [
-                "test_id" => $answer->test_id,
-                "test_name" => $testName,
-                "id_test" => $answer->id,
-                "answer_test" => $answer->answer_test,
-                // "serial_answer" => $answer->serial_answer,               
+            $answerData = [
+                "answer_id" => $answer->id,
+                "answer_content" => $answer->answer_test,
+                "serial_answer" => $answer->serial_answer, 
             ];
-            array_push($result, $data);
+            array_push($answerArray, $answerData);
         }
+
+        // Thêm dữ liệu cuối cùng
+        if ($testId != null) {
+            $data = [
+                "test_id" => $testId,
+                "test_content" => $testName,
+                "serial_answer" => $serialAnswer,
+                "answers" =>  $answerArray
+            ];
+            $result = $data;
+        }
+
         return $result;
     }
 }

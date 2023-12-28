@@ -19,14 +19,12 @@ class CourseClientController extends Controller
             if (!$subject) {
                 return response()->json([
                     'message' => 'Không tìm thấy môn học.'
-                ], 404);
+                ], 400);
             }
-            
+            return response()->json(
+               $this->customfullCourses($courses),
 
-            return response()->json([
-                'courses' => $this->customfullCourses($courses),
-
-            ], 200);
+             200);
         } catch (Exception $e) {
             return response()->json([
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
@@ -36,23 +34,54 @@ class CourseClientController extends Controller
     public function customfullCourses($courses)
     {
         $result = [];
+        $subjectId = null;
+        $subjectName ="";
+        $subjectImage ="";
+        // $subjectContent = "";
+        $courseArray = [];
+
         foreach ($courses as $course) {
-            $subjectName = "";
-            $subject = Subject::find($course->subject_id);
-            if ($subject) {
-                
-                $subjectName= $subject->name;
+            if ($subjectId != $course->subject_id) {
+                if ($subjectId != null) {
+                    $data = [
+                        "subject_id" => $subjectId,
+                        "subjectName" => $subjectName,
+                        "subjectImage" => $subjectImage,
+                        // "subjectContent" => $subjectContent,
+                        "courses" =>  $courseArray
+                    ];
+                    $result = $data;
+                    $courseArray = [];
+                }
+                $subjectId = $course->subject_id;
+                $subject = Subject::find($subjectId);
+                if ($subject) {
+                    $subjectName = $subject->name;
+                    $subjectImage = $subject->image;
+                    $subjectContent = $subject->content;
+                }
             }
-            $data = [
-                "subject_id" => $course->subject_id,
-                "subject_name" => $subjectName,
-                "id_course" => $course->id,
-                "name" => $course->name,
-                "description" => $course->description,               
-                "level" => $course->level, 
+            $subjectData = [
+                "course_id" => $course->id,
+                "courseName" => $course->name,
+                "course_description" => $course->description,
+                "level" => $course->level,
             ];
-            array_push($result, $data);
+            array_push($courseArray, $subjectData);
         }
+
+        // Thêm dữ liệu cuối cùng
+        if ($subjectId != null) {
+            $data = [
+                "subject_id" => $subjectId,
+                "subjectName" => $subjectName,
+                "subjectImage" =>  $subjectImage,
+                // "subjectContent" => $subjectContent,
+                "course" => $courseArray
+            ];
+            $result = $data;
+        }
+
         return $result;
     }
 }

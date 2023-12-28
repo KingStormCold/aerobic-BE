@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\Client\CourseClientController;
 use App\Http\Controllers\Api\Client\VideoClientController;
 use App\Http\Controllers\Api\Client\TestClientController;
 use App\Http\Controllers\Api\Client\AnswerClientController;
+use App\Http\Controllers\Api\Client\SubjectClientController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -41,10 +43,10 @@ Route::group([
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user-profile', [AuthController::class, 'userProfile']);
     Route::post('/change-pass', [AuthController::class, 'changePassWord']);
-    Route::get('/forgot-password', [AuthController::class, 'forgotPass']);
-    Route::post('/forgot-password', [AuthController::class, 'postForgotPass']);
-    Route::get('/get-password', [AuthController::class, 'getPass']);
-    Route::post('/get-password', [AuthController::class, 'postGetPass']);
+    // Route::get('/forgot-password', [AuthController::class, 'forgotPass']);
+    // Route::post('/forgot-password', [AuthController::class, 'postForgotPass']);
+    // Route::get('/get-password', [AuthController::class, 'getPass']);
+    // Route::post('/get-password', [AuthController::class, 'postGetPass']);
 
 
     Route::get('/get-parent-categories', [CategoryController::class, 'getParentCategories']);
@@ -62,7 +64,6 @@ Route::group([
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
     Route::get('/show-subject', [SubjectController::class, 'showSubject']);
-    Route::get('/full-subjects', [SubjectController::class, 'fullSubjects']);
 
     Route::get('/get-course', [CourseController::class, 'getCourse']);
     Route::get('/courses/{id}', [CourseController::class, 'courses']);
@@ -118,4 +119,5 @@ Route::group([
     Route::get('/get-videos/{courseId}', [VideoClientController::class, 'fullVideos']);
     Route::get('/get-tests/{videoId}', [TestClientController::class, 'fullTests']);
     Route::get('/get-answers/{testId}', [AnswerClientController::class, 'fullAnswers']);
+    Route::get('/get-subjects/{categoryId}', [SubjectClientController::class, 'fullSubjects']);
 });
