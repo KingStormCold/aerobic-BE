@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\AuthController;
 
 class VideoClientController extends Controller
 {
-    public function fullVideos()
+    public function fullVideos($courseId)
     {
         try {
             $authController = new AuthController();
@@ -21,13 +21,19 @@ class VideoClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn cần dăng kí thành viên và mua khóa học để xem video này.'
+                    'message' => 'Bạn cần đăng kí thành viên và mua khóa học để xem bài kiểm tra'
                 ], 401);
             }
 
-            $videos = Video::orderByDesc('created_at')->paginate(10);
+            $videos = Video::where('course_id',$courseId)->orderByDesc('created_at')->get();
+            $course = Course::find($courseId);
+            if (!$course) {
+                return response()->json([
+                    'message' => 'Không tìm thấy khóa học.'
+                ], 400);
+            }
             return response()->json([
-                'videos' => $this->customfullVideos($videos->items()),
+                'courses' => $this->customfullVideos($videos),
 
             ], 200);
         } catch (Exception $e) {
@@ -39,23 +45,46 @@ class VideoClientController extends Controller
     public function customfullVideos($videos)
     {
         $result = [];
+        $courseId = null;
+        $courseName = "";
+        $videoArray = [];
+
         foreach ($videos as $video) {
-            $courseName = "";
-            $course = Course::find($video->course_id);
-            if ($course) {
-                
-                $courseName= $course->name;
+            if ($courseId != $video->course_id) {
+                if ($courseId != null) {
+                    $data = [
+                        "course_id" => $courseId,
+                        "courseName" => $courseName,
+                        "videos" =>  $videoArray
+                    ];
+                    $result = $data;
+                    $videoArray = [];
+                }
+                $courseId = $video->course_id;
+                $course = Course::find($courseId);
+                if ($course) {
+                    $courseName = $course->name;
+                }
             }
-            $data = [
-                "course_id" => $video->course_id,
-                "course_name" => $courseName,
-                "id_video" => $video->id,
-                "name" => $video->name,
-                "link_video" => $video->link_video,               
-                "finished" => $video->finished, 
+            $courseData = [
+                "video_id" => $video->id,
+                "videoName" => $video->name,
+                "link_video" => $video->link_video, 
+                "finished"  => $video->finished,
             ];
-            array_push($result, $data);
+            array_push($videoArray, $courseData);
         }
+
+        // Thêm dữ liệu cuối cùng
+        if ($courseId != null) {
+            $data = [
+                "course_id" => $courseId,
+                "courseName" => $courseName,
+                "videos" =>  $videoArray
+            ];
+            $result = $data;
+        }
+
         return $result;
     }
 }

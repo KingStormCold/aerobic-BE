@@ -291,40 +291,4 @@ class SubjectController extends Controller
         ], 200);
     }
 
-    public function fullSubjects()
-    {
-        try {
-            $subjects = Subject::orderByDesc('category_id')->paginate(10);
-            return response()->json([
-                'subjects' => $this->customfullSubjects($subjects->items()),
-                // 'subjects' =>$subjects->items(),
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-            ], 500);
-        }
-    }
-    public function customfullSubjects($subjects)
-    {
-        $result = [];
-        foreach ($subjects as $subject) {
-            $categoryName = "";
-            if ($subject->category_id !== "") {
-                $category = Category::find($subject->category_id);
-                $categoryName= $category->name;
-            }
-            $data = [
-                "category_id" => $subject->category_id,
-                "category_name" => $categoryName,
-                "id_subject" => $subject->id,
-                "name"=> $subject->name,
-                "content" => $subject->content,               
-                "image" => $subject->image, 
-                "promotional_price" => $subject->promotional_price,
-            ];
-            array_push($result, $data);
-        }
-        return $result;
-    }
 }
