@@ -281,7 +281,7 @@ class CategoryController extends Controller
         return $result;
     }
     public function getSubCategories($parentId)
- {
-      return Category::where('parent_id', $parentId)->get();
- }
+    {
+        return Category::where('parent_id', $parentId)->get();
+    }
 }

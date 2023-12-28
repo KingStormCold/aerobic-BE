@@ -27,7 +27,7 @@ class AnswerClientController extends Controller
                 ], 401);
             }
 
-            $answers = Answer::where('test_id',$testId)->orderByDesc('created_at')->get();
+            $answers = Answer::where('test_id', $testId)->orderByDesc('created_at')->get();
             $test = Test::find($testId);
             if (!$test) {
                 return response()->json([
@@ -74,7 +74,7 @@ class AnswerClientController extends Controller
             $answerData = [
                 "answer_id" => $answer->id,
                 "answer_content" => $answer->answer_test,
-                "serial_answer" => $answer->serial_answer, 
+                "serial_answer" => $answer->serial_answer,
             ];
             array_push($answerArray, $answerData);
         }

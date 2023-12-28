@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use App\Models\Payment;
 class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -74,5 +74,8 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Role::class, 'users_roles', 'users_id', 'roles_name', );
     }
 
-   
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

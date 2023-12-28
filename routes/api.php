@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Client\PaymentClientController;
+use App\Http\Controllers\Api\Client\CategoryClientController;
 use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
@@ -16,7 +18,6 @@ use App\Http\Controllers\Api\Client\VideoClientController;
 use App\Http\Controllers\Api\Client\TestClientController;
 use App\Http\Controllers\Api\Client\AnswerClientController;
 use App\Http\Controllers\Api\Client\SubjectClientController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -43,11 +44,6 @@ Route::group([
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user-profile', [AuthController::class, 'userProfile']);
     Route::post('/change-pass', [AuthController::class, 'changePassWord']);
-    // Route::get('/forgot-password', [AuthController::class, 'forgotPass']);
-    // Route::post('/forgot-password', [AuthController::class, 'postForgotPass']);
-    // Route::get('/get-password', [AuthController::class, 'getPass']);
-    // Route::post('/get-password', [AuthController::class, 'postGetPass']);
-
 
     Route::get('/get-parent-categories', [CategoryController::class, 'getParentCategories']);
     Route::get('/get-categories', [CategoryController::class, 'getCategories']);
@@ -72,7 +68,6 @@ Route::group([
     Route::put('/course/{id}', [CourseController::class, 'updateCourse']);
     Route::delete('/course/{id}', [CourseController::class, 'deleteCourse']);
     Route::get('/show-course-name', [CourseController::class, 'showCourseName']);
-    
 
     Route::get('/get-user', [UserController::class, 'getUser']);
     Route::get('/get-parent-users', [UserController::class, 'getParentUsers']);
@@ -90,14 +85,12 @@ Route::group([
     Route::put('/video/{id}', [VideoController::class, 'updateVideo']);
     Route::delete('/video/{id}', [VideoController::class, 'deleteVideo']);
     Route::get('/show-video-name', [VideoController::class, 'showVideoName']);
-    
 
     Route::get('/get-answers', [AnswerController::class, 'getAnswers']);
     Route::get('/get-answer', [AnswerController::class, 'getAnswer']);
     Route::post('/answer', [AnswerController::class, 'insertAnswer']);
     Route::put('/answer/{id}', [AnswerController::class, 'updateAnswer']);
     Route::delete('/answer/{id}', [AnswerController::class, 'deleteAnser']);
-    
 
     Route::get('/get-payments', [PaymentController::class, 'getPayments']);
     Route::get('/get-details', [PaymentController::class, 'getDetail']);
@@ -108,7 +101,6 @@ Route::group([
     Route::post('/insert-test', [TestController::class, 'insertTest']);
     Route::put('/test/{id}', [TestController::class, 'updateTest']);
     Route::delete('/test/{id}', [TestController::class, 'deleteTest']);
-    
 });
 
 Route::group([
@@ -120,4 +112,7 @@ Route::group([
     Route::get('/get-tests/{videoId}', [TestClientController::class, 'fullTests']);
     Route::get('/get-answers/{testId}', [AnswerClientController::class, 'fullAnswers']);
     Route::get('/get-subject/{categoryId}', [SubjectClientController::class, 'fullSubjects']);
+
+    Route::post('/payment-register', [PaymentClientController::class, 'registerCourse']);
+    Route::get('/get-menu', [CategoryClientController::class, 'getMenu']);
 });

@@ -3,19 +3,16 @@
 namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\Course;
 use App\Models\Subject;
 use Exception;
-use Illuminate\Support\Facades\Validator;
 
 class SubjectClientController extends Controller
 {
     public function fullSubjects($categoryId)
     {
         try {
-            $subject = Subject::where('category_id',$categoryId)->orderByDesc('created_at')->first();
+            $subject = Subject::where('category_id', $categoryId)->orderByDesc('created_at')->first();
             $category = Category::find($categoryId);
             if (!$category) {
                 return response()->json([
@@ -35,23 +32,20 @@ class SubjectClientController extends Controller
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
             ], 500);
         }
-    }    
-    
+    }
+
     public function customfullSubject($subject)
     {
-        $result = [];
         $categoryId = $subject->category_id;
         $category = Category::find($categoryId);
-        $categoryName = $category ? $category->name : "";
-    
+
         $categoryData = [
             "subject_id" => $subject->id,
             "subjectName" => $subject->name,
             "subject_content" => $subject->content,
             "subject_image" => $subject->image,
         ];
-    
+
         return $categoryData;
     }
-    
 }
