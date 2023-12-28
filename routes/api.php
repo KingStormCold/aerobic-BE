@@ -119,5 +119,5 @@ Route::group([
     Route::get('/get-videos/{courseId}', [VideoClientController::class, 'fullVideos']);
     Route::get('/get-tests/{videoId}', [TestClientController::class, 'fullTests']);
     Route::get('/get-answers/{testId}', [AnswerClientController::class, 'fullAnswers']);
-    Route::get('/get-subjects/{categoryId}', [SubjectClientController::class, 'fullSubjects']);
+    Route::get('/get-subject/{categoryId}', [SubjectClientController::class, 'fullSubjects']);
 });
