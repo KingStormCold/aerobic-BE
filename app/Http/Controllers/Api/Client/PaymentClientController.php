@@ -29,8 +29,7 @@ class PaymentClientController extends Controller
                 'course_id' => 'required',
                 'subject_id' => 'required',
                 'subject_full' => 'required'
-            ], [ 
-                
+            ], [                
             ]);
             // Lấy ID của người dùng đã đăng nhập
             $subjectFull =  $request->input('subject_full');
@@ -78,33 +77,32 @@ class PaymentClientController extends Controller
                     return response()->json([
                         'error_message' => 'Không tìm thấy khóa học'
                     ], 400);
-                } else {
-                    $promotional_price = $course->promotional_price;
-                    $price = $course->price;
-                    $prices = $price - $promotional_price;
+                } else {             
+                    $price = 0;
+                    $price += $course->price; 
+                    $price -= $course->promotional_price;
                     $user = auth()->user();
-                    if($user->money < $prices){
+                    if($user->money < $price){
                         return response()->json([
                             'error_message' => 'bạn không đủ tiền trong tài khoản'
                         ], 400);
                     } else {
                             Payment::create([
-                                'price'=> $prices,
+                                'price'=> $price,
                                 'subject_full'=> $subjectFull,
                                 'users_id'=>$user->id,
                                 'courses_id'=>$course->id
                             ]);  
+                            }
+                            return response()->json([
+                                'result' => 'success'
+                            ], 200);  
                         }
-                        return response()->json([
-                            'result' => 'success'
-                        ], 200);
-                    
-                }
-            }
-        }   catch (Exception $e) {
+                    }
+            } catch (Exception $e) {
                 return response()->json([
                 'error_message' => $e
-            ], 500);
-        }
+                ], 500);
+            }
     }
 }
