@@ -66,11 +66,8 @@ class PaymentClientController extends Controller
                             'result' => 'success'
                         ], 200);
                     }
-                }
-                
-            } 
-            
-            else {
+                } 
+            } else {
                 $courseId = $request->input('course_id');
                 $course = Course::find($courseId);
                 if($course === null){
@@ -87,22 +84,22 @@ class PaymentClientController extends Controller
                             'error_message' => 'bạn không đủ tiền trong tài khoản'
                         ], 400);
                     } else {
-                            Payment::create([
-                                'price'=> $price,
-                                'subject_full'=> $subjectFull,
-                                'users_id'=>$user->id,
-                                'courses_id'=>$course->id
-                            ]);  
-                            }
-                            return response()->json([
-                                'result' => 'success'
-                            ], 200);  
-                        }
-                    }
-            } catch (Exception $e) {
-                return response()->json([
-                'error_message' => $e
-                ], 500);
+                        Payment::create([
+                            'price'=> $price,
+                            'subject_full'=> $subjectFull,
+                            'users_id'=>$user->id,
+                            'courses_id'=>$course->id
+                        ]);
+                        return response()->json([
+                            'result' => 'success'
+                        ], 200);   
+                    } 
+                }
             }
+        } catch (Exception $e) {
+            return response()->json([
+            'error_message' => $e
+            ], 500);
+        }
     }
 }
