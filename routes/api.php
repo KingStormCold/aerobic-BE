@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Client\PaymentClientController;
 use App\Http\Controllers\Api\Client\CategoryClientController;
+use App\Http\Controllers\Api\Client\FogotpasswordClientController;
 use App\Http\Controllers\Api\AnswerController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
@@ -115,4 +116,9 @@ Route::group([
 
     Route::post('/payment-register', [PaymentClientController::class, 'registerCourse']);
     Route::get('/get-menu', [CategoryClientController::class, 'getMenu']);
+    Route::post('/forgot-password/{email}', [FogotpasswordClientController::class, 'Forgotpassword']);
 });
+
+
+
+
