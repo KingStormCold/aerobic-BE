@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Client\VideoClientController;
 use App\Http\Controllers\Api\Client\TestClientController;
 use App\Http\Controllers\Api\Client\AnswerClientController;
 use App\Http\Controllers\Api\Client\SubjectClientController;
+use App\Http\Controllers\Api\Client\SearchClientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +117,7 @@ Route::group([
 
     Route::post('/payment-register', [PaymentClientController::class, 'registerCourse']);
     Route::get('/get-menu', [CategoryClientController::class, 'getMenu']);
+    Route::post('/search', [SearchClientController::class, 'searchClient']);
     Route::post('/forgot-password/{email}', [FogotpasswordClientController::class, 'Forgotpassword']);
 });
 
