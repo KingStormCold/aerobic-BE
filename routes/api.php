@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Client\VideoClientController;
 use App\Http\Controllers\Api\Client\TestClientController;
 use App\Http\Controllers\Api\Client\AnswerClientController;
 use App\Http\Controllers\Api\Client\SubjectClientController;
+use App\Http\Controllers\Api\Client\SearchClientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -115,12 +116,9 @@ Route::group([
     Route::get('/get-subject/{categoryId}', [SubjectClientController::class, 'fullSubjects']);
 
     Route::post('/payment-register', [PaymentClientController::class, 'registerCourse']);
-    Route::get('/payment-subject', [PaymentClientController::class, 'PaymentSubject']);
+    Route::get('/payment-subject', [PaymentClientController::class, 'paymentSubject']);
     Route::get('/get-menu', [CategoryClientController::class, 'getMenu']);
-    Route::post('/forgot-password/{email}', [ForgotPasswordClientController::class, 'Forgotpassword']);
-    Route::get('/check-uuid/{uuid}', [ForgotPasswordClientController::class, 'CheckUuid']);
+    Route::post('/search', [SearchClientController::class, 'searchClient']);
+    Route::post('/forgot-password/{email}', [ForgotPasswordClientController::class, 'forgotPassword']);
+    Route::get('/check-uuid/{uuid}', [ForgotPasswordClientController::class, 'checkUuid']);
 });
-
-
-
-
