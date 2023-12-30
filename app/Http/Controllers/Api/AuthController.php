@@ -57,28 +57,58 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
+        try {
         $validator = Validator::make($request->all(), [
-            'fullname' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string|confirmed|min:6',
-            'phone' => 'required|digits:10',
-            'status' => 'required|numeric',
+            'user_fullname' => 'required|max:100',
+            'user_email' => 'required|email|unique:users,email',
+            'user_password' => 'required|min:6|confirmed',
+            'user_phone' => 'required|numeric|digits:10',
+            'user_status' => 'required|numeric',
+        ], [
+            'user_fullname.required' => 'Họ và tên không được để trống',
+            'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
+            'user_email.required' => 'Email không được trống',
+            'user_email.email' => 'Email phải đúng định dạng',
+            'user_email.unique' => 'Email đã tồn tại',
+            'user_password.required' => 'Password không được để trống',
+            'user_password.min' => 'Password phải ít nhất 6 kí tự',
+            'user_password.confirmed' => 'xác nhận lại Password ko đúng',
+            'user_phone.required' => 'Số điện thoại không được để trống',
+            'user_phone.numeric' => 'Số điện thoại phải là số',
+            'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
+            'user_status.required' => 'Trạng thái không được để trống',
+            'user_status.numeric' => 'Trạng thái phải là số',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
+            $errors = $validator->errors()->all();
+            foreach ($errors as $key => $error) {
+                return response()->json([
+                    'error_message' => $error
+                ], 400);
+            }
         }
 
-        $user = User::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)]
-        ));
+        $user = User::create([
+            'email' => $request->user_email,
+            'password' => bcrypt($request->user_password),
+            'fullname' => $request->user_fullname,
+            'status' => $request->user_status,
+            'phone' => $request->user_phone,
+            'money' => 0,
+        ]);
+
 
         return response()->json([
-            'message' => 'User successfully registered',
+            'message' => 'đăng kí người dùng thành công',
             'user' => $user
         ], 201);
+    }  catch (Exception $e) {
+        return response()->json([
+            'error_message' => 'lỗi hệ thống'
+        ], 500);
     }
+}
 
 
     /**
