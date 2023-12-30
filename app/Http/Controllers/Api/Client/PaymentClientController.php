@@ -102,4 +102,40 @@ class PaymentClientController extends Controller
             ], 500);
         }
     }
+
+    public function PaymentSubject(){
+        try {
+            if(!Auth::check()){
+                return response()->json([
+                    'error_message' => 'ban can dang nhap'
+                ],401);
+            }
+            $userId = Auth::id();
+            $payments = Payment::where('users_id',$userId)->get();
+            if(!$payments->isEmpty()){
+                $payment_subject = [];
+                foreach ($payments as $payment) {
+                    $course = Course::with('subject')->find($payment->courses_id);
+                        if ( $course) {
+                            $payment_subject[] = [
+                                "id"=>$course->id,
+                                "name" => $course->name,
+                                "description" =>  $course->description,
+                                "subject_id" => $course->subject->id,
+                                "subject_name" => $course->subject->name,
+                                "image" => $course->subject->image
+                            ];
+                        } 
+                }
+                return response()->json([
+                    'payment_subjects' =>  $payment_subject,
+                ],200);
+            }          
+        } catch (Exception $e) {
+           return response()->json([
+            'error_message'=>$e
+           ]);
+        }     
+   } 
+
 }

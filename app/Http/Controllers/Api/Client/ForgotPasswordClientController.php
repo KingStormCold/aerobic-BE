@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Input;
 
-class FogotpasswordClientController extends Controller
+class ForgotPasswordClientController extends Controller
 {
     public function Forgotpassword (Request $request, $email){
         try {
@@ -46,5 +46,27 @@ class FogotpasswordClientController extends Controller
                 'error_message' => $e->getMessage()
                 ], 500);
         }
+    }
+    public function CheckUuid ($uuid){
+        try {
+            $user = User::where('uuid',$uuid)->first();
+            if ($user !== null) {
+                if($user->uuid !== null){
+                    $user->uuid = "";
+                    $user->save();
+                    return response()->json([
+                        'result' => 'success'
+                    ], 200);
+                } 
+            } else {
+                return response()->json([
+                    'result' => 'Không tìm thấy uuid'
+                ], 400);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => $e->getMessage()
+                ], 500);
+        } 
     }
 }
