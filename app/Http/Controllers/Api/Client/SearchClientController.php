@@ -29,7 +29,7 @@ class SearchClientController extends Controller
         }
     
         $content_search = $request->input('content_search');
-        $results = Subject::where("content","like","%".$content_search."%")->get();
+        $results = Subject::select('id','content','name','image')->where("content","like","%".$content_search."%")->get();
         if($results->isEmpty()) {
             return response()->json([
                 'message' => 'Không tìm thấy tên môn học phù hợp'
