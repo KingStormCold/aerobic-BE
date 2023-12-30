@@ -170,7 +170,7 @@ class SubjectController extends Controller
      */
     public function updateSubject($id,  Request $request)
     {
-        // try {
+        try {
         // Xác minh quyền hạn của người dùng
         $authController = new AuthController();
         $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
@@ -240,11 +240,11 @@ class SubjectController extends Controller
         return response()->json([
             'result' => 'succes'
         ], 200);
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-        //     ], 500);
-        // }
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
     }
 
 

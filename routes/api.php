@@ -117,6 +117,6 @@ Route::group([
     Route::post('/payment-register', [PaymentClientController::class, 'registerCourse']);
     Route::get('/get-menu', [CategoryClientController::class, 'getMenu']);
 
-    Route::get('/search/{subjectContent}', [SearchClientController::class, 'searchClient']);
+    Route::post('/search', [SearchClientController::class, 'searchClient']);
 
 });
