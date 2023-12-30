@@ -45,7 +45,6 @@ class SubjectClientController extends Controller
             "subject_content" => $subject->content,
             "subject_image" => $subject->image,
         ];
-
         return $categoryData;
     }
 }

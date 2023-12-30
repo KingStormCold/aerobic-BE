@@ -171,75 +171,75 @@ class SubjectController extends Controller
     public function updateSubject($id,  Request $request)
     {
         try {
-        // Xác minh quyền hạn của người dùng
-        $authController = new AuthController();
-        $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
-        if (!$isAuthorization) {
-            return response()->json([
-                'code' => 'Subject_001',
-                'message' => 'Bạn không có quyền.'
-            ], 401);
-        }
-        // Tìm môn học theo ID và kiểm tra sự tồn tại
-        $subject = Subject::find($id);
-        if ($subject == null) {
-            return response()->json([
-                'error_message' => 'Không tìm thấy subject'
-            ], 400);
-        }
-        // Kiểm tra và xử lý dữ liệu đầu vào
-        $validator = Validator::make($request->all(), [
-            'subject_content' => 'required',
-            'subject_image' => 'required',
-            'promotional_price_subject' => 'required|numeric',
-
-            'category_id' => 'required|exists:categories,id'
-
-        ], [
-            'subject_content.required' => 'Nội dung không được trống',
-            'subject_image.required' => 'Hình ảnh không được trống',
-            'promotional_price_subject.required' => 'Giá khuyến mãi không được trống',
-            'promotional_price_subject.numeric' => 'Giá khuyến mãi phai la so',
-            'category_id.exists' => 'Danh mục không đúng',
-            'category_id.required' => 'danh mục không được trống '
-        ]);
-        // Nếu có lỗi xác minh, trả về thông báo lỗi
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-
-            $categoryId = $request->input('category_id');
-            $categoryName = Category::where('id', $categoryId)->value('name');
-
-            foreach ($errors as $key => $error) {
+            // Xác minh quyền hạn của người dùng
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
+            if (!$isAuthorization) {
                 return response()->json([
-                    'error_message' => $error
+                    'code' => 'Subject_001',
+                    'message' => 'Bạn không có quyền.'
+                ], 401);
+            }
+            // Tìm môn học theo ID và kiểm tra sự tồn tại
+            $subject = Subject::find($id);
+            if ($subject == null) {
+                return response()->json([
+                    'error_message' => 'Không tìm thấy subject'
                 ], 400);
             }
-        }
-        // Kiểm tra sự tồn tại của danh mục cha nếu có
-        if ($request->category_id != null) {
-            $subjectParent = Category::find($request->category_id);
-            if ($subjectParent == null) {
-                return response()->json([
-                    'error_message' => 'Danh mục cha không đúng'
-                ], 400);
+            // Kiểm tra và xử lý dữ liệu đầu vào
+            $validator = Validator::make($request->all(), [
+                'subject_content' => 'required',
+                'subject_image' => 'required',
+                'promotional_price_subject' => 'required|numeric',
+
+                'category_id' => 'required|exists:categories,id'
+
+            ], [
+                'subject_content.required' => 'Nội dung không được trống',
+                'subject_image.required' => 'Hình ảnh không được trống',
+                'promotional_price_subject.required' => 'Giá khuyến mãi không được trống',
+                'promotional_price_subject.numeric' => 'Giá khuyến mãi phai la so',
+                'category_id.exists' => 'Danh mục không đúng',
+                'category_id.required' => 'danh mục không được trống '
+            ]);
+            // Nếu có lỗi xác minh, trả về thông báo lỗi
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+
+                $categoryId = $request->input('category_id');
+                $categoryName = Category::where('id', $categoryId)->value('name');
+
+                foreach ($errors as $key => $error) {
+                    return response()->json([
+                        'error_message' => $error
+                    ], 400);
+                }
             }
-        }
-        // Cập nhật thông tin môn học và lưu vào cơ sở dữ liệu
-        $subject->category_id = $request->input('category_id', 1);
-        $subject->content = $request->input('subject_content');
-        $subject->image = $request->input('subject_image');
-        $subject->promotional_price = $request->input('promotional_price_subject');
-        $subject->updated_by = auth()->user()->email;
-        $subject->save();
+            // Kiểm tra sự tồn tại của danh mục cha nếu có
+            if ($request->category_id != null) {
+                $subjectParent = Category::find($request->category_id);
+                if ($subjectParent == null) {
+                    return response()->json([
+                        'error_message' => 'Danh mục cha không đúng'
+                    ], 400);
+                }
+            }
+            // Cập nhật thông tin môn học và lưu vào cơ sở dữ liệu
+            $subject->category_id = $request->input('category_id', 1);
+            $subject->content = $request->input('subject_content');
+            $subject->image = $request->input('subject_image');
+            $subject->promotional_price = $request->input('promotional_price_subject');
+            $subject->updated_by = auth()->user()->email;
+            $subject->save();
 
 
 
 
-        // Trả về phản hồi JSON với kết quả
-        return response()->json([
-            'result' => 'succes'
-        ], 200);
+            // Trả về phản hồi JSON với kết quả
+            return response()->json([
+                'result' => 'succes'
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
@@ -290,5 +290,4 @@ class SubjectController extends Controller
             'subjects' => $result
         ], 200);
     }
-
 }
