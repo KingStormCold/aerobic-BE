@@ -35,9 +35,9 @@ class CourseClientController extends Controller
     {
         $result = [];
         $subjectId = null;
-        $subjectName ="";
-        $subjectImage ="";
-        // $subjectContent = "";
+        $subject_name ="";
+        $subject_image ="";
+        // $subject_content = "";
         $courseArray = [];
 
         foreach ($courses as $course) {
@@ -45,9 +45,9 @@ class CourseClientController extends Controller
                 if ($subjectId != null) {
                     $data = [
                         "subject_id" => $subjectId,
-                        "subjectName" => $subjectName,
-                        "subjectImage" => $subjectImage,
-                        // "subjectContent" => $subjectContent,
+                        "subject_name" => $subject_name,
+                        "subject_image" => $subject_image,
+                        // "subject_content" => $subject_content,
                         "courses" =>  $courseArray
                     ];
                     $result = $data;
@@ -56,16 +56,19 @@ class CourseClientController extends Controller
                 $subjectId = $course->subject_id;
                 $subject = Subject::find($subjectId);
                 if ($subject) {
-                    $subjectName = $subject->name;
-                    $subjectImage = $subject->image;
-                    $subjectContent = $subject->content;
+                    $subject_name = $subject->name;
+                    $subject_image = $subject->image;
+                    // $subject_content = $subject->content;
                 }
             }
             $subjectData = [
                 "course_id" => $course->id,
-                "courseName" => $course->name,
+                "course_name" => $course->name,
                 "course_description" => $course->description,
                 "level" => $course->level,
+                "price"  => $course->price,
+                "promotional_price" => $course->promotional_price,
+
             ];
             array_push($courseArray, $subjectData);
         }
@@ -74,9 +77,9 @@ class CourseClientController extends Controller
         if ($subjectId != null) {
             $data = [
                 "subject_id" => $subjectId,
-                "subjectName" => $subjectName,
-                "subjectImage" =>  $subjectImage,
-                // "subjectContent" => $subjectContent,
+                "subject_name" => $subject_name,
+                "subject_image" =>  $subject_image,
+                // "subject_content" => $subject_content,
                 "course" => $courseArray
             ];
             $result = $data;
