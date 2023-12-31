@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Subject;
+use App\Models\Course;
+use App\Models\Video;
 use Exception;
 
 class SubjectClientController extends Controller
@@ -38,13 +40,14 @@ class SubjectClientController extends Controller
     {
         $categoryId = $subject->category_id;
         $category = Category::find($categoryId);
-
+    
         $categoryData = [
             "subject_id" => $subject->id,
-            "subjectName" => $subject->name,
+            "subject_name" => $subject->name,
             "subject_content" => $subject->content,
             "subject_image" => $subject->image,
         ];
+    
         return $categoryData;
     }
 }

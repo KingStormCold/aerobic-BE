@@ -12,4 +12,9 @@ class Video extends Model
     protected $table = 'videos';
 
     protected $guarded = [];
+
+    public function courses()
+    {
+        return $this->belongsTo(Course::class);
+    }
 }

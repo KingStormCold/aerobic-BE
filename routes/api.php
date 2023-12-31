@@ -121,4 +121,5 @@ Route::group([
     Route::post('/search', [SearchClientController::class, 'searchClient']);
     Route::post('/forgot-password/{email}', [ForgotPasswordClientController::class, 'forgotPassword']);
     Route::get('/check-uuid/{uuid}', [ForgotPasswordClientController::class, 'checkUuid']);
+
 });
