@@ -15,8 +15,7 @@ class Course extends Model
 
     public $fillable = ['name', 'description', 'level', 'price', 'subject_id', 'created_by', 'promotional_price', 'updated_by'];
 
-    public function subject()
-    {
-        return $this->belongsTo(Subject::class);
+    public function videos(){
+        return $this->hasMany(Video::class);
     }
 }

@@ -34,7 +34,7 @@ class CategoryClientController extends Controller
             ];
             $subCategories = $this->getSubCategories($category->id);
             if (!$subCategories->isEmpty()) {
-                $categoryData['sub-menu'] = $this->buildMenu($subCategories);
+                $categoryData['sub_menu'] = $this->buildMenu($subCategories);
             }
 
             $result[] = $categoryData;
