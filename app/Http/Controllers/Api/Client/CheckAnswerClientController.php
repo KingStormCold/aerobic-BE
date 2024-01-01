@@ -46,11 +46,9 @@ class CheckAnswerClientController extends Controller
             $selectedSerialAnswer = $request->input('serial_answer');
 
             $isCorrect = in_array($selectedSerialAnswer, $correctSerialAnswers);
-            $message = $isCorrect ? 'Đúng rồi' : 'Sai rồi';
 
             return response()->json([
-                'is_correct' => $isCorrect,
-                'message' => $message,
+                'result' => 'success' ,
             ], 200);
         } catch (Exception $e) {
             return response()->json([
