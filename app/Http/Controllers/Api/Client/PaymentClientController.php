@@ -29,12 +29,13 @@ class PaymentClientController extends Controller
                 'course_id' => 'required',
                 'subject_id' => 'required',
                 'subject_full' => 'required'
-            ], []);
+            ], [
+            ]);               
             // Lấy ID của người dùng đã đăng nhập
-            $subjectFull =  $request->input('subject_full');
+            $subjectFull = $request->input('subject_full');
             if ($subjectFull === 1) {
                 $subjectId = $request->input('subject_id');
-                $subject = Subject::with('courses')->find($subjectId);
+                $subject = Subject::with('courses')->find($subjectId);               
                 if ($subject === null) {
                     return response()->json([
                         'error_message' => 'Không tìm thấy môn học'
@@ -44,10 +45,16 @@ class PaymentClientController extends Controller
                     $price = 0;
                     foreach ($courses as $course) {
                         $price += $course->price; // $price = price + $course->price
-                        $price -= $course->promotional_price;
+                        $price -= $course->promotional_price; 
                     }
-                    $price -= $subject->promotional_price;
+                    $price -= $subject->promotional_price; 
                     $user = auth()->user();
+                    $payments = Payment::where('users_id', $user->id)->where('courses_id', $course->id) ->exists();
+                    if ($payments) {
+                        return response()->json([
+                            'error_message' => 'Bạn đã mua khóa học và môn học này trước đó.'
+                        ], 400);
+                    }   
                     if ($user->money < $price) {
                         return response()->json([
                             'error_message' => 'bạn không đủ tiền trong tài khoản'
@@ -68,7 +75,7 @@ class PaymentClientController extends Controller
                 }
             } else {
                 $courseId = $request->input('course_id');
-                $course = Course::find($courseId);
+                $course = Course::find($courseId);          
                 if ($course === null) {
                     return response()->json([
                         'error_message' => 'Không tìm thấy khóa học'
@@ -78,6 +85,12 @@ class PaymentClientController extends Controller
                     $price += $course->price;
                     $price -= $course->promotional_price;
                     $user = auth()->user();
+                    $payments = Payment::where('users_id', $user->id)->where('courses_id', $course->id) ->exists();
+                    if ($payments) {
+                        return response()->json([
+                            'error_message' => 'Bạn đã mua khóa học và môn học này trước đó.'
+                        ], 400);
+                    }
                     if ($user->money < $price) {
                         return response()->json([
                             'error_message' => 'bạn không đủ tiền trong tài khoản'
@@ -94,7 +107,7 @@ class PaymentClientController extends Controller
                         ], 200);
                     }
                 }
-            }
+            }          
         } catch (Exception $e) {
             return response()->json([
                 'error_message' => $e
