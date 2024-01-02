@@ -15,7 +15,7 @@ class CheckAnswerClientController extends Controller
 {
     public function checkAnswers(Request $request)
     {
-        // try {
+        try {
             $authController = new AuthController();
             $isAuthorization = $authController->isAuthorization('USER');
             if (!$isAuthorization) {
@@ -27,8 +27,8 @@ class CheckAnswerClientController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'test_id' => 'required|exists:tests,id',
-                'serial_answer' => 'required|numeric|between:1,4', 
-            ],[
+                'serial_answer' => 'required|numeric|between:1,4',
+            ], [
                 'test_id.required' => 'test_id không được trống',
                 'test_id.exists' => 'nguồn test_id không đúng',
                 'serial_answer.required' => 'serial_answer không được trống',
@@ -43,22 +43,13 @@ class CheckAnswerClientController extends Controller
             $testId = $request->input('test_id');
             $test = Test::find($testId);
 
-            if ($test->serial_answer === $request->input('serial_answer')) {
-                return response()->json([
-                    'result' => 'success',
-                ], 200);
-            } else {
-                return response()->json([
-                    'result' => 'failed',
-                ], 200);
-            }
-
-            // } catch (Exception $e) {
-            //     return response()->json([
-            //         'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-            //     ], 500);
-            // }
+            return response()->json([
+                'result' => $test->serial_answer === $request->input('serial_answer') ? 'success' : 'failed',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
     }
-    
-    
 }
