@@ -43,23 +43,27 @@ class PaymentClientController extends Controller
                 } else {
                     $courses = $subject->courses;
                     $price = 0;
+                    $courseId = [];
                     foreach ($courses as $course) {
                         $price += $course->price; // $price = price + $course->price
                         $price -= $course->promotional_price; 
-                    }
-                    $price -= $subject->promotional_price; 
+                        $courseId[] = $course->id;
+                    }           
+                    $price-= $subject->promotional_price; 
                     $user = auth()->user();
-                    $payments = Payment::where('users_id', $user->id)->where('courses_id', $course->id) ->exists();
+                    $payments = Payment::where('users_id', $user->id)->where('courses_id', $courseId) ->exists();
                     if ($payments) {
                         return response()->json([
                             'error_message' => 'Bạn đã mua khóa học và môn học này trước đó.'
                         ], 400);
                     }   
-                    if ($user->money < $price) {
+                    if ($user -> money < $price) {
                         return response()->json([
                             'error_message' => 'bạn không đủ tiền trong tài khoản'
                         ], 400);
-                    } else {
+                    } else {                    
+                        $user->money -= $price;
+                        $user->save();
                         foreach ($courses as $course) {
                             Payment::create([
                                 'price' => $price,
@@ -96,6 +100,8 @@ class PaymentClientController extends Controller
                             'error_message' => 'bạn không đủ tiền trong tài khoản'
                         ], 400);
                     } else {
+                        $user->money -= $price;
+                        $user->save();
                         Payment::create([
                             'price' => $price,
                             'subject_full' => $subjectFull,
