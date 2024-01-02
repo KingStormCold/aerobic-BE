@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Client\TestClientController;
 use App\Http\Controllers\Api\Client\AnswerClientController;
 use App\Http\Controllers\Api\Client\SubjectClientController;
 use App\Http\Controllers\Api\Client\SearchClientController;
+use App\Http\Controllers\Api\Client\CheckAnswerClientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,5 +122,5 @@ Route::group([
     Route::post('/search', [SearchClientController::class, 'searchClient']);
     Route::post('/forgot-password/{email}', [ForgotPasswordClientController::class, 'forgotPassword']);
     Route::get('/check-uuid/{uuid}', [ForgotPasswordClientController::class, 'checkUuid']);
-
+    Route::post('/check-answer', [CheckAnswerClientController::class, 'checkAnswers']);
 });

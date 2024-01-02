@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Role;
 use App\Models\UserRole;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Gate;
@@ -96,16 +97,20 @@ class AuthController extends Controller
             'status' => $request->user_status,
             'phone' => $request->user_phone,
             'money' => 0,
+            
         ]);
+        $defaultRole = Role::where('name', 'USER')->first();
+        $user->roles()->attach($defaultRole);
 
 
         return response()->json([
-            'message' => 'đăng kí người dùng thành công',
-            'user' => $user
+            'message' => 'Đăng ký người dùng thành công',
+            'user' => $user,
+            'vai trò' => $defaultRole->name,
         ], 201);
-    }  catch (Exception $e) {
+    } catch (Exception $e) {
         return response()->json([
-            'error_message' => 'lỗi hệ thống'
+            'error_message' => 'Lỗi hệ thống'
         ], 500);
     }
 }
