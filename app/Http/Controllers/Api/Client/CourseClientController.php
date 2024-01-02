@@ -41,7 +41,6 @@ class CourseClientController extends Controller
         $price = 0;
         $promotionalPrice = 0;
         foreach ($courses as $course) {
-            
             $price += $course->price;
             $promotionalPrice += $course->promotional_price;
             $subjectFull = [

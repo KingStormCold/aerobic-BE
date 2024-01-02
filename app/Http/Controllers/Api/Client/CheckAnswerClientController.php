@@ -15,7 +15,7 @@ class CheckAnswerClientController extends Controller
 {
     public function checkAnswers(Request $request)
     {
-        try {
+        // try {
             $authController = new AuthController();
             $isAuthorization = $authController->isAuthorization('USER');
             if (!$isAuthorization) {
@@ -41,20 +41,23 @@ class CheckAnswerClientController extends Controller
             }
 
             $testId = $request->input('test_id');
-            $correctSerialAnswers = Test::where('id', $testId)->pluck('serial_answer')->toArray();
+            $test = Test::find($testId);
 
-            $selectedSerialAnswer = $request->input('serial_answer');
+            if ($test->serial_answer === $request->input('serial_answer')) {
+                return response()->json([
+                    'result' => 'success',
+                ], 200);
+            } else {
+                return response()->json([
+                    'result' => 'failed',
+                ], 200);
+            }
 
-            $isCorrect = in_array($selectedSerialAnswer, $correctSerialAnswers);
-
-            return response()->json([
-                'result' => 'success' ,
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-            ], 500);
-        }
+            // } catch (Exception $e) {
+            //     return response()->json([
+            //         'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            //     ], 500);
+            // }
     }
     
     
