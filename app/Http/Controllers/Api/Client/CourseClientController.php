@@ -37,31 +37,13 @@ class CourseClientController extends Controller
         $subjectId = null;
         $subject_name ="";
         $subject_image ="";
-        // $subject_content = "";
         $courseArray = [];
-
+        $price = 0;
+        $promotionalPrice = 0;
         foreach ($courses as $course) {
-            if ($subjectId != $course->subject_id) {
-                if ($subjectId != null) {
-                    $data = [
-                        "subject_id" => $subjectId,
-                        "subject_name" => $subject_name,
-                        "subject_image" => $subject_image,
-                        // "subject_content" => $subject_content,
-                        "courses" =>  $courseArray
-                    ];
-                    $result = $data;
-                    $courseArray = [];
-                }
-                $subjectId = $course->subject_id;
-                $subject = Subject::find($subjectId);
-                if ($subject) {
-                    $subject_name = $subject->name;
-                    $subject_image = $subject->image;
-                    // $subject_content = $subject->content;
-                }
-            }
-            $subjectData = [
+            $price += $course->price;
+            $promotionalPrice += $course->promotional_price;
+            $subjectFull = [
                 "course_id" => $course->id,
                 "course_name" => $course->name,
                 "course_description" => $course->description,
@@ -70,21 +52,23 @@ class CourseClientController extends Controller
                 "promotional_price" => $course->promotional_price,
 
             ];
-            array_push($courseArray, $subjectData);
+            array_push($courseArray, $subjectFull);
+        }
+        if(empty($courseArray)){
+            return [];
         }
 
-        // Thêm dữ liệu cuối cùng
-        if ($subjectId != null) {
-            $data = [
-                "subject_id" => $subjectId,
-                "subject_name" => $subject_name,
-                "subject_image" =>  $subject_image,
-                // "subject_content" => $subject_content,
-                "course" => $courseArray
-            ];
-            $result = $data;
-        }
+        $subjectFull = [
+            "course_id" => 0,
+            "course_name" =>'Toàn bộ khóa học',
+            "course_description" => '',
+            "level" => '',
+            "price"  => $price,
+            "promotional_price" => $promotionalPrice,
 
-        return $result;
+        ];
+        array_push($courseArray, $subjectFull);
+
+        return $courseArray;
     }
 }
