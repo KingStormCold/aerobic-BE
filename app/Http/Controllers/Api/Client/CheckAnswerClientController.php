@@ -10,46 +10,89 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\AuthController;
+use App\Models\Video;
+use App\Models\VideoUser;
+use Illuminate\Support\Facades\Auth;
 
 class CheckAnswerClientController extends Controller
 {
     public function checkAnswers(Request $request)
     {
-        try {
-            $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('USER');
-            if (!$isAuthorization) {
-                return response()->json([
-                    'code' => 'CATE_001',
-                    'message' => 'Bạn cần đăng ký thành viên và mua khóa học để làm bài kiểm tra'
-                ], 401);
-            }
-
-            $validator = Validator::make($request->all(), [
-                'test_id' => 'required|exists:tests,id',
-                'serial_answer' => 'required|numeric|between:1,4',
-            ], [
-                'test_id.required' => 'test_id không được trống',
-                'test_id.exists' => 'nguồn test_id không đúng',
-                'serial_answer.required' => 'serial_answer không được trống',
-                'serial_answer.numeric' => 'serial_answer phải là số',
-                'serial_answer.between' => 'serial_answer là số từ 1->4',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 400);
-            }
-
-            $testId = $request->input('test_id');
-            $test = Test::find($testId);
-
+        // try {
+        $authController = new AuthController();
+        $isAuthorization = $authController->isAuthorization('USER');
+        if (!$isAuthorization) {
             return response()->json([
-                'result' => $test->serial_answer === $request->input('serial_answer') ? 'success' : 'failed',
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-            ], 500);
+                'code' => 'CATE_001',
+                'message' => 'Bạn cần đăng ký thành viên và mua khóa học để làm bài kiểm tra'
+            ], 401);
         }
+
+        $validator = Validator::make($request->all(), [
+            'quizs' => 'required',
+        ], [
+            'quizs.required' => 'Danh sách câu hỏi và trả lời không được trống',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $quizs = $request->input('quizs');
+        $testArray = [];
+        $totalCorrect = 0;
+        $testId = 0;
+        foreach ($quizs as $quiz) {
+            $test = Test::find($quiz['test_id']);
+            $testId = $test->id;
+            $answerList = [];
+            $answers = Answer::where('test_id', $test->id)->get();
+            foreach ($answers as $answer) {
+                $data = [
+                    "answer_test" => $answer->answer_test,
+                    "checked" => $answer->serial_answer === $quiz['serial_answer']
+                ];
+                array_push($answerList, $data);
+            }
+            $isCorrect = false;
+            if ($test->serial_answer === $quiz['serial_answer']) {
+                $totalCorrect++;
+                $isCorrect = true;
+            }
+            $testData = [
+                "test_content" => $test->test_content,
+                "isCorrect" => $isCorrect,
+                "answers" => $answerList
+            ];
+            array_push($testArray, $testData);
+        }
+        if ($testId !== 0) {
+            $testDetail = Test::find($testId);
+            $videosUsers = VideoUser::where('users_id', Auth::id())->where('videos_id', $testDetail->video_id)->first();
+            if ($videosUsers !== null) {
+                if ($totalCorrect > $videosUsers->total_correct) {
+                    $videosUsers->update([
+                        'total_correct' => $totalCorrect,
+                    ]);
+                }
+                if ($totalCorrect >= 5) {
+                    $videoUpdate = Video::find($testDetail->video_id);
+                    $videoUpdate->update([
+                        'finished' => 1
+                    ]);
+                }
+            }
+        }
+        return response()->json([
+            'result' => [
+                'tests' => $testArray,
+                'total_correct' => $totalCorrect
+            ]
+        ], 200);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+        //     ], 500);
+        // }
     }
 }

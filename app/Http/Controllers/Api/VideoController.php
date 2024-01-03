@@ -62,7 +62,7 @@ class VideoController extends Controller
                 "link_video" => $video->link_video,
                 "course_id" => $video->course_id,
                 "course_name" => $courseName,
-                "finished" => $video->finished,
+                "full_time" => $video->full_time,
                 "created_by" => $video->created_by,
                 "updated_by" => $video->updated_by,
                 "created_at" => $video->created_at,
@@ -143,7 +143,9 @@ class VideoController extends Controller
                 'link_video' => $request->link_video,
                 'finished' => $request->finished,
                 'course_id' => $request->course_id,
-                'created_by' => $authController->getEmail()
+                'created_by' => $authController->getEmail(),
+                'full_time' => $request->full_time,
+                'view' => 0
             ]);
 
             return response()->json([
@@ -203,7 +205,8 @@ class VideoController extends Controller
                 'link_video' => $request->link_video,
                 'finished' => $request->finished,
                 'course_id' => $request->course_id,
-                'updated_by' => $authController->getEmail()
+                'updated_by' => $authController->getEmail(),
+                'full_time' => $request->full_time,
             ]);
 
             return response()->json([

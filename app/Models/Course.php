@@ -13,9 +13,14 @@ class Course extends Model
 
     protected $table = 'courses';
 
-    public $fillable = ['name', 'description', 'level', 'price', 'subject_id', 'created_by', 'promotional_price', 'updated_by'];
+    protected $guarded = [];
 
-    public function videos(){
+    public function videos()
+    {
         return $this->hasMany(Video::class);
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
     }
 }

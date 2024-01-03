@@ -112,71 +112,72 @@ class UserController extends Controller
 
     public function insertUser(Request $request)
     {
-        try {
-            $authController = new AuthController();
-            $isAuthorization = $authController->isAuthorization('ADMIN_USER');
-            if (!$isAuthorization) {
-                return response()->json([
-                    'message' => 'Bạn không có quyền.'
-                ], 401);
-            }
-
-            $validator = Validator::make($request->all(), [
-                'user_email' => 'required|email|unique:users,email',
-                'user_password' => 'required|min:6|confirmed',
-                'user_fullname' => 'required|max:100',
-                'user_role_name' => 'required|array',
-                'user_role_name.*' => 'exists:roles,name',
-                'user_phone' => 'required|numeric|digits:10',
-                'user_status' => 'required|numeric',
-            ], [
-                'user_email.required' => 'Email không được trống',
-                'user_email.email' => 'Email phải đúng định dạng',
-                'user_email.unique' => 'Email đã tồn tại',
-                'user_password.required' => 'Password không được để trống',
-                'user_password.min' => 'Password phải ít nhất 6 kí tự',
-                'user_password.confirmed' => 'xác nhận lại Password ko đúng',
-                'user_fullname.required' => 'Họ và tên không được để trống',
-                'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-                'user_role_name.required' => 'Vai trò người dùng không được trống',
-                'user_role_name.array' => 'Vai trò người dùng phải là một mảng',
-                'user_role_name.*.exists' => 'Vai trò người dùng không tồn tại',
-                'user_phone.required' => 'Số điện thoại không được để trống',
-                'user_phone.numeric' => 'Số điện thoại phải là số',
-                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
-                'user_status.required' => 'Trạng thái không được để trống',
-                'user_status.numeric' => 'Trạng thái phải là số',
-            ]);
-            if ($validator->fails()) {
-                $errors = $validator->errors()->all();
-                foreach ($errors as $key => $error) {
-                    return response()->json([
-                        'error_message' => $error
-                    ], 400);
-                }
-            }
-
-            $user = User::create([
-                'email' => $request->user_email,
-                'password' => bcrypt($request->user_password),
-                'fullname' => $request->user_fullname,
-                'status' => $request->user_status,
-                'phone' => $request->user_phone,
-                'money' => 0,
-                'created_by' => auth()->user()->email,
-            ]);
-
-            // Thêm quyền cho người dùng thông qua bảng trung gian
-            $user->roles()->attach($request->user_role_name);
-
+        // try {
+        $authController = new AuthController();
+        $isAuthorization = $authController->isAuthorization('ADMIN_USER');
+        if (!$isAuthorization) {
             return response()->json([
-                'result' => 'success',
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error_message' => 'lỗi hệ thống'
-            ], 500);
+                'message' => 'Bạn không có quyền.'
+            ], 401);
         }
+
+        $validator = Validator::make($request->all(), [
+            'user_email' => 'required|email|unique:users,email',
+            'user_password' => 'required|min:6|confirmed',
+            'user_fullname' => 'required|max:100',
+            'user_role_name' => 'required|array',
+            'user_role_name.*' => 'exists:roles,name',
+            'user_phone' => 'required|numeric|digits:10',
+            'user_status' => 'required|numeric',
+        ], [
+            'user_email.required' => 'Email không được trống',
+            'user_email.email' => 'Email phải đúng định dạng',
+            'user_email.unique' => 'Email đã tồn tại',
+            'user_password.required' => 'Password không được để trống',
+            'user_password.min' => 'Password phải ít nhất 6 kí tự',
+            'user_password.confirmed' => 'xác nhận lại Password ko đúng',
+            'user_fullname.required' => 'Họ và tên không được để trống',
+            'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
+            'user_role_name.required' => 'Vai trò người dùng không được trống',
+            'user_role_name.array' => 'Vai trò người dùng phải là một mảng',
+            'user_role_name.*.exists' => 'Vai trò người dùng không tồn tại',
+            'user_phone.required' => 'Số điện thoại không được để trống',
+            'user_phone.numeric' => 'Số điện thoại phải là số',
+            'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
+            'user_status.required' => 'Trạng thái không được để trống',
+            'user_status.numeric' => 'Trạng thái phải là số',
+        ]);
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            foreach ($errors as $key => $error) {
+                return response()->json([
+                    'error_message' => $error
+                ], 400);
+            }
+        }
+
+        $user = User::create([
+            'email' => $request->user_email,
+            'password' => bcrypt($request->user_password),
+            'fullname' => $request->user_fullname,
+            'status' => $request->user_status,
+            'phone' => $request->user_phone,
+            'money' => 0,
+            'uuid' => '',
+            'created_by' => auth()->user()->email,
+        ]);
+
+        // Thêm quyền cho người dùng thông qua bảng trung gian
+        $user->roles()->attach($request->user_role_name);
+
+        return response()->json([
+            'result' => 'success',
+        ], 200);
+        // } catch (Exception $e) {
+        //     return response()->json([
+        //         'error_message' => 'lỗi hệ thống'
+        //     ], 500);
+        // }
     }
 
     public function updateUser($id, Request $request)
@@ -197,7 +198,7 @@ class UserController extends Controller
                 ], 400);
             }
             $validator = Validator::make($request->all(), [
-                'user_fullname' => 'required|max:100,'. $user->id,
+                'user_fullname' => 'required|max:100,' . $user->id,
                 'user_role_name' => 'required|array',
                 'user_role_name.*' => 'exists:roles,name',
                 'user_phone' => 'required|numeric|digits:10',

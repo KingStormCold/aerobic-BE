@@ -112,6 +112,8 @@ Route::group([
 ], function ($router) {
     Route::get('/get-courses/{subjectId}', [CourseClientController::class, 'fullCourses']);
     Route::get('/get-videos/{courseId}', [VideoClientController::class, 'fullVideos']);
+    Route::get('/count-video/{courseId}', [VideoClientController::class, 'countVideo']);
+    Route::post('/update-video-user', [VideoClientController::class, 'updateVideoUser']);
     Route::get('/get-tests/{videoId}', [TestClientController::class, 'fullTests']);
     Route::get('/get-answers/{testId}', [AnswerClientController::class, 'fullAnswers']);
     Route::get('/get-subject/{categoryId}', [SubjectClientController::class, 'fullSubjects']);

@@ -1,0 +1,8 @@
+INSERT INTO `categories` (`id`, `name`, `parent_id`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
+(1, 'Yoga', '', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:38:12', '2024-01-03 06:38:12'),
+(2, 'Hatha Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:38:24', '2024-01-03 06:38:24'),
+(3, 'Vinyasa Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:38:39', '2024-01-03 06:38:39'),
+(4, 'Ashtanga Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:38:53', '2024-01-03 06:38:53'),
+(5, 'Bikram Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:02', '2024-01-03 06:39:02'),
+(6, 'Kundalini Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:15', '2024-01-03 06:39:15'),
+(7, 'Yin Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:33', '2024-01-03 06:39:33');

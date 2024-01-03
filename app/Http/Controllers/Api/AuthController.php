@@ -25,7 +25,6 @@ class AuthController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
-        
     }
 
     /**
@@ -59,61 +58,57 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         try {
-        $validator = Validator::make($request->all(), [
-            'user_fullname' => 'required|max:100',
-            'user_email' => 'required|email|unique:users,email',
-            'user_password' => 'required|min:6|confirmed',
-            'user_phone' => 'required|numeric|digits:10',
-            'user_status' => 'required|numeric',
-        ], [
-            'user_fullname.required' => 'Họ và tên không được để trống',
-            'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-            'user_email.required' => 'Email không được trống',
-            'user_email.email' => 'Email phải đúng định dạng',
-            'user_email.unique' => 'Email đã tồn tại',
-            'user_password.required' => 'Password không được để trống',
-            'user_password.min' => 'Password phải ít nhất 6 kí tự',
-            'user_password.confirmed' => 'xác nhận lại Password ko đúng',
-            'user_phone.required' => 'Số điện thoại không được để trống',
-            'user_phone.numeric' => 'Số điện thoại phải là số',
-            'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
-            'user_status.required' => 'Trạng thái không được để trống',
-            'user_status.numeric' => 'Trạng thái phải là số',
-        ]);
+            $validator = Validator::make($request->all(), [
+                'user_fullname' => 'required|max:100',
+                'user_email' => 'required|email|unique:users,email',
+                'user_password' => 'required|min:6',
+                'user_phone' => 'required|numeric|digits:10',
+            ], [
+                'user_fullname.required' => 'Họ và tên không được để trống',
+                'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
+                'user_email.required' => 'Email không được trống',
+                'user_email.email' => 'Email phải đúng định dạng',
+                'user_email.unique' => 'Email đã tồn tại',
+                'user_password.required' => 'Password không được để trống',
+                'user_password.min' => 'Password phải ít nhất 6 kí tự',
+                'user_phone.required' => 'Số điện thoại không được để trống',
+                'user_phone.numeric' => 'Số điện thoại phải là số',
+                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
+            ]);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            foreach ($errors as $key => $error) {
-                return response()->json([
-                    'error_message' => $error
-                ], 400);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                foreach ($errors as $key => $error) {
+                    return response()->json([
+                        'error_message' => $error
+                    ], 400);
+                }
             }
+
+            $user = User::create([
+                'email' => $request->user_email,
+                'password' => bcrypt($request->user_password),
+                'fullname' => $request->user_fullname,
+                'status' => 1,
+                'phone' => $request->user_phone,
+                'money' => 0,
+                'uuid' => ''
+            ]);
+            $defaultRole = Role::where('name', 'USER')->first();
+            $user->roles()->attach($defaultRole);
+
+
+            return response()->json([
+                'message' => 'Đăng ký người dùng thành công',
+                'user' => $user,
+                'vai trò' => $defaultRole->name,
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống'
+            ], 500);
         }
-
-        $user = User::create([
-            'email' => $request->user_email,
-            'password' => bcrypt($request->user_password),
-            'fullname' => $request->user_fullname,
-            'status' => $request->user_status,
-            'phone' => $request->user_phone,
-            'money' => 0,
-            
-        ]);
-        $defaultRole = Role::where('name', 'USER')->first();
-        $user->roles()->attach($defaultRole);
-
-
-        return response()->json([
-            'message' => 'Đăng ký người dùng thành công',
-            'user' => $user,
-            'vai trò' => $defaultRole->name,
-        ], 201);
-    } catch (Exception $e) {
-        return response()->json([
-            'error_message' => 'Lỗi hệ thống'
-        ], 500);
     }
-}
 
 
     /**
@@ -237,66 +232,65 @@ class AuthController extends Controller
         return $currentUser->email;
     }
 
-   
 
-// ...
 
-public function forgotPass(Request $request)
-{
-    $request->validate(['email' => 'required|email']);
-    $user = User::where('email', $request->email)->first();
+    // ...
 
-    if (!$user) {
-        return response()->json(['message' => 'User not found'], 404);
+    public function forgotPass(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $uuid = Str::uuid();
+        $user->uuid = $uuid;
+        $user->save();
+
+        // Send email with the UUID link here
+
+        return response()->json(['message' => 'Reset password link sent']);
     }
 
-    $uuid = Str::uuid();
-    $user->uuid = $uuid;
-    $user->save();
-
-    // Send email with the UUID link here
-
-    return response()->json(['message' => 'Reset password link sent']);
-}
-
-public function postForgotPass(Request $request)
-{
-    // This method is not needed if you're using UUIDs
-}
-
-public function getPass(Request $request)
-{
-    $request->validate(['uuid' => 'required']);
-    $user = User::where('uuid', $request->uuid)->first();
-
-    if (!$user) {
-        return response()->json(['message' => 'Invalid UUID'], 400);
+    public function postForgotPass(Request $request)
+    {
+        // This method is not needed if you're using UUIDs
     }
 
-    $user->uuid = '';
-    $user->save();
+    public function getPass(Request $request)
+    {
+        $request->validate(['uuid' => 'required']);
+        $user = User::where('uuid', $request->uuid)->first();
 
-    return response()->json(['message' => 'UUID is valid']);
-}
+        if (!$user) {
+            return response()->json(['message' => 'Invalid UUID'], 400);
+        }
 
-public function postGetPass(Request $request)
-{
-    $request->validate([
-        'uuid' => 'required',
-        'password' => 'required|min:6|confirmed',
-    ]);
+        $user->uuid = '';
+        $user->save();
 
-    $user = User::where('uuid', $request->uuid)->first();
-
-    if (!$user) {
-        return response()->json(['message' => 'Invalid UUID'], 400);
+        return response()->json(['message' => 'UUID is valid']);
     }
 
-    $user->password = bcrypt($request->password);
-    $user->uuid = '';
-    $user->save();
+    public function postGetPass(Request $request)
+    {
+        $request->validate([
+            'uuid' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
 
-    return response()->json(['message' => 'Password has been reset']);
-}
+        $user = User::where('uuid', $request->uuid)->first();
 
+        if (!$user) {
+            return response()->json(['message' => 'Invalid UUID'], 400);
+        }
+
+        $user->password = bcrypt($request->password);
+        $user->uuid = '';
+        $user->save();
+
+        return response()->json(['message' => 'Password has been reset']);
+    }
 }

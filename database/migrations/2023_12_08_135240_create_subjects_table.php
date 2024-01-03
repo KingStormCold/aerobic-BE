@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
             $table->text('content');
-            $table->string('image', 255);
+            $table->text('image');
             $table->bigInteger('promotional_price');
             $table->string('name', 255);
             $table->string('created_by', 100);

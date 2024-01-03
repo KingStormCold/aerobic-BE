@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('link_video');
-            $table->string('finished');
+            $table->text('link_video');
+            $table->integer('finished')->default(0);
+            $table->integer('full_time')->default(0);
+            $table->integer('view')->default(0);
             $table->string('created_by', 100)->default('');
             $table->string('updated_by', 100)->default('');
             $table->unsignedBiginteger('course_id')->unsigned();

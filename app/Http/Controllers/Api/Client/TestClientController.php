@@ -27,7 +27,7 @@ class TestClientController extends Controller
                 ], 401);
             }
 
-            $tests = Test::where('video_id',$videoId)->orderByDesc('created_at')->get();
+            $tests = Test::where('video_id', $videoId)->inRandomOrder()->limit(10)->get();
             $video = Video::find($videoId);
             if (!$video) {
                 return response()->json([
@@ -35,7 +35,7 @@ class TestClientController extends Controller
                 ], 400);
             }
             return response()->json([
-                'videos' => $this->customfullTests($tests),
+                'tests' => $this->customfullTests($tests),
 
             ], 200);
         } catch (Exception $e) {
@@ -46,50 +46,27 @@ class TestClientController extends Controller
     }
     public function customfullTests($tests)
     {
-        $result = [];
-        $videoId = null;
-        $videoName = "";
-        $linkVideo = "";
         $testArray = [];
 
         foreach ($tests as $test) {
-            if ($videoId != $test->video_id) {
-                if ($videoId != null) {
-                    $data = [
-                        "video_id" => $videoId,
-                        "videoName" => $videoName,
-                        "link_video" => $linkVideo,
-                        "tests" =>  $testArray
-                    ];
-                    $result = $data;
-                    $testArray = [];
-                }
-                $videoId = $test->video_id;
-                $video = Video::find($videoId);
-                if ($video) {
-                    $videoName = $video->name;
-                    $linkVideo = $video->link_video;
-                }
+            $answerList = [];
+            $answers = Answer::where('test_id', $test->id)->get();
+            foreach ($answers as $answer) {
+                $data = [
+                    "id" => $answer->id,
+                    "answer_test" => $answer->answer_test,
+                    "serial_answer" => $answer->serial_answer,
+                ];
+                array_push($answerList, $data);
             }
             $testData = [
                 "test_id" => $test->id,
                 "test_content" => $test->test_content,
-                "serial_answer" => $test->serial_answer, 
+                "serial_answer" => $test->serial_answer,
+                "answers" => $answerList
             ];
             array_push($testArray, $testData);
         }
-
-        // Thêm dữ liệu cuối cùng
-        if ($videoId != null) {
-            $data = [
-                "video_id" => $videoId,
-                "videoName" => $videoName,
-                "link_video" => $linkVideo,
-                "tests" =>  $testArray
-            ];
-            $result = $data;
-        }
-
-        return $result;
+        return $testArray;
     }
 }
