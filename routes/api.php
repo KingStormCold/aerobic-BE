@@ -63,6 +63,7 @@ Route::group([
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
     Route::get('/show-subject', [SubjectController::class, 'showSubject']);
+    Route::get('/get-latest-subjects', [SubjectController::class, 'getLatestSubjects']);
 
     Route::get('/get-course', [CourseController::class, 'getCourse']);
     Route::get('/courses/{id}', [CourseController::class, 'courses']);
