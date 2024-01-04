@@ -290,4 +290,54 @@ class SubjectController extends Controller
             'subjects' => $result
         ], 200);
     }
+
+    public function getLatestSubjects(Request $request)
+    {
+        try {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
+
+            if (!$isAuthorization) {
+                return response()->json([
+                    'code' => 'SUB_001',
+                    'message' => 'Bạn không có quyền.'
+                ], 401);
+            }
+
+            $latestSubjects = Subject::orderByDesc('created_at')->take(5)->get();
+
+            $result = [];
+            foreach ($latestSubjects as $latestSubject) {
+                $subjectId = $latestSubject->id;
+                $subject = Subject::with('courses')->find($subjectId);
+                $price = 0;
+                $courses = $subject->courses;
+                
+                foreach ($courses as $course) {
+                    $price += $course->price;
+                    $price -= $course->promotional_price;
+                }
+                $price -= $subject->promotional_price;
+
+                if ($price < 0) {
+                    $price = 0;
+                }
+
+                $data = [
+                    "image" => $latestSubject->image,
+                    "name" => $latestSubject->name,
+                    "price" => $price,
+                ];
+                array_push($result, $data);
+            }
+
+            return response()->json([
+                'latest_subjects' => $result,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
+    }
 }

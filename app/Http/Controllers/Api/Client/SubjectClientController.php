@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Subject;
 use App\Models\Course;
 use App\Models\Video;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Exception;
 
 class SubjectClientController extends Controller
@@ -49,5 +51,37 @@ class SubjectClientController extends Controller
         ];
     
         return $categoryData;
+    }
+
+    public function GetFullSubjectClient (Request $request){
+        $validator = Validator::make($request->all(), [
+            'content_search' => 'required|max:255',
+        ],[
+            'content_search.required' => 'hãy nhập từ khóa tìm kiếm',
+            'content_search.max' => 'chỉ nhập dưới 255 kí tự'
+        ]);
+        $content_search = $request->input('content_search');
+        try {
+            $subjects = Subject::select('id','name','created_at','image','promotional_price')->where("content","like","%".$content_search."%")->orderBy('created_at')->limit(3)->get();
+
+            $result = [];
+
+            foreach ($subjects as $subject) {
+                $subjectData = [
+                    'id' => $subject->id,
+                    'name' => $subject->name,
+                    'image' => $subject->image,
+                    'promotional_price' => $subject->promotional_price                
+                ];
+                $result[] = $subjectData;
+            }
+            return response()->json([
+                'data' => $result
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
     }
 }

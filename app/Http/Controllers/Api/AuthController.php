@@ -201,16 +201,24 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
+
         $userId = auth()->user()->id;
+        $old_password = $request->input('old_password');
 
-        $user = User::where('id', $userId)->update(
-            ['password' => bcrypt($request->new_password)]
-        );
+        $user = User::find($userId);
 
-        return response()->json([
-            'message' => 'User successfully changed password',
-            'user' => $user,
-        ], 201);
+        if ($user && password_verify($old_password, $user->password)) {
+            $user->update([
+                'password' => bcrypt($request->new_password)
+            ]);
+            return response()->json([
+                'message' => 'Bạn đã thay đổi mật khẩu thành công',
+            ], 201);
+        } else {
+            return response()->json([
+                'error_message' => 'Mật khẩu cũ không khớp',
+            ], 400);
+        }
     }
 
     public function isAuthorization($roleName): bool

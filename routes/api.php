@@ -63,6 +63,7 @@ Route::group([
     Route::put('/subject/{id}', [SubjectController::class, 'updateSubject']);
     Route::delete('/subject/{id}', [SubjectController::class, 'deleteSubject']);
     Route::get('/show-subject', [SubjectController::class, 'showSubject']);
+    Route::get('/get-latest-subjects', [SubjectController::class, 'getLatestSubjects']);
 
     Route::get('/get-course', [CourseController::class, 'getCourse']);
     Route::get('/courses/{id}', [CourseController::class, 'courses']);
@@ -125,5 +126,7 @@ Route::group([
     Route::post('/forgot-password/{email}', [ForgotPasswordClientController::class, 'forgotPassword']);
     Route::get('/check-uuid/{uuid}', [ForgotPasswordClientController::class, 'checkUuid']);
     Route::post('/check-answer', [CheckAnswerClientController::class, 'checkAnswers']);
+
+    Route::post('/GetFullSubjectClient', [SubjectClientController::class, 'GetFullSubjectClient']);
     Route::get('/get-payments', [PaymentClientController::class, 'getPayments']);
 });

@@ -14,7 +14,7 @@ class CourseClientController extends Controller
     public function fullCourses($subjectId)
     {
         try {
-            $courses = Course::where('subject_id',$subjectId)->orderByDesc('level')->get();
+            $courses = Course::where('subject_id', $subjectId)->orderBy('level')->get();
             $subject = Subject::find($subjectId);
             if (!$subject) {
                 return response()->json([
@@ -22,9 +22,10 @@ class CourseClientController extends Controller
                 ], 400);
             }
             return response()->json(
-               $this->customfullCourses($courses),
+                $this->customfullCourses($courses),
 
-             200);
+                200
+            );
         } catch (Exception $e) {
             return response()->json([
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
@@ -33,19 +34,27 @@ class CourseClientController extends Controller
     }
     public function customfullCourses($courses)
     {
-        $result = [];
-        $subjectId = null;
-        $subject_name ="";
-        $subject_image ="";
         $courseArray = [];
         $price = 0;
         $promotionalPrice = 0;
         foreach ($courses as $course) {
             $price += $course->price;
             $promotionalPrice += $course->promotional_price;
+            if ($course->level === 1) {
+                $subjectFull = [
+                    "course_id" => $course->id,
+                    "course_name" =>  'Khóa học Free',
+                    "course_description" => $course->description,
+                    "level" => $course->level,
+                    "price"  => 0,
+                    "promotional_price" => 0,
+
+                ];
+                array_push($courseArray, $subjectFull);
+            }
             $subjectFull = [
                 "course_id" => $course->id,
-                "course_name" => $course->name,
+                "course_name" =>  $course->name,
                 "course_description" => $course->description,
                 "level" => $course->level,
                 "price"  => $course->price,
@@ -54,13 +63,13 @@ class CourseClientController extends Controller
             ];
             array_push($courseArray, $subjectFull);
         }
-        if(empty($courseArray)){
+        if (empty($courseArray)) {
             return [];
         }
 
         $subjectFull = [
             "course_id" => 0,
-            "course_name" =>'Toàn bộ khóa học',
+            "course_name" => 'Toàn bộ khóa học',
             "course_description" => '',
             "level" => '',
             "price"  => $price,
