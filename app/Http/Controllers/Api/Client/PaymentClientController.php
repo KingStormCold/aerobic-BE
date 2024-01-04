@@ -193,4 +193,52 @@ class PaymentClientController extends Controller
         //     ]);
         // }
     }
+
+    public function getPayments()
+   {
+       try {
+           $authController = new AuthController();
+           $isAuthorization = $authController->isAuthorization('USER');
+
+           if (!$isAuthorization) {
+               return response()->json([
+                   'code' => 'SUB_001',
+                   'message' => 'Bạn không có quyền.'
+               ], 401);
+           }
+
+
+           $payments = Payment::where('users_id', Auth::id())->orderByDesc('created_at')->paginate(10);
+           return response()->json([
+               'payments' => $this->customPaymentDetail($payments->items()),
+               'totalPage' => $payments->lastPage(),
+               'pageNum' => $payments->currentPage(),
+           ], 200);
+            } catch (Exception $e) {
+           return response()->json([
+               'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+           ], 500);
+        }
+    }
+
+   public function customPaymentDetail($payments)
+    {
+    $result = []; 
+
+    foreach ($payments as $payment) {
+        $user = User::find($payment->users_id);
+        $course = Course::find($payment->courses_id);
+
+        $courseData = [
+            "name" => $course->name,
+            "price" => $course->price,
+            "created_at" => $payment->created_at,
+        ];
+
+        $result[] = $courseData; 
+    }
+
+    return $result; 
+    }
+
 }

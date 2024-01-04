@@ -125,4 +125,5 @@ Route::group([
     Route::post('/forgot-password/{email}', [ForgotPasswordClientController::class, 'forgotPassword']);
     Route::get('/check-uuid/{uuid}', [ForgotPasswordClientController::class, 'checkUuid']);
     Route::post('/check-answer', [CheckAnswerClientController::class, 'checkAnswers']);
+    Route::get('/get-payments', [PaymentClientController::class, 'getPayments']);
 });
