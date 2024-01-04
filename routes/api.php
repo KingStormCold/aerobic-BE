@@ -128,4 +128,5 @@ Route::group([
     Route::post('/check-answer', [CheckAnswerClientController::class, 'checkAnswers']);
 
     Route::post('/GetFullSubjectClient', [SubjectClientController::class, 'GetFullSubjectClient']);
+    Route::get('/get-payments', [PaymentClientController::class, 'getPayments']);
 });
