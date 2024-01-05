@@ -51,23 +51,25 @@ class SubjectClientController extends Controller
         return $categoryData;
     }
 
-    public function GetFullSubjectClient (Request $request){
+    public function getFullSubjectClient(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'content_search' => 'required|max:255',
-        ],[
+        ], [
             'content_search.required' => 'Enter a search term',
-            'content_search.max' => 'Type less than 255 characters'
+            'content_search.max' => 'Type less than 255 characters',
         ]);
         $content_search = $request->input('content_search');
         try {
-            $subjects = Subject::select('id','name','created_at','image','promotional_price')->where("content","like","%".$content_search."%")->orderBy('created_at')->limit(3)->get();
+            $subjects = Subject::with('category')->select('id', 'name', 'created_at', 'image', 'promotional_price', 'category_id')->where("content", "like", "%" . $content_search . "%")->orderBy('created_at')->limit($request->input('page_size'))->get();
             $result = [];
             foreach ($subjects as $subject) {
                 $subjectData = [
                     'id' => $subject->id,
                     'name' => $subject->name,
                     'image' => $subject->image,
-                    'promotional_price' => $subject->promotional_price                
+                    'promotional_price' => $subject->promotional_price,
+                    'category_id' => $subject->category->id
                 ];
                 $result[] = $subjectData;
             }

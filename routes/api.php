@@ -127,6 +127,6 @@ Route::group([
     Route::get('/check-uuid/{uuid}', [ForgotPasswordClientController::class, 'checkUuid']);
     Route::post('/check-answer', [CheckAnswerClientController::class, 'checkAnswers']);
 
-    Route::post('/GetFullSubjectClient', [SubjectClientController::class, 'GetFullSubjectClient']);
+    Route::post('/get-full-subject', [SubjectClientController::class, 'getFullSubjectClient']);
     Route::get('/get-payments', [PaymentClientController::class, 'getPayments']);
 });
