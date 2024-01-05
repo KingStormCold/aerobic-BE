@@ -134,10 +134,14 @@ class VideoClientController extends Controller
             }
             $videosUsers = VideoUser::where('users_id', Auth::id())->where('videos_id', $request->video_id)->first();
             if ($videosUsers !== null) {
-                if ($request->previous_time > $videosUsers->previous_time) {
+                if ($request->progress > $videosUsers->progress) {
                     $videosUsers->update([
                         'previous_time' => $request->previous_time,
                         'progress' => $request->progress
+                    ]);
+                } else {
+                    $videosUsers->update([
+                        'previous_time' => $request->previous_time
                     ]);
                 }
             } else {

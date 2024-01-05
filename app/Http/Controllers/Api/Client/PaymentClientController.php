@@ -18,7 +18,7 @@ class PaymentClientController extends Controller
 {
     public function registerCourse(Request $request)
     {
-        try {        
+        try {
             if (!Auth::check()) {
                 return response()->json([
                     'code' => 'Course_001',
@@ -46,7 +46,7 @@ class PaymentClientController extends Controller
                     $price = 0;
                     $courseId = [];
                     foreach ($courses as $course) {
-                        $price += $course->price; 
+                        $price += $course->price;
                         $price -= $course->promotional_price;
                         $courseId[] = $course->id;
                     }
@@ -217,8 +217,10 @@ class PaymentClientController extends Controller
                                 "description" => $courseDetail['description'],
                                 "image" => $courseDetail['image'],
                                 "created_date" => $courseDetail['created_date'],
-                                "progress_course" => (($totalFinishVideo / $totalVideo) * 100),
-                                "status" => ($totalVideo === $totalFinishVideo)
+                                "progress_course" => $totalFinishVideo !== 0 ? (($totalFinishVideo / $totalVideo) * 100) : 0,
+                                "status" => ($totalVideo === $totalFinishVideo),
+                                "total_video" => $totalVideo,
+                                "total_finish_video" => $totalFinishVideo
                             ];
                             $ddd = $item['courses'];
                             array_push($ddd, $data);

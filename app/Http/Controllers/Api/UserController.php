@@ -75,6 +75,7 @@ class UserController extends Controller
                 "status" => $user->status,
                 "phone" => $user->phone,
                 "roles" => $roleList,
+                "money" => $user->money,
                 "created_by" => $user->created_by,
                 "updated_by" => $user->updated_by,
                 "created_at" => $user->created_at,
@@ -108,61 +109,61 @@ class UserController extends Controller
     public function insertUser(Request $request)
     {
         try {
-        $authController = new AuthController();
-        $isAuthorization = $authController->isAuthorization('ADMIN_USER');
-        if (!$isAuthorization) {
-            return response()->json([
-                'message' => 'You have no rights.'
-            ], 401);
-        }
-        $validator = Validator::make($request->all(), [
-            'user_email' => 'required|email|unique:users,email',
-            'user_password' => 'required|min:6|confirmed',
-            'user_fullname' => 'required|max:100',
-            'user_role_name' => 'required|array',
-            'user_role_name.*' => 'exists:roles,name',
-            'user_phone' => 'required|numeric|digits:10',
-            'user_status' => 'required|numeric',
-        ], [
-            'user_email.required' => 'Email cant be blank',
-            'user_email.email' => 'Emails must be in the correct format',
-            'user_email.unique' => 'Email already exists',
-            'user_password.required' => 'Password must not be blank',
-            'user_password.min' => 'Password must be at least 6 characters',
-            'user_password.confirmed' => 'reconfirm that the password is incorrect',
-            'user_fullname.required' => 'Full name must not be blank',
-            'user_fullname.max' => 'Full name must not exceed 100 characters',
-            'user_role_name.required' => 'User roles cant be empty',
-            'user_role_name.array' => 'User roles must be an array',
-            'user_role_name.*.exists' => 'User role does not exist',
-            'user_phone.required' => 'Phone numbers cant be blank',
-            'user_phone.numeric' => 'The phone number must be a number',
-            'user_phone.digits' => 'The phone number must have exactly 10 numbers',
-            'user_status.required' => 'The status cannot be left blank',
-            'user_status.numeric' => 'The status must be numeric',
-        ]);
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            foreach ($errors as $key => $error) {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('ADMIN_USER');
+            if (!$isAuthorization) {
                 return response()->json([
-                    'error_message' => $error
-                ], 400);
+                    'message' => 'You have no rights.'
+                ], 401);
             }
-        }
-        $user = User::create([
-            'email' => $request->user_email,
-            'password' => bcrypt($request->user_password),
-            'fullname' => $request->user_fullname,
-            'status' => $request->user_status,
-            'phone' => $request->user_phone,
-            'money' => 0,
-            'uuid' => '',
-            'created_by' => auth()->user()->email,
-        ]);
-        $user->roles()->attach($request->user_role_name);
-        return response()->json([
-            'result' => 'success',
-        ], 200);
+            $validator = Validator::make($request->all(), [
+                'user_email' => 'required|email|unique:users,email',
+                'user_password' => 'required|min:6|confirmed',
+                'user_fullname' => 'required|max:100',
+                'user_role_name' => 'required|array',
+                'user_role_name.*' => 'exists:roles,name',
+                'user_phone' => 'required|numeric|digits:10',
+                'user_status' => 'required|numeric',
+            ], [
+                'user_email.required' => 'Email cant be blank',
+                'user_email.email' => 'Emails must be in the correct format',
+                'user_email.unique' => 'Email already exists',
+                'user_password.required' => 'Password must not be blank',
+                'user_password.min' => 'Password must be at least 6 characters',
+                'user_password.confirmed' => 'reconfirm that the password is incorrect',
+                'user_fullname.required' => 'Full name must not be blank',
+                'user_fullname.max' => 'Full name must not exceed 100 characters',
+                'user_role_name.required' => 'User roles cant be empty',
+                'user_role_name.array' => 'User roles must be an array',
+                'user_role_name.*.exists' => 'User role does not exist',
+                'user_phone.required' => 'Phone numbers cant be blank',
+                'user_phone.numeric' => 'The phone number must be a number',
+                'user_phone.digits' => 'The phone number must have exactly 10 numbers',
+                'user_status.required' => 'The status cannot be left blank',
+                'user_status.numeric' => 'The status must be numeric',
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                foreach ($errors as $key => $error) {
+                    return response()->json([
+                        'error_message' => $error
+                    ], 400);
+                }
+            }
+            $user = User::create([
+                'email' => $request->user_email,
+                'password' => bcrypt($request->user_password),
+                'fullname' => $request->user_fullname,
+                'status' => $request->user_status,
+                'phone' => $request->user_phone,
+                'money' => 0,
+                'uuid' => '',
+                'created_by' => auth()->user()->email,
+            ]);
+            $user->roles()->attach($request->user_role_name);
+            return response()->json([
+                'result' => 'success',
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'error_message' => 'System errors'
@@ -223,6 +224,9 @@ class UserController extends Controller
             $user->money = $request->input('user_money');
             $user->status = $request->input('user_status');
             $user->phone = $request->input('user_phone');
+            $user->fullname = $request->input('user_fullname');
+
+            // Kiểm tra nếu giá trị user_updated_by không phải là null
             $user->updated_by = auth()->user()->email;
             $user->save();
             $user->roles()->sync($request->input('user_role_name'));
@@ -252,7 +256,9 @@ class UserController extends Controller
                     'error_message' => 'No user found'
                 ], 400);
             }
-            $user->delete();
+            $user->update([
+                'status' => 0
+            ]);
             return response()->json([
                 'result' => 'succes'
             ], 200);
