@@ -17,16 +17,15 @@ class SearchClientController extends Controller
         $validator = Validator::make($request->all(), [
             'content_search' => 'required|max:255',
         ],[
-            'content_search.required' => 'hãy nhập từ khóa tìm kiếm',
-            'content_search.max' => 'chỉ nhập dưới 255 kí tự'
+            'content_search.required' => 'Enter a search term',
+            'content_search.max' => 'Type less than 255 characters'
         ]);
-    
         try {
             $content_search = $request->input('content_search');
             $subjects = Subject::select('id','content','name','image','promotional_price')->where("content","like","%".$content_search."%")->paginate(10);
             if ($subjects->isEmpty()) {
                 return response()->json([
-                    'message' => 'Không tìm thấy môn học.'
+                    'message' => 'No subject found.'
                 ], 400);
             }
             $results = [];
@@ -40,7 +39,7 @@ class SearchClientController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -55,10 +54,8 @@ class SearchClientController extends Controller
             $totalCourseFee += $course->price; 
             $totalDiscount += $course->promotional_price; 
             $totalVideos += $course->videos->count(); 
-        }
-      
-        $totalDiscount += $subject->promotional_price;
-            
+        }   
+        $totalDiscount += $subject->promotional_price;           
         $categoryData = [
             "subject_id" => $subject->id,
             "subject_name" => $subject->name,
@@ -66,10 +63,8 @@ class SearchClientController extends Controller
             "subject_image" => $subject->image,
             "total_course_fee" => $totalCourseFee,
             "total_discount" => $totalDiscount,
-            "total_videos" => $totalVideos,
-           
+            "total_videos" => $totalVideos,      
         ];
-    
         return $categoryData;
     }
     

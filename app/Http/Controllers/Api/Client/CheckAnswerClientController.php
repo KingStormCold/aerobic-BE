@@ -18,26 +18,23 @@ class CheckAnswerClientController extends Controller
 {
     public function checkAnswers(Request $request)
     {
-        // try {
+        try {
         $authController = new AuthController();
         $isAuthorization = $authController->isAuthorization('USER');
         if (!$isAuthorization) {
             return response()->json([
                 'code' => 'CATE_001',
-                'message' => 'Bạn cần đăng ký thành viên và mua khóa học để làm bài kiểm tra'
+                'message' => 'You need to sign up for a membership and purchase a course to take the test'
             ], 401);
         }
-
         $validator = Validator::make($request->all(), [
             'quizs' => 'required',
         ], [
-            'quizs.required' => 'Danh sách câu hỏi và trả lời không được trống',
+            'quizs.required' => 'The question and answer list cant be blank',
         ]);
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
-
         $quizs = $request->input('quizs');
         $testArray = [];
         $totalCorrect = 0;
@@ -89,10 +86,10 @@ class CheckAnswerClientController extends Controller
                 'total_correct' => $totalCorrect
             ]
         ], 200);
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-        //     ], 500);
-        // }
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
+        }
     }
 }

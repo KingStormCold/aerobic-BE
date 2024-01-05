@@ -28,7 +28,7 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
 
@@ -41,7 +41,7 @@ class VideoController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -49,7 +49,6 @@ class VideoController extends Controller
     public function customVideos($videos)
     {
         $result = [];
-
         foreach ($videos as $video) {
             $courseName = "";
             if ($video->course_id !== "") {
@@ -68,10 +67,8 @@ class VideoController extends Controller
                 "created_at" => $video->created_at,
                 "updated_at" => $video->updated_at,
             ];
-
             array_push($result, $data);
         }
-
         return $result;
     }
 
@@ -83,24 +80,21 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
-
             $video = Video::find($id);
-
             if (!$video) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy thông tin video'
+                    'error_message' => 'Video information not found'
                 ], 404);
             }
-
             return response()->json([
                 'videos' => $video
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -113,7 +107,7 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -122,22 +116,20 @@ class VideoController extends Controller
                 'course_id' => 'required|exists:courses,id',
                 'finished' => 'required',
             ], [
-                'name.required' => 'Tên video không được để trống',
-                'name.unique' => 'Tên video đã tồn tại',
-                'name.max' => 'Tên video không được vượt quá 255 ký tự',
-                'link_video.required' => 'Link ảnh không được để trống',
-                'link_video.max' => 'Link ảnh không được vượt quá 255 ký tự',
-                'course_id.required' => 'không được để trống id khóa học',
-                'course_id.exists' => 'ID khóa học không tồn tại trong danh sách khóa học',
-                'finished.required' => 'Không được để trống mục đã hoàn thành',
+                'name.required' => 'Video name cant be blank',
+                'name.unique' => 'Video name already exists',
+                'name.max' => 'Video name cant exceed 255 characters',
+                'link_video.required' => 'Image links must not be blank',
+                'link_video.max' => 'Photo links must not exceed 255 characters',
+                'course_id.required' => 'Course IDs cant be left blank',
+                'course_id.exists' => 'Course ID does not exist in the course list',
+                'finished.required' => 'Completed items cant be left blank',
             ]);
-
             if ($validator->fails()) {
                 return response()->json([
                     'error_message' => $validator->errors()->first()
                 ], 400);
             }
-
             Video::create([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
@@ -147,13 +139,12 @@ class VideoController extends Controller
                 'full_time' => $request->full_time,
                 'view' => 0
             ]);
-
             return response()->json([
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -166,40 +157,35 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
-
             $video = Video::find($id);
-
             if (!$video) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy video'
+                    'error_message' => 'Video not found'
                 ], 404);
             }
-
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255|unique:videos,name,' . $video->id,
                 'link_video' => 'required|string|max:255',
                 'finished' => 'required',
                 'course_id' => 'required|exists:courses,id',
             ], [
-                'name.required' => 'Tên video không được trống',
-                'name.unique' => 'Tên video đã tồn tại',
-                'name.max' => 'Tên video không được vượt quá 255 ký tự',
-                'link_video.required' => 'Link ảnh không được trống',
-                'link_video.max' => 'Link ảnh không được vượt quá 255 ký tự',
-                'finished.required' => 'Không được để trống mục đã hoàn thành',
-                'course_id.required' => 'ID khóa học không được trống',
-                'course_id.exists' => 'ID khóa học không tồn tại trong danh sách khóa học',
+                'name.required' => 'The video name cant be blank',
+                'name.unique' => 'Video name already exists',
+                'name.max' => 'Video name cant exceed 255 characters',
+                'link_video.required' => 'The image link should not be blank',
+                'link_video.max' => 'Photo links must not exceed 255 characters',
+                'finished.required' => 'Completed items cant be left blank',
+                'course_id.required' => 'Course IDs cant be blank',
+                'course_id.exists' => 'Course ID does not exist in the course list',
             ]);
-
             if ($validator->fails()) {
                 return response()->json([
                     'error_message' => $validator->errors()->first()
                 ], 400);
             }
-
             $video->update([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
@@ -208,13 +194,12 @@ class VideoController extends Controller
                 'updated_by' => $authController->getEmail(),
                 'full_time' => $request->full_time,
             ]);
-
             return response()->json([
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -227,26 +212,22 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
-
             $video = Video::find($id);
-
             if (!$video) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy Video'
+                    'error_message' => 'Video Not Found'
                 ], 404);
             }
-
             $video->delete();
-
             return response()->json([
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }

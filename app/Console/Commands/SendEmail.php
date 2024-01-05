@@ -14,18 +14,15 @@ class SendEmail extends Command
 
     protected $description = ' Gửi Email nhắc nhở ';
 
-    
     public function handle()
     {
         try {
-            // Lấy tất cả các thanh toán có users_id
             $payments = Payment::whereNotNull('users_id')->get();
             if($payments ->isNotEmpty()){
                 foreach ($payments as $payment) {
                     $user = User::find($payment->users_id);
                     if ($user) {
                         $email = $user->email;
-                        // Gửi email nhắc nhở
                         $result = Mail::raw('Bạn nhớ học nhé.', function ($message) use ($email) {
                             $message->to($email)->subject('Hôm nay bạn nhớ học nhé');
                         });
@@ -37,7 +34,7 @@ class SendEmail extends Command
                         }
                     }
                 }
-                
+ 
             }
           
         } catch (Exception $e) {

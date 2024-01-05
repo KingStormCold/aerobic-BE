@@ -32,7 +32,7 @@ class CategoryController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $categories = Category::orderByDesc('parent_id')->paginate(10);
@@ -43,7 +43,7 @@ class CategoryController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -79,13 +79,13 @@ class CategoryController extends Controller
         if (!$isAuthorization) {
             return response()->json([
                 'code' => 'CATE_001',
-                'message' => 'Bạn không có quyền.'
+                'message' => 'You have no rights.'
             ], 401);
         }
         $category = Category::find($id);
         if ($category == null) {
             return response()->json([
-                'error_message' => 'Không tìm thấy category'
+                'error_message' => 'Category not found'
             ], 400);
         }
         return response()->json([
@@ -102,14 +102,14 @@ class CategoryController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
                 'category_name' => 'required|unique:categories,name',
             ], [
-                'category_name.required' => 'Tên danh mục không được trống',
-                'category_name.unique' => 'Tên danh mục đã tồn tại',
+                'category_name.required' => 'Category name cant be blank',
+                'category_name.unique' => 'The category name already exists',
             ]);
 
             if ($validator->fails()) {
@@ -124,11 +124,10 @@ class CategoryController extends Controller
                 $category = Category::find($request->parent_id);
                 if ($category == null) {
                     return response()->json([
-                        'error_message' => 'Danh mục cha không đúng'
+                        'error_message' => 'Incorrect parent category'
                     ], 400);
                 }
             }
-
             Category::create([
                 'name' => $request->category_name,
                 'parent_id' => $request->parent_id == null ? '' : $request->parent_id,
@@ -140,7 +139,7 @@ class CategoryController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -152,22 +151,21 @@ class CategoryController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_CATEGORY');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $category = Category::find($id);
             if ($category == null) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy category'
+                    'error_message' => 'Category not found'
                 ], 400);
             }
             $validator = Validator::make($request->all(), [
                 'category_name' => 'required|unique:categories,name,' . $category->id,
             ], [
-                'category_name.required' => 'Tên danh mục không được trống',
-                'category_name.unique' => 'Tên danh mục đã tồn tại',
+                'category_name.required' => 'Category name cant be blank',
+                'category_name.unique' => 'The category name already exists',
             ]);
-
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
                 foreach ($errors as $key => $error) {
@@ -176,16 +174,14 @@ class CategoryController extends Controller
                     ], 400);
                 }
             }
-
             if ($request->parent_id != null) {
                 $categoryParent = Category::find($request->parent_id);
                 if ($categoryParent == null) {
                     return response()->json([
-                        'error_message' => 'Danh mục cha không đúng'
+                        'error_message' => 'Incorrect parent category'
                     ], 400);
                 }
             }
-
             $category->name = $request->category_name;
             $category->parent_id = $request->parent_id == null ? '' : $request->parent_id;
             $category->updated_by = $authController->getEmail();
@@ -207,7 +203,7 @@ class CategoryController extends Controller
             $category = Category::find($id);
             if ($category == null) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy category'
+                    'error_message' => 'Category not found'
                 ], 400);
             }
             $category->delete();
@@ -221,7 +217,6 @@ class CategoryController extends Controller
         }
     }
 
-    /**Lấy danh sách các môn học dựa trên một điều kiện về danh mục */
     public function getChildCategories()
     {
         try {
@@ -262,6 +257,7 @@ class CategoryController extends Controller
             'menu' => $menu,
         ], 200);
     }
+    
     public function buildMenu($categories)
     {
         $result = [];

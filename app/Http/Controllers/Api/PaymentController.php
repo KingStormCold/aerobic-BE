@@ -26,7 +26,7 @@ class PaymentController extends Controller
              if (!$isAuthorization) {
                  return response()->json([
                      'code' => 'SUB_001',
-                     'message' => 'Bạn không có quyền.'
+                     'message' => 'You have no rights.'
                  ], 401);
              }
              $payments = Payment::orderByDesc('courses_id')->paginate(10);
@@ -39,7 +39,7 @@ class PaymentController extends Controller
          } catch (Exception $e) {
              
              return response()->json([
-                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                 'error_message' => 'System error. Please try again later'
              ], 500);
          }
      }
@@ -60,12 +60,9 @@ class PaymentController extends Controller
                 $course = Course::find($payment->courses_id);
     
                 $courseData = [
-                    "name" => $course->name
-
-                 
+                    "name" => $course->name               
                 ];     
             } 
-
             $data = [
                 "id" => $payment->id,
                 "user_data" => $userData,
@@ -75,8 +72,7 @@ class PaymentController extends Controller
                 "created_by" => $payment->created_by,
                 "updated_by" => $payment->updated_by,
                 "created_at"=>$payment->created_at,
-                "updated_at"=>$payment->updated_at,
-                
+                "updated_at"=>$payment->updated_at,              
             ];
             array_push($result, $data);
         }
@@ -92,7 +88,7 @@ class PaymentController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'SUB_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $payments = Payment::orderByDesc('courses_id')->paginate(10);
@@ -104,7 +100,7 @@ class PaymentController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -128,7 +124,6 @@ class PaymentController extends Controller
                    "promotional_price" => $course->promotional_price,
                ];     
            } 
-
            $data = [
                "id" => $payment->id,
                "user_data" => $userData,
@@ -136,12 +131,10 @@ class PaymentController extends Controller
                "created_by" => $payment->created_by,
                "updated_by" => $payment->updated_by,
                "created_at"=>$payment->created_at,
-               "updated_at"=>$payment->updated_at,
-               
+               "updated_at"=>$payment->updated_at,        
            ];
            array_push($result, $data);
        }
        return $result;
    }
-
 }

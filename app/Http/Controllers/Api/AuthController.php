@@ -38,15 +38,12 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
-
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
         if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Tài khoản hoặc mật khẩu không đúng'], 401);
+            return response()->json(['error' => 'Incorrect account or password'], 401);
         }
-
         return $this->createNewToken($token);
     }
 
@@ -64,16 +61,16 @@ class AuthController extends Controller
                 'user_password' => 'required|min:6',
                 'user_phone' => 'required|numeric|digits:10',
             ], [
-                'user_fullname.required' => 'Họ và tên không được để trống',
-                'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-                'user_email.required' => 'Email không được trống',
-                'user_email.email' => 'Email phải đúng định dạng',
-                'user_email.unique' => 'Email đã tồn tại',
-                'user_password.required' => 'Password không được để trống',
-                'user_password.min' => 'Password phải ít nhất 6 kí tự',
-                'user_phone.required' => 'Số điện thoại không được để trống',
-                'user_phone.numeric' => 'Số điện thoại phải là số',
-                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
+                'user_fullname.required' => 'Full name must not be blank',
+                'user_fullname.max' => 'Full name must not exceed 100 characters',
+                'user_email.required' => 'Email cant be blank',
+                'user_email.email' => 'Emails must be in the correct format',
+                'user_email.unique' => 'Email already exists',
+                'user_password.required' => 'Password must not be blank',
+                'user_password.min' => 'Password must be at least 6 characters',
+                'user_phone.required' => 'Phone numbers cant be blank',
+                'user_phone.numeric' => 'The phone number must be a number',
+                'user_phone.digits' => 'The phone number must have exactly 10 numbers',
             ]);
 
             if ($validator->fails()) {
@@ -84,7 +81,6 @@ class AuthController extends Controller
                     ], 400);
                 }
             }
-
             $user = User::create([
                 'email' => $request->user_email,
                 'password' => bcrypt($request->user_password),
@@ -96,16 +92,14 @@ class AuthController extends Controller
             ]);
             $defaultRole = Role::where('name', 'USER')->first();
             $user->roles()->attach($defaultRole);
-
-
             return response()->json([
-                'message' => 'Đăng ký người dùng thành công',
+                'message' => 'Successful user registration',
                 'user' => $user,
                 'vai trò' => $defaultRole->name,
             ], 201);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống'
+                'error_message' => 'System errors'
             ], 500);
         }
     }
@@ -119,7 +113,6 @@ class AuthController extends Controller
     public function logout()
     {
         auth()->logout();
-
         return response()->json(['message' => 'User successfully signed out']);
     }
 
@@ -197,26 +190,22 @@ class AuthController extends Controller
             'old_password' => 'required|string|min:6',
             'new_password' => 'required|string|confirmed|min:6',
         ]);
-
         if ($validator->fails()) {
             return response()->json($validator->errors()->toJson(), 400);
         }
-
         $userId = auth()->user()->id;
         $old_password = $request->input('old_password');
-
         $user = User::find($userId);
-
         if ($user && password_verify($old_password, $user->password)) {
             $user->update([
                 'password' => bcrypt($request->new_password)
             ]);
             return response()->json([
-                'message' => 'Bạn đã thay đổi mật khẩu thành công',
+                'message' => 'You have successfully changed your password',
             ], 201);
         } else {
             return response()->json([
-                'error_message' => 'Mật khẩu cũ không khớp',
+                'error_message' => 'Old password doesnt match',
             ], 400);
         }
     }
@@ -232,7 +221,6 @@ class AuthController extends Controller
         }
         return $result;
     }
-
     public function getEmail(): string
     {
         $user = auth()->user();
@@ -240,25 +228,17 @@ class AuthController extends Controller
         return $currentUser->email;
     }
 
-
-
-    // ...
-
     public function forgotPass(Request $request)
     {
         $request->validate(['email' => 'required|email']);
         $user = User::where('email', $request->email)->first();
-
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-
         $uuid = Str::uuid();
         $user->uuid = $uuid;
         $user->save();
-
         // Send email with the UUID link here
-
         return response()->json(['message' => 'Reset password link sent']);
     }
 
@@ -271,14 +251,11 @@ class AuthController extends Controller
     {
         $request->validate(['uuid' => 'required']);
         $user = User::where('uuid', $request->uuid)->first();
-
         if (!$user) {
             return response()->json(['message' => 'Invalid UUID'], 400);
         }
-
         $user->uuid = '';
         $user->save();
-
         return response()->json(['message' => 'UUID is valid']);
     }
 
@@ -288,17 +265,13 @@ class AuthController extends Controller
             'uuid' => 'required',
             'password' => 'required|min:6|confirmed',
         ]);
-
         $user = User::where('uuid', $request->uuid)->first();
-
         if (!$user) {
             return response()->json(['message' => 'Invalid UUID'], 400);
         }
-
         $user->password = bcrypt($request->password);
         $user->uuid = '';
         $user->save();
-
         return response()->json(['message' => 'Password has been reset']);
     }
 }

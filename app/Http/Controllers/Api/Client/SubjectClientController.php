@@ -20,12 +20,12 @@ class SubjectClientController extends Controller
             $category = Category::find($categoryId);
             if (!$category) {
                 return response()->json([
-                    'message' => 'Không tìm thấy danh mục.'
+                    'message' => 'Category not found.'
                 ], 400);
             }
             if (!$subject) {
                 return response()->json([
-                    'message' => 'Không tìm thấy môn học cho danh mục này.'
+                    'message' => 'No subjects found for this category.'
                 ], 400);
             }
             return response()->json([
@@ -33,7 +33,7 @@ class SubjectClientController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -42,14 +42,12 @@ class SubjectClientController extends Controller
     {
         $categoryId = $subject->category_id;
         $category = Category::find($categoryId);
-    
         $categoryData = [
             "subject_id" => $subject->id,
             "subject_name" => $subject->name,
             "subject_content" => $subject->content,
             "subject_image" => $subject->image,
         ];
-    
         return $categoryData;
     }
 
@@ -57,15 +55,13 @@ class SubjectClientController extends Controller
         $validator = Validator::make($request->all(), [
             'content_search' => 'required|max:255',
         ],[
-            'content_search.required' => 'hãy nhập từ khóa tìm kiếm',
-            'content_search.max' => 'chỉ nhập dưới 255 kí tự'
+            'content_search.required' => 'Enter a search term',
+            'content_search.max' => 'Type less than 255 characters'
         ]);
         $content_search = $request->input('content_search');
         try {
             $subjects = Subject::select('id','name','created_at','image','promotional_price')->where("content","like","%".$content_search."%")->orderBy('created_at')->limit(3)->get();
-
             $result = [];
-
             foreach ($subjects as $subject) {
                 $subjectData = [
                     'id' => $subject->id,
@@ -80,7 +76,7 @@ class SubjectClientController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }

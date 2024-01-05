@@ -23,24 +23,22 @@ class AnswerClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn cần đăng kí thành viên và mua khóa học để xem câu trả lời'
+                    'message' => 'You need to sign up for membership and purchase a course to see the answer'
                 ], 401);
             }
-
             $answers = Answer::where('test_id', $testId)->orderByDesc('created_at')->get();
             $test = Test::find($testId);
             if (!$test) {
                 return response()->json([
-                    'message' => 'Không tìm thấy bài kiểm tra.'
+                    'message' => 'No test found.'
                 ], 400);
             }
             return response()->json([
                 'tests' => $this->customfullAnswers($answers),
-
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }

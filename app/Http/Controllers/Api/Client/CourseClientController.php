@@ -18,17 +18,16 @@ class CourseClientController extends Controller
             $subject = Subject::find($subjectId);
             if (!$subject) {
                 return response()->json([
-                    'message' => 'Không tìm thấy môn học.'
+                    'message' => 'No subject found.'
                 ], 400);
             }
             return response()->json(
                 $this->customfullCourses($courses),
-
                 200
             );
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -48,7 +47,6 @@ class CourseClientController extends Controller
                     "level" => $course->level,
                     "price"  => 0,
                     "promotional_price" => 0,
-
                 ];
                 array_push($courseArray, $subjectFull);
             } else {
@@ -59,7 +57,6 @@ class CourseClientController extends Controller
                     "level" => $course->level,
                     "price"  => $course->price,
                     "promotional_price" => $course->promotional_price,
-
                 ];
                 array_push($courseArray, $subjectFull);
             }
@@ -67,7 +64,6 @@ class CourseClientController extends Controller
         if (empty($courseArray)) {
             return [];
         }
-
         $subjectFull = [
             "course_id" => 0,
             "course_name" => 'Toàn bộ khóa học',
@@ -75,7 +71,6 @@ class CourseClientController extends Controller
             "level" => '',
             "price"  => $price,
             "promotional_price" => $promotionalPrice,
-
         ];
         array_push($courseArray, $subjectFull);
 

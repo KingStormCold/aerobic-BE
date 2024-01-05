@@ -14,15 +14,13 @@ use Throwable;
 
 class UserController extends Controller
 {
-
-
     public function getRoles()
     {
         $authController = new AuthController();
         $isAuthorization = $authController->isAuthorization('ADMIN_USER');
         if (!$isAuthorization) {
             return response()->json([
-                'message' => 'Bạn không có quyền.'
+                'message' => 'You have no rights.'
             ], 401);
         }
         $result = [];
@@ -45,7 +43,7 @@ class UserController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $users = User::orderByDesc('created_at')->paginate(10);
@@ -56,7 +54,7 @@ class UserController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -93,13 +91,13 @@ class UserController extends Controller
         $isAuthorization = $authController->isAuthorization('ADMIN_USER');
         if (!$isAuthorization) {
             return response()->json([
-                'message' => 'Bạn không có quyền.'
+                'message' => 'You have no rights.'
             ], 401);
         }
         $user = User::find($id);
         if ($user == null) {
             return response()->json([
-                'error_message' => 'Không tìm thấy user'
+                'error_message' => 'No user found'
             ], 400);
         }
         return response()->json([
@@ -107,20 +105,16 @@ class UserController extends Controller
         ], 200);
     }
 
-
-
-
     public function insertUser(Request $request)
     {
-        // try {
+        try {
         $authController = new AuthController();
         $isAuthorization = $authController->isAuthorization('ADMIN_USER');
         if (!$isAuthorization) {
             return response()->json([
-                'message' => 'Bạn không có quyền.'
+                'message' => 'You have no rights.'
             ], 401);
         }
-
         $validator = Validator::make($request->all(), [
             'user_email' => 'required|email|unique:users,email',
             'user_password' => 'required|min:6|confirmed',
@@ -130,22 +124,22 @@ class UserController extends Controller
             'user_phone' => 'required|numeric|digits:10',
             'user_status' => 'required|numeric',
         ], [
-            'user_email.required' => 'Email không được trống',
-            'user_email.email' => 'Email phải đúng định dạng',
-            'user_email.unique' => 'Email đã tồn tại',
-            'user_password.required' => 'Password không được để trống',
-            'user_password.min' => 'Password phải ít nhất 6 kí tự',
-            'user_password.confirmed' => 'xác nhận lại Password ko đúng',
-            'user_fullname.required' => 'Họ và tên không được để trống',
-            'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-            'user_role_name.required' => 'Vai trò người dùng không được trống',
-            'user_role_name.array' => 'Vai trò người dùng phải là một mảng',
-            'user_role_name.*.exists' => 'Vai trò người dùng không tồn tại',
-            'user_phone.required' => 'Số điện thoại không được để trống',
-            'user_phone.numeric' => 'Số điện thoại phải là số',
-            'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
-            'user_status.required' => 'Trạng thái không được để trống',
-            'user_status.numeric' => 'Trạng thái phải là số',
+            'user_email.required' => 'Email cant be blank',
+            'user_email.email' => 'Emails must be in the correct format',
+            'user_email.unique' => 'Email already exists',
+            'user_password.required' => 'Password must not be blank',
+            'user_password.min' => 'Password must be at least 6 characters',
+            'user_password.confirmed' => 'reconfirm that the password is incorrect',
+            'user_fullname.required' => 'Full name must not be blank',
+            'user_fullname.max' => 'Full name must not exceed 100 characters',
+            'user_role_name.required' => 'User roles cant be empty',
+            'user_role_name.array' => 'User roles must be an array',
+            'user_role_name.*.exists' => 'User role does not exist',
+            'user_phone.required' => 'Phone numbers cant be blank',
+            'user_phone.numeric' => 'The phone number must be a number',
+            'user_phone.digits' => 'The phone number must have exactly 10 numbers',
+            'user_status.required' => 'The status cannot be left blank',
+            'user_status.numeric' => 'The status must be numeric',
         ]);
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
@@ -155,7 +149,6 @@ class UserController extends Controller
                 ], 400);
             }
         }
-
         $user = User::create([
             'email' => $request->user_email,
             'password' => bcrypt($request->user_password),
@@ -166,18 +159,15 @@ class UserController extends Controller
             'uuid' => '',
             'created_by' => auth()->user()->email,
         ]);
-
-        // Thêm quyền cho người dùng thông qua bảng trung gian
         $user->roles()->attach($request->user_role_name);
-
         return response()->json([
             'result' => 'success',
         ], 200);
-        // } catch (Exception $e) {
-        //     return response()->json([
-        //         'error_message' => 'lỗi hệ thống'
-        //     ], 500);
-        // }
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'System errors'
+            ], 500);
+        }
     }
 
     public function updateUser($id, Request $request)
@@ -187,14 +177,13 @@ class UserController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
-
             $user = User::find($id);
             if ($user == null) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy user'
+                    'error_message' => 'No user found'
                 ], 400);
             }
             $validator = Validator::make($request->all(), [
@@ -205,18 +194,16 @@ class UserController extends Controller
                 'user_money' => 'numeric',
                 'user_status' => 'required|numeric',
             ], [
-                'user_fullname.required' => 'Họ và tên không được để trống',
-                'user_fullname.max' => 'Họ và tên không được vượt quá 100 kí tự',
-                'user_role_name.required' => 'Vai trò người dùng không được trống',
-                'user_role_name.array' => 'Vai trò người dùng phải là một mảng',
-                'user_role_name.*.exists' => 'Vai trò người dùng không tồn tại',
-                'user_phone.required' => 'Số điện thoại không được để trống',
-                'user_phone.numeric' => 'Số điện thoại phải là số',
-                'user_phone.digits' => 'Số điện thoại phải có đúng 10 số',
-                'user_money.numeric' => 'Số tiền phải là số',
+                'user_fullname.required' => 'Full name must not be blank',
+                'user_fullname.max' => 'Full name must not exceed 100 characters',
+                'user_role_name.required' => 'User roles cant be empty',
+                'user_role_name.array' => 'User roles must be an array',
+                'user_role_name.*.exists' => 'User role does not exist',
+                'user_phone.required' => 'Phone numbers cant be blank',
+                'user_phone.numeric' => 'The phone number must be a number',
+                'user_phone.digits' => 'The phone number must have exactly 10 numbers',
+                'user_money.numeric' => 'The amount must be numeric',
             ]);
-
-
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
                 foreach ($errors as $key => $error) {
@@ -225,34 +212,26 @@ class UserController extends Controller
                     ], 400);
                 }
             }
-
             if ($request->roles_name != null) {
                 $userParent = User::find($request->roles_name);
                 if ($userParent == null) {
                     return response()->json([
-                        'error_message' => 'Danh mục cha không đúng'
+                        'error_message' => 'Incorrect parent category'
                     ], 400);
                 }
             }
-            // Cập nhật thông tin trong bảng users
             $user->money = $request->input('user_money');
             $user->status = $request->input('user_status');
             $user->phone = $request->input('user_phone');
-
-            // Kiểm tra nếu giá trị user_updated_by không phải là null
             $user->updated_by = auth()->user()->email;
-
             $user->save();
-
-            // Cập nhật vai trò trong bảng users_roles
             $user->roles()->sync($request->input('user_role_name'));
-
             return response()->json([
                 'result' => 'success',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'lỗi hệ thống'
+                'error_message' => 'System errors'
             ], 500);
         }
     }
@@ -264,14 +243,13 @@ class UserController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
-
             $user = User::find($id);
             if ($user == null) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy user'
+                    'error_message' => 'No user found'
                 ], 400);
             }
             $user->delete();
