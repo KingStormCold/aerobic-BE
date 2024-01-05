@@ -255,7 +255,7 @@ class PaymentClientController extends Controller
                     'message' => 'You have no rights.'
                 ], 401);
             }
-            $payments = Payment::where('users_id', Auth::id())->orderByDesc('created_at')->paginate(10);
+            $payments = Payment::where('users_id', Auth::id())->orderBy('created_at')->paginate(10);
             return response()->json([
                 'payments' => $this->customPaymentDetail($payments->items()),
                 'totalPage' => $payments->lastPage(),
@@ -276,7 +276,7 @@ class PaymentClientController extends Controller
             $course = Course::find($payment->courses_id);
             $courseData = [
                 "name" => $course->name,
-                "price" => $course->price,
+                "price" => $payment->price,
                 "created_at" => $payment->created_at,
             ];
             $result[] = $courseData;
