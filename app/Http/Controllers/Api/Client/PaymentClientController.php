@@ -274,8 +274,10 @@ class PaymentClientController extends Controller
         foreach ($payments as $payment) {
             $user = User::find($payment->users_id);
             $course = Course::find($payment->courses_id);
+            $subject = Subject::find($course->subject_id);
             $courseData = [
-                "name" => $course->name,
+                "subjectName" => $subject->name,
+                "courseName" => $course->name,
                 "price" => $payment->price,
                 "created_at" => $payment->created_at,
             ];
