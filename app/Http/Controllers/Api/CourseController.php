@@ -27,7 +27,7 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $courses = Course::where('subject_id', $id)->paginate(10);
@@ -38,7 +38,7 @@ class CourseController extends Controller
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -78,13 +78,13 @@ class CourseController extends Controller
         if (!$isAuthorization) {
             return response()->json([
                 'code' => 'CATE_001',
-                'message' => 'Bạn không có quyền.'
+                'message' => 'You have no rights.'
             ], 401);
         }
         $courses = Course::find($id);
         if ($courses == null) {
             return response()->json([
-                'error_message' => 'Không tìm thấy khoa học'
+                'error_message' => 'Science not found'
             ], 400);
         }
         return response()->json([
@@ -100,7 +100,7 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -115,7 +115,7 @@ class CourseController extends Controller
                             ->first();
 
                         if ($existingLevel) {
-                            $fail('Cấp độ đã tồn tại cho môn học này');
+                            $fail('Levels already exist for this subject');
                         }
                     },
                 ],
@@ -123,27 +123,25 @@ class CourseController extends Controller
                 'subject_id' => 'required|exists:subjects,id',
                 //'promotional_price' => 'required',
             ], [
-                'name.required' => 'Tên khóa học không được trống',
-                'name.unique' => 'Tên khóa học đã tồn tại',
-                'name.max' => 'Tên khóa học không được vượt quá 100 ký tự',
-                'description.required' => 'Mô t trống',
-                'description.max' => 'Mô tả khóa học không được vượt quá 255 ký tự',
-                'level.required' => 'Cấp độ khóa học không được trống',
-                'level.integer' => 'Cấp độ khóa học phải là một số nguyên',
-                'level.unique' => 'Cấp độ khóa học đã tồn tại',
-                'price.required' => 'Giá khóa học không được trống',
-                'price.numeric' => 'Giá khóa học phải là một số',
-                'subject_id.required' => 'ID môn học không được trống',
-                'subject_id.exists' => 'ID môn học không tồn tại trong danh sách môn học',
+                'name.required' => 'Course name cant be blank',
+                'name.unique' => 'The course name already exists',
+                'name.max' => 'The course name should not exceed 100 characters',
+                'description.required' => 'Course descriptions cannot be left blank',
+                'description.max' => 'The course description should not exceed 255 characters',
+                'level.required' => 'Course levels must not be empty',
+                'level.integer' => 'The course level must be an integer',
+                'level.unique' => 'Course levels already exist',
+                'price.required' => 'Course prices cant be blank',
+                'price.numeric' => 'The course price should be several',
+                'subject_id.required' => 'Subject IDs cant be blank',
+                'subject_id.exists' => 'Subject ID does not exist in the subject list',
                 //'promotional_price.required' => 'Cấp độ khóa học không được trống',
             ]);
-
             if ($validator->fails()) {
                 return response()->json([
                     'error_message' => $validator->errors()->first()
                 ], 400);
             }
-
             Course::create([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -153,13 +151,12 @@ class CourseController extends Controller
                 'promotional_price' => $request->promotional_price,
                 'created_by' => $authController->getEmail()
             ]);
-
             return response()->json([
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -172,18 +169,15 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
-
             $course = Course::find($id);
-
             if (!$course) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy khóa học'
+                    'error_message' => 'Course not found'
                 ], 404);
             }
-
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:100|unique:courses,name,' . $course->id,
                 'description' => 'required|string|max:500',
@@ -195,9 +189,8 @@ class CourseController extends Controller
                             $existingLevel = Course::where('subject_id', $request->subject_id)
                                 ->where('level', $value)
                                 ->first();
-
                             if ($existingLevel) {
-                                $fail('Cấp độ đã tồn tại cho môn học này');
+                                $fail('Levels already exist for this subject');
                             }
                         }
                     },
@@ -205,26 +198,24 @@ class CourseController extends Controller
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
             ], [
-                'name.required' => 'Tên khóa học không được trống',
-                'name.unique' => 'Tên khóa học đã tồn tại',
-                'name.max' => 'Tên khóa học không được vượt quá 100 ký tự',
-                'description.required' => 'Mô tả khóa học không được trống',
-                'description.max' => 'Mô tả khóa học không được vượt quá 500 ký tự',
-                'level.required' => 'Cấp độ khóa học không được trống',
-                'level.integer' => 'Cấp độ khóa học phải là một số nguyên',
-                'level.unique' => 'Cấp độ khóa học đã tồn tại',
-                'price.required' => 'Giá khóa học không được trống',
-                'price.numeric' => 'Giá khóa học phải là một số',
-                'subject_id.required' => 'ID môn học không được trống',
-                'subject_id.exists' => 'ID môn học không tồn tại trong danh sách môn học',
+                'name.required' => 'Course name cant be blank',
+                'name.unique' => 'The course name already exists',
+                'name.max' => 'The course name should not exceed 100 characters',
+                'description.required' => 'Course descriptions cannot be left blank',
+                'description.max' => 'The course description should not exceed 255 characters',
+                'level.required' => 'Course levels must not be empty',
+                'level.integer' => 'The course level must be an integer',
+                'level.unique' => 'Course levels already exist',
+                'price.required' => 'Course prices cant be blank',
+                'price.numeric' => 'The course price should be several',
+                'subject_id.required' => 'Subject IDs cant be blank',
+                'subject_id.exists' => 'Subject ID does not exist in the subject list',
             ]);
-
             if ($validator->fails()) {
                 return response()->json([
                     'error_message' => $validator->errors()->first()
                 ], 400);
             }
-
             $course->update([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -233,7 +224,6 @@ class CourseController extends Controller
                 'subject_id' => $request->subject_id,
                 'updated_by' => $authController->getEmail()
             ]);
-
             return response()->json([
                 'result' => 'success'
             ], 200);
@@ -244,8 +234,6 @@ class CourseController extends Controller
         }
     }
 
-
-
     public function deleteCourse($id)
     {
         try {
@@ -254,26 +242,22 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
-
             $course = Course::find($id);
-
             if (!$course) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy khóa học'
+                    'error_message' => 'Course not found'
                 ], 404);
             }
-
             $course->delete();
-
             return response()->json([
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }

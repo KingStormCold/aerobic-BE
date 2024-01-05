@@ -23,31 +23,28 @@ class TestClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn cần đăng kí thành viên và mua khóa học để xem bài kiểm tra'
+                    'message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
-
             $tests = Test::where('video_id', $videoId)->inRandomOrder()->limit(10)->get();
             $video = Video::find($videoId);
             if (!$video) {
                 return response()->json([
-                    'message' => 'Không tìm thấy video.'
+                    'message' => 'Video not found.'
                 ], 400);
             }
             return response()->json([
                 'tests' => $this->customfullTests($tests),
-
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
     public function customfullTests($tests)
     {
         $testArray = [];
-
         foreach ($tests as $test) {
             $answerList = [];
             $answers = Answer::where('test_id', $test->id)->get();

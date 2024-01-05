@@ -23,24 +23,22 @@ class VideoClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'Bạn cần đăng kí thành viên và mua khóa học để xem bài kiểm tra'
+                    'message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
-
             $videos = Video::where('course_id', $courseId)->orderByDesc('created_at')->get();
             $course = Course::find($courseId);
             if (!$course) {
                 return response()->json([
-                    'message' => 'Không tìm thấy khóa học.'
+                    'message' => 'No course found.'
                 ], 400);
             }
             return response()->json([
                 'courses' => $this->customfullVideos($videos),
-
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -50,7 +48,6 @@ class VideoClientController extends Controller
         $courseId = null;
         $courseName = "";
         $videoArray = [];
-
         foreach ($videos as $video) {
             if ($courseId != $video->course_id) {
                 if ($courseId != null) {
@@ -77,7 +74,6 @@ class VideoClientController extends Controller
                 $previousTime = $videosUsers->previous_time;
                 $totalCorrect = $videosUsers->total_correct;
             }
-
             $courseData = [
                 "video_id" => $video->id,
                 "videoName" => $video->name,
@@ -91,8 +87,6 @@ class VideoClientController extends Controller
             ];
             array_push($videoArray, $courseData);
         }
-
-        // Thêm dữ liệu cuối cùng
         if ($courseId != null) {
             $data = [
                 "course_id" => $courseId,
@@ -101,7 +95,6 @@ class VideoClientController extends Controller
             ];
             $result = $data;
         }
-
         return $result;
     }
 
@@ -112,7 +105,7 @@ class VideoClientController extends Controller
             $isAuthorization = $authController->isAuthorization('USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn cần đăng kí thành viên và mua khóa học để xem bài kiểm tra'
+                    'message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
             $video = Video::find($videoId);
@@ -124,7 +117,7 @@ class VideoClientController extends Controller
             }
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -136,7 +129,7 @@ class VideoClientController extends Controller
             $isAuthorization = $authController->isAuthorization('USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn cần đăng kí thành viên và mua khóa học để xem bài kiểm tra'
+                    'message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
             $videosUsers = VideoUser::where('users_id', Auth::id())->where('videos_id', $request->video_id)->first();
@@ -157,7 +150,7 @@ class VideoClientController extends Controller
             }
         } catch (Exception $e) {
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }

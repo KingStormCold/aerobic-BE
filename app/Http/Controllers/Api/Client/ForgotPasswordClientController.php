@@ -19,12 +19,12 @@ class ForgotPasswordClientController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email'
             ], [
-                'email.required' => 'email không được trống'
+                'email.required' => 'Email cant be blank'
             ]);
             $user = User::where('email', $email)->first();
             if (!$user) {
                 return response()->json([
-                    'error_message' => 'Email không tồn tại'
+                    'error_message' => 'Email doesnt exist'
                 ], 400);
             } else {
                 $resetUUid = Str::uuid()->toString();
@@ -32,11 +32,8 @@ class ForgotPasswordClientController extends Controller
                 $result = $user->save();
                 if ($result) {
                     $resetUrl  = "http://localhost:9000/forgot-password?id=" . $resetUUid;
-                    // Mail::send('email.view', ['resetUrl' => $resetUrl], function ($message) use ($email) {
-                    //     $message->to($email)->subject('Đổi mật khẩu');
-                    // });
-                    Mail::raw('Nội dung Email test. ' .  $resetUrl, function ($message) use ($email) {
-                        $message->to($email)->subject('Đổi mật khẩu');
+                    Mail::raw('Change password. ' .  $resetUrl, function ($message) use ($email) {
+                        $message->to($email)->subject('Change password');
                     });
                     return response()->json([
                         'result' => 'success'
@@ -63,7 +60,7 @@ class ForgotPasswordClientController extends Controller
                 }
             } else {
                 return response()->json([
-                    'result' => 'Không tìm thấy uuid'
+                    'result' => 'No uuid found'
                 ], 400);
             }
         } catch (Exception $e) {

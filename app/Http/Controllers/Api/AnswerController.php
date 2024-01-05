@@ -31,7 +31,7 @@ class AnswerController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'SUB_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $answers = Answer::orderByDesc('test_id')->paginate(10);
@@ -44,7 +44,7 @@ class AnswerController extends Controller
         } catch (Exception $e) {
 
             return response()->json([
-                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -82,7 +82,7 @@ class AnswerController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'Answer_001',
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -99,15 +99,13 @@ class AnswerController extends Controller
                     'unique:answers,serial_answer,NULL,id,test_id,' . $request->test_id,
                 ],
             ], [
-                'answerTest.required' => 'Câu trả lời không được trống',
-                'answerTest.unique' => 'Câu trả lời không được trùng',
-                'answerTest.max' => 'Câu trả lời không được dài quá 255 ký tự',
-                'serialAnswer.required' => 'Vị trí đáp án không được trống',
-                'serialAnswer.numeric' => 'Vị trí đáp án phải là số',
-                'serialAnswer.unique' => 'Vị trí đáp án không được trùng',
+                'answerTest.required' => 'The answer must not be blank',
+                'answerTest.unique' => 'The answer must not be the same',
+                'answerTest.max' => 'Answers must be no longer than 255 characters',
+                'serialAnswer.required' => 'The answer position must not be blank',
+                'serialAnswer.numeric' => 'The answer position must be numeric',
+                'serialAnswer.unique' => 'The answer position must not coincide',
             ]);
-
-
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
                 foreach ($errors as $key => $error) {
@@ -120,7 +118,7 @@ class AnswerController extends Controller
                 $test = Test::find($request->test_id);
                 if ($test == null) {
                     return response()->json([
-                        'error_message' => 'Bai test không đúng'
+                        'error_message' => 'The test is incorrect'
                     ], 400);
                 }
             }
@@ -148,13 +146,13 @@ class AnswerController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn không có quyền.'
+                    'message' => 'You have no rights.'
                 ], 401);
             }
             $answer = Answer::find($id);
             if ($answer == null) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy bai test'
+                    'error_message' => 'No test found'
                 ], 400);
             }
             $validator = Validator::make($request->all(), [
@@ -171,14 +169,13 @@ class AnswerController extends Controller
                     'unique:answers,serial_answer,NULL,id,test_id,' . $request->test_id,
                 ],
             ], [
-                'answerTest.required' => 'Câu trả lời không được trống',
-                'answerTest.unique' => 'Câu trả lời không được trùng',
-                'answerTest.max' => 'Câu trả lời không được dài quá 255 ký tự',
-                'serialAnswer.required' => 'Vị trí đáp án không được trống',
-                'serialAnswer.numeric' => 'Vị trí đáp án phải là số',
-                'serialAnswer.unique' => 'Vị trí đáp án không được trùng',
+                'answerTest.required' => 'The answer must not be blank',
+                'answerTest.unique' => 'The answer must not be the same',
+                'answerTest.max' => 'Answers must be no longer than 255 characters',
+                'serialAnswer.required' => 'The answer position must not be blank',
+                'serialAnswer.numeric' => 'The answer position must be numeric',
+                'serialAnswer.unique' => 'The answer position must not coincide',
             ]);
-
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
                 foreach ($errors as $key => $error) {
@@ -187,16 +184,14 @@ class AnswerController extends Controller
                     ], 400);
                 }
             }
-
             if ($request->test_id != null) {
                 $test = Test::find($request->test_id);
                 if ($test == null) {
                     return response()->json([
-                        'error_message' => 'bai test không đúng'
+                        'error_message' => 'incorrect test'
                     ], 400);
                 }
             }
-
             $answer->serial_answer = $request->answerTest;
             $answer->answer_test = $request->serialAnswer;
             $answer->test_id = $request->input('test_id', 1);
@@ -220,11 +215,10 @@ class AnswerController extends Controller
             $answer = Answer::find($id);
             if ($answer == null) {
                 return response()->json([
-                    'error_message' => 'Không tìm thấy bai test'
+                    'error_message' => 'No test found'
                 ], 400);
             }
             $answer->delete();
-
             return response()->json([
                 'result' => 'succes'
             ], 200);
