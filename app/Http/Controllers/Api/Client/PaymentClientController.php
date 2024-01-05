@@ -33,11 +33,11 @@ class PaymentClientController extends Controller
                 'free' => 'required'
             ], []);
             // Lấy ID của người dùng đã đăng nhập
-            $subjectFull = $request->input('subject_full');
             $free = $request->input('free');
+            $subjectFull = $request->input('subject_full');
+            $subjectId = $request->input('subject_id');
+            $subject = Subject::with('courses')->find($subjectId);
             if ($subjectFull === 1) {
-                $subjectId = $request->input('subject_id');
-                $subject = Subject::with('courses')->find($subjectId);
                 if ($subject === null) {
                     return response()->json([
                         'error_message' => 'Không tìm thấy môn học'
@@ -53,99 +53,113 @@ class PaymentClientController extends Controller
                     }
                     $price -= $subject->promotional_price;
                     $user = auth()->user();
-                    $payments = Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists();
-                    if ($payments) {
-                        return response()->json([
-                            'error_message' => 'Bạn đã mua khóa học và môn học này trước đó.'
-                        ], 400);
+                    $payments = Payment::get();
+                    foreach ($payments as $payment) {
+                        if ($payment->price !== 0) {
+                            return response()->json([
+                                'error_message' => 'Bạn đã mua khóa học hoặc môn học này trước đó.'
+                            ], 400);
+                        }
                     }
                     if ($user->money < $price) {
                         return response()->json([
-                            'error_message' => 'bạn không đủ tiền trong tài khoản'
+                            'error_message' => 'Bạn không đủ tiền trong tài khoản'
                         ], 400);
                     } else {
                         $user->money -= $price;
                         $user->save();
                         foreach ($courses as $course) {
-                            Payment::create([
-                                'price' => $price,
-                                'subject_full' => $subjectFull,
-                                'users_id' => $user->id,
-                                'courses_id' => $course->id
-                            ]);
+                            if ($course->level === 1 && Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
+                                Payment::where('users_id', $user->id)->where('courses_id', $course->id)->update([
+                                    'price' => 0,
+                                    'subject_full' => $subjectFull,
+                                    'users_id' => $user->id,
+                                    'courses_id' => $course->id
+                                ]);
+                            } else if ($course->level === 1 && !Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
+                                Payment::create([
+                                    'price' => 0,
+                                    'subject_full' => $subjectFull,
+                                    'users_id' => $user->id,
+                                    'courses_id' => $course->id
+                                ]);
+                            } else {
+                                Payment::create([
+                                    'price' => $course->price,
+                                    'subject_full' => $subjectFull,
+                                    'users_id' => $user->id,
+                                    'courses_id' => $course->id
+                                ]);
+                            }
                         }
                         return response()->json([
-                            'result' => 'success'
+                            'result' => 'Thành công'
                         ], 200);
                     }
                 }
             } else {
                 $courseId = $request->input('course_id');
-                $course = Course::find($courseId);
+                $courses = Course::find($courseId);
                 $user = auth()->user();
-                $price = $course->price - $course->promotional_price;
+                $price = $courses->price - $courses->promotional_price;
+                $payment = Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists();
                 if ($free === 1) {
-                    $payments = Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists();
-                    if ($payments) {
+
+                    if ($payment) {
                         return response()->json([
-                            'error_message' => 'Bạn đã mua khóa học và môn học này trước đó 11.'
+                            'error_message' => 'Bạn đã mua khóa học hoặc môn học này trước đó.'
                         ], 400);
                     }
                     Payment::create([
                         'price' => 0,
                         'subject_full' => $subjectFull,
                         'users_id' => $user->id,
-                        'courses_id' => $course->id
+                        'courses_id' => $courses->id
                     ]);
                     return response()->json([
-                        'result' => 'success 1'
+                        'result' => 'Thành công'
                     ], 200);
                 } else {
                     if ($user->money < $price) {
                         return response()->json([
-                            'error_message' => 'bạn không đủ tiền trong tài khoản'
+                            'error_message' => 'Bạn không đủ tiền trong tài khoản'
                         ], 400);
-                    } else {
+                    } else if ($payment) {
                         $payments = Payment::get();
+                        $priceFull = 0;
                         foreach ($payments as $payment) {
-                            if ($payment) {
-                                if ($payment->price > 0) {
-                                    return response()->json([
-                                        'error_message' => 'Bạn đã mua khóa học và môn học này trước đó 22.'
-                                    ], 400);
-                                } else {
-                                    $user->money -= $price;
-                                    $user->save();
-                                    Payment::where('users_id', $user->id)->where('courses_id', $course->id)->update([
-                                        'price' => $price,
-                                        'subject_full' => $subjectFull,
-                                        'users_id' => $user->id,
-                                        'courses_id' => $course->id
-                                    ]);
-                                    return response()->json([
-                                        'price' => 'success 2'
-                                    ], 200);
-                                }
-                            } else {
-                                if ($payment) {
-                                    return response()->json([
-                                        'error_message' => 'Bạn đã mua khóa học và môn học này trước đó 33.'
-                                    ], 400);
-                                } else {
-                                    $user->save();
-                                    $user->money -= $price;
-                                    Payment::create([
-                                        'price' => $price,
-                                        'subject_full' => $subjectFull,
-                                        'users_id' => $user->id,
-                                        'courses_id' => $course->ids
-                                    ]);
-                                    return response()->json([
-                                        'result' => 'success 3'
-                                    ], 200);
-                                }
-                            }
+                            $priceFull += $payment->price;
                         }
+
+                        if ($priceFull > 0) {
+                            return response()->json([
+                                'error_message' => 'Bạn đã mua khóa học hoặc môn học này trước đó.'
+                            ], 400);
+                        } else {
+                            $user->money -= $price;
+                            $user->save();
+                            Payment::where('users_id', $user->id)->where('courses_id', $courses->id)->update([
+                                'price' => $courses->price,
+                                'subject_full' => $subjectFull,
+                                'users_id' => $user->id,
+                                'courses_id' => $courses->id
+                            ]);
+                            return response()->json([
+                                'result' => 'Thành công'
+                            ], 200);
+                        }
+                    } else {
+                        $user->money -= $price;
+                        $user->save();
+                        Payment::create([
+                            'price' => $courses->price,
+                            'subject_full' => $subjectFull,
+                            'users_id' => $user->id,
+                            'courses_id' => $courses->id
+                        ]);
+                        return response()->json([
+                            'result' => 'Thành công'
+                        ], 200);
                     }
                 }
             }
@@ -230,50 +244,49 @@ class PaymentClientController extends Controller
     }
 
     public function getPayments()
-   {
-       try {
-           $authController = new AuthController();
-           $isAuthorization = $authController->isAuthorization('USER');
+    {
+        try {
+            $authController = new AuthController();
+            $isAuthorization = $authController->isAuthorization('USER');
 
-           if (!$isAuthorization) {
-               return response()->json([
-                   'code' => 'SUB_001',
-                   'message' => 'Bạn không có quyền.'
-               ], 401);
-           }
+            if (!$isAuthorization) {
+                return response()->json([
+                    'code' => 'SUB_001',
+                    'message' => 'Bạn không có quyền.'
+                ], 401);
+            }
 
 
-           $payments = Payment::where('users_id', Auth::id())->orderByDesc('created_at')->paginate(10);
-           return response()->json([
-               'payments' => $this->customPaymentDetail($payments->items()),
-               'totalPage' => $payments->lastPage(),
-               'pageNum' => $payments->currentPage(),
-           ], 200);
-            } catch (Exception $e) {
-           return response()->json([
-               'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
-           ], 500);
+            $payments = Payment::where('users_id', Auth::id())->orderByDesc('created_at')->paginate(10);
+            return response()->json([
+                'payments' => $this->customPaymentDetail($payments->items()),
+                'totalPage' => $payments->lastPage(),
+                'pageNum' => $payments->currentPage(),
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
+            ], 500);
         }
     }
 
-   public function customPaymentDetail($payments)
+    public function customPaymentDetail($payments)
     {
-    $result = []; 
+        $result = [];
 
-    foreach ($payments as $payment) {
-        $user = User::find($payment->users_id);
-        $course = Course::find($payment->courses_id);
+        foreach ($payments as $payment) {
+            $user = User::find($payment->users_id);
+            $course = Course::find($payment->courses_id);
 
-        $courseData = [
-            "name" => $course->name,
-            "price" => $course->price,
-            "created_at" => $payment->created_at,
-        ];
+            $courseData = [
+                "name" => $course->name,
+                "price" => $course->price,
+                "created_at" => $payment->created_at,
+            ];
 
-        $result[] = $courseData; 
+            $result[] = $courseData;
+        }
+
+        return $result;
     }
-
-    return $result; 
-    }
-
 }
