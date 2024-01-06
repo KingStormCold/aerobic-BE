@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('name', 255);
             $table->string('created_by', 100);
             $table->string('updated_by', 100);
-
+            $table->integer('status')->default(1);
             $table->unsignedBiginteger('category_id')->unsigned();
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->foreign('category_id')->references('id')->on('categories');
             $table->timestamps();
         });
     }

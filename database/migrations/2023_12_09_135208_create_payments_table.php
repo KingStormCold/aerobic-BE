@@ -16,9 +16,9 @@ return new class extends Migration
             $table->bigInteger('price');
             $table->tinyInteger('subject_full');
             $table->unsignedBiginteger('users_id')->unsigned();
-            $table->foreign('users_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('users_id')->references('id')->on('users');
             $table->unsignedBiginteger('courses_id')->unsigned()->nullable();
-            $table->foreign('courses_id')->references('id')->on('courses')->onDelete('cascade');
+            $table->foreign('courses_id')->references('id')->on('courses');
             $table->timestamps();
         });
     }

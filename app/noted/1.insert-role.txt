@@ -6,4 +6,5 @@ INSERT INTO `roles` (`name`, `created_at`, `updated_at`) VALUES
 ('ADMIN_TEST', NULL, NULL),
 ('ADMIN_USER', NULL, NULL),
 ('ADMIN_VIDEO', NULL, NULL),
+('ADMIN_PAYMENT', NULL, NULL),
 ('USER', NULL, NULL);

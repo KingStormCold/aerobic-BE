@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('parent_id');
             $table->string('created_by', 100);
             $table->string('updated_by', 100);
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }

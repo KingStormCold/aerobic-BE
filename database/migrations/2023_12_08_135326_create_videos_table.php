@@ -18,10 +18,12 @@ return new class extends Migration
             $table->integer('finished')->default(0);
             $table->integer('full_time')->default(0);
             $table->integer('view')->default(0);
+            $table->integer('free')->default(0);
+            $table->integer('status')->default(1);
             $table->string('created_by', 100)->default('');
             $table->string('updated_by', 100)->default('');
             $table->unsignedBiginteger('course_id')->unsigned();
-            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+            $table->foreign('course_id')->references('id')->on('courses');
             $table->timestamps();
         });
     }
