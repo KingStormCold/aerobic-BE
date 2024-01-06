@@ -97,7 +97,6 @@ Route::group([
     Route::delete('/answer/{id}', [AnswerController::class, 'deleteAnser']);
 
     Route::get('/get-payments', [PaymentController::class, 'getPayments']);
-    Route::get('/get-details', [PaymentController::class, 'getDetail']);
 
     Route::get('/get-tests', [TestController::class, 'getTests']);
     Route::get('/test/{id}', [TestController::class, 'test']);
@@ -128,5 +127,5 @@ Route::group([
     Route::post('/check-answer', [CheckAnswerClientController::class, 'checkAnswers']);
 
     Route::post('/get-full-subject', [SubjectClientController::class, 'getFullSubjectClient']);
-    Route::get('/get-payments', [PaymentClientController::class, 'getPayments']);
+    Route::get('/get-payments/{id}', [PaymentClientController::class, 'getPayments']);
 });
