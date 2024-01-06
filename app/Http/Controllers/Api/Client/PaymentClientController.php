@@ -62,7 +62,7 @@ class PaymentClientController extends Controller
                     }
                     if ($user->money < $price) {
                         return response()->json([
-                            'error_message' => 'You dont have enough money in your account'
+                            'error_message' => 'You dont have enough money in your account. Please, go to recharge page'
                         ], 400);
                     } else {
                         $user->money -= $price;
