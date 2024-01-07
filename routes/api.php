@@ -129,4 +129,5 @@ Route::group([
 
     Route::post('/get-full-subject', [SubjectClientController::class, 'getFullSubjectClient']);
     Route::get('/get-payments', [PaymentClientController::class, 'getPayments']);
+    Route::post('/change-password', [UserController::class, 'changePassword']);
 });
