@@ -64,6 +64,7 @@ class VideoController extends Controller
                 "course_id" => $video->course_id,
                 "course_name" => $courseName,
                 "full_time" => $video->full_time,
+                "free" => $video->free,
                 "created_by" => $video->created_by,
                 "updated_by" => $video->updated_by,
                 "created_at" => $video->created_at,
@@ -135,8 +136,8 @@ class VideoController extends Controller
             Video::create([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
-                'finished' => $request->finished,
                 'course_id' => $request->course_id,
+                'free' => $request->free,
                 'created_by' => $authController->getEmail(),
                 'full_time' => $request->full_time,
                 'view' => 0
@@ -191,8 +192,8 @@ class VideoController extends Controller
             $video->update([
                 'name' => $request->name,
                 'link_video' => $request->link_video,
-                'finished' => $request->finished,
                 'course_id' => $request->course_id,
+                'free' => $request->free,
                 'updated_by' => $authController->getEmail(),
                 'full_time' => $request->full_time,
             ]);
