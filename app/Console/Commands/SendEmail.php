@@ -34,14 +34,9 @@ class SendEmail extends Command
                         }
                     }
                 }
- 
             }
-          
         } catch (Exception $e) {
             $this->error("Error: {$e->getMessage()}");
         }
     }
-
-    
-    
 }

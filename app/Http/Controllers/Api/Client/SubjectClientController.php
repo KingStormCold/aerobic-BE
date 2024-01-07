@@ -61,7 +61,7 @@ class SubjectClientController extends Controller
         ]);
         $content_search = $request->input('content_search');
         try {
-            $subjects = Subject::with('category')->select('id', 'name', 'created_at', 'image', 'promotional_price', 'category_id')->where("content", "like", "%" . $content_search . "%")->orderBy('created_at')->limit($request->input('page_size'))->get();
+            $subjects = Subject::with('category')->select('id', 'name', 'created_at', 'image', 'promotional_price', 'category_id')->where("content", "like", "%" . $content_search . "%")->where('status', 1)->orderBy('created_at')->limit($request->input('page_size'))->get();
             $result = [];
             foreach ($subjects as $subject) {
                 $subjectData = [

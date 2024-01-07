@@ -30,7 +30,7 @@ class CourseController extends Controller
                     'message' => 'You have no rights.'
                 ], 401);
             }
-            $courses = Course::where('subject_id', $id)->paginate(10);
+            $courses = Course::where('subject_id', $id)->where('status', 1)->paginate(10);
             return response()->json([
                 'courses' => $this->customCourses($courses->items()),
                 'totalPage' => $courses->lastPage(),
@@ -251,7 +251,9 @@ class CourseController extends Controller
                     'error_message' => 'Course not found'
                 ], 404);
             }
-            $course->delete();
+            $course->update([
+                'status' => 0
+            ]);
             return response()->json([
                 'result' => 'success'
             ], 200);

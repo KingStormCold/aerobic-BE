@@ -32,7 +32,7 @@ class VideoController extends Controller
                 ], 401);
             }
 
-            $videos = Video::where('course_id', $id)->paginate(10);
+            $videos = Video::where('course_id', $id)->where('status', 1)->paginate(10);
 
             return response()->json([
                 'courses' => $this->customVideos($videos->items()),
@@ -221,7 +221,9 @@ class VideoController extends Controller
                     'error_message' => 'Video Not Found'
                 ], 404);
             }
-            $video->delete();
+            $video->update([
+                'status' => 0
+            ]);
             return response()->json([
                 'result' => 'success'
             ], 200);
