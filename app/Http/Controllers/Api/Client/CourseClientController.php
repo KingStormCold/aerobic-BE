@@ -15,7 +15,7 @@ class CourseClientController extends Controller
     public function fullCourses($subjectId)
     {
         try {
-            $courses = Course::where('subject_id', $subjectId)->orderBy('level')->get();
+            $courses = Course::where('subject_id', $subjectId)->where('status', 1)->orderBy('level')->get();
             $subject = Subject::find($subjectId);
             if (!$subject) {
                 return response()->json([
@@ -23,7 +23,7 @@ class CourseClientController extends Controller
                 ], 400);
             }
             return response()->json(
-                $this->customfullCourses($courses),
+                $this->customfullCourses($courses, $subject),
                 200
             );
         } catch (Exception $e) {
@@ -33,7 +33,7 @@ class CourseClientController extends Controller
             ], 500);
         }
     }
-    public function customfullCourses($courses)
+    public function customfullCourses($courses, $subject)
     {
         $courseArray = [];
         $price = 0;
@@ -71,7 +71,7 @@ class CourseClientController extends Controller
             "course_description" => '',
             "level" => '',
             "price"  => $price,
-            "promotional_price" => $promotionalPrice,
+            "promotional_price" => $promotionalPrice + $subject->promotional_price,
         ];
         array_push($courseArray, $subjectFull);
 
