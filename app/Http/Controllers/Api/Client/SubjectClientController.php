@@ -16,16 +16,16 @@ class SubjectClientController extends Controller
     public function fullSubjects($categoryId)
     {
         try {
-            $subject = Subject::where('category_id', $categoryId)->orderByDesc('created_at')->first();
+            $subject = Subject::where('category_id', $categoryId)->where('status', 1)->orderByDesc('created_at')->first();
             $category = Category::find($categoryId);
             if (!$category) {
                 return response()->json([
-                    'message' => 'Category not found.'
+                    'error_message' => 'Category not found.'
                 ], 400);
             }
             if (!$subject) {
                 return response()->json([
-                    'message' => 'No subjects found for this category.'
+                    'error_message' => 'No subjects found for this category.'
                 ], 400);
             }
             return response()->json([

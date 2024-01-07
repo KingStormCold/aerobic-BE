@@ -2,6 +2,9 @@
 
 namespace App\Http;
 
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Log;
+
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -73,4 +76,11 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'jwt.refresh' => \Tymon\JWTAuth\Http\Middleware\RefreshToken::class,
     ];
+
+    protected function schedule(Schedule $schedule)
+    {
+        Log::info(' Send in 1 minute ');
+        $schedule->command('send:email')->everyMinute();
+        // $schedule->command('send:email')->everyThirtyMinutes();
+    }
 }
