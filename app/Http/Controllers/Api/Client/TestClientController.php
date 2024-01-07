@@ -12,6 +12,7 @@ use App\Models\Video;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\AuthController;
+use Illuminate\Support\Facades\Log;
 
 class TestClientController extends Controller
 {
@@ -37,6 +38,7 @@ class TestClientController extends Controller
                 'tests' => $this->customfullTests($tests),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

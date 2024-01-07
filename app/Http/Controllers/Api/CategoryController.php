@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Subject;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -35,13 +36,14 @@ class CategoryController extends Controller
                     'message' => 'You have no rights.'
                 ], 401);
             }
-            $categories = Category::orderByDesc('parent_id')->paginate(10);
+            $categories = Category::orderByDesc('parent_id')->where('status', 1)->paginate(10);
             return response()->json([
                 'categories' => $this->customCategories($categories->items()),
                 'totalPage' => $categories->lastPage(),
                 'pageNum' => $categories->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -138,6 +140,7 @@ class CategoryController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -190,7 +193,7 @@ class CategoryController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
-            Log::debug($e);
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -206,11 +209,21 @@ class CategoryController extends Controller
                     'error_message' => 'Category not found'
                 ], 400);
             }
-            $category->delete();
+            $category->update([
+                'status' => 0
+            ]);
+
+            $subject = Subject::where('category_id', $id);
+            if ($subject !== null) {
+                $subject->update([
+                    'status' => 0
+                ]);
+            }
             return response()->json([
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -243,6 +256,7 @@ class CategoryController extends Controller
                 'categories' => $result
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -257,11 +271,11 @@ class CategoryController extends Controller
             'menu' => $menu,
         ], 200);
     }
-    
+
     public function buildMenu($categories)
     {
         $result = [];
-        
+
         foreach ($categories as $category) {
             $categoryData = [
                 'id' => $category->id,
@@ -271,7 +285,7 @@ class CategoryController extends Controller
             if (!$subCategories->isEmpty()) {
                 $categoryData['sub-menu'] = $this->buildMenu($subCategories);
             }
-        
+
             $result[] = $categoryData;
         }
         return $result;

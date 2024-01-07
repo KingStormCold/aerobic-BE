@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Subject;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
@@ -30,13 +31,14 @@ class CourseController extends Controller
                     'message' => 'You have no rights.'
                 ], 401);
             }
-            $courses = Course::where('subject_id', $id)->paginate(10);
+            $courses = Course::where('subject_id', $id)->where('status', 1)->paginate(10);
             return response()->json([
                 'courses' => $this->customCourses($courses->items()),
                 'totalPage' => $courses->lastPage(),
                 'pageNum' => $courses->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -104,7 +106,7 @@ class CourseController extends Controller
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100|unique:courses,name',
+                'name' => 'required|string|max:100',
                 'description' => 'required|string|max:255',
                 'level' => [
                     'required',
@@ -121,10 +123,8 @@ class CourseController extends Controller
                 ],
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
-                //'promotional_price' => 'required',
             ], [
                 'name.required' => 'Course name cant be blank',
-                'name.unique' => 'The course name already exists',
                 'name.max' => 'The course name should not exceed 100 characters',
                 'description.required' => 'Course descriptions cannot be left blank',
                 'description.max' => 'The course description should not exceed 255 characters',
@@ -155,6 +155,7 @@ class CourseController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -179,7 +180,7 @@ class CourseController extends Controller
                 ], 404);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100|unique:courses,name,' . $course->id,
+                'name' => 'required|string|max:100',
                 'description' => 'required|string|max:500',
                 'level' => [
                     'required',
@@ -197,9 +198,9 @@ class CourseController extends Controller
                 ],
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
+                ''
             ], [
                 'name.required' => 'Course name cant be blank',
-                'name.unique' => 'The course name already exists',
                 'name.max' => 'The course name should not exceed 100 characters',
                 'description.required' => 'Course descriptions cannot be left blank',
                 'description.max' => 'The course description should not exceed 255 characters',
@@ -221,6 +222,7 @@ class CourseController extends Controller
                 'description' => $request->description,
                 'level' => $request->level,
                 'price' => $request->price,
+                'promotional_price' => $request->promotional_price,
                 'subject_id' => $request->subject_id,
                 'updated_by' => $authController->getEmail()
             ]);
@@ -228,6 +230,7 @@ class CourseController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
             ], 500);
@@ -251,11 +254,14 @@ class CourseController extends Controller
                     'error_message' => 'Course not found'
                 ], 404);
             }
-            $course->delete();
+            $course->update([
+                'status' => 0
+            ]);
             return response()->json([
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

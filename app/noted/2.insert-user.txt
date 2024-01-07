@@ -1,2 +1,2 @@
-INSERT INTO `users` (`id`, `email`, `email_verified_at`, `password`, `uuid`, `remember_token`, `fullname`, `status`, `phone`, `money`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
-(1, 'tuan@gmail.com', NULL, '$2y$12$U8fGInQPKdsKB34hzqq19uyg/0.g3sik9257cZRFnliW5bPn9EYGG', '', NULL, 'Tuan', 1, '1234567890', 0, '', 'tuan@gmail.com', NULL, '2024-01-03 06:37:56');
+INSERT INTO `users` (`email`, `email_verified_at`, `password`, `uuid`, `remember_token`, `fullname`, `status`, `phone`, `money`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
+('tuan@gmail.com', NULL, '$2y$12$U8fGInQPKdsKB34hzqq19uyg/0.g3sik9257cZRFnliW5bPn9EYGG', '', NULL, 'Tuan', 1, '1234567890', 0, '', 'tuan@gmail.com', NULL, '2024-01-03 06:37:56');

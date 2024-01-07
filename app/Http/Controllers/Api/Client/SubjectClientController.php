@@ -10,28 +10,30 @@ use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class SubjectClientController extends Controller
 {
     public function fullSubjects($categoryId)
     {
         try {
-            $subject = Subject::where('category_id', $categoryId)->orderByDesc('created_at')->first();
+            $subject = Subject::where('category_id', $categoryId)->where('status', 1)->orderByDesc('created_at')->first();
             $category = Category::find($categoryId);
             if (!$category) {
                 return response()->json([
-                    'message' => 'Category not found.'
+                    'error_message' => 'Category not found.'
                 ], 400);
             }
             if (!$subject) {
                 return response()->json([
-                    'message' => 'No subjects found for this category.'
+                    'error_message' => 'No subjects found for this category.'
                 ], 400);
             }
             return response()->json([
                 'category' => $this->customfullSubject($subject),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -61,7 +63,7 @@ class SubjectClientController extends Controller
         ]);
         $content_search = $request->input('content_search');
         try {
-            $subjects = Subject::with('category')->select('id', 'name', 'created_at', 'image', 'promotional_price', 'category_id')->where("content", "like", "%" . $content_search . "%")->orderBy('created_at')->limit($request->input('page_size'))->get();
+            $subjects = Subject::with('category')->select('id', 'name', 'created_at', 'image', 'promotional_price', 'category_id')->where("content", "like", "%" . $content_search . "%")->where('status', 1)->orderBy('created_at')->limit($request->input('page_size'))->get();
             $result = [];
             foreach ($subjects as $subject) {
                 $subjectData = [
@@ -77,6 +79,7 @@ class SubjectClientController extends Controller
                 'data' => $result
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

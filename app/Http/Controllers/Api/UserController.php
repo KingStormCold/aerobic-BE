@@ -53,6 +53,7 @@ class UserController extends Controller
                 'pageNum' => $users->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -165,6 +166,7 @@ class UserController extends Controller
                 'result' => 'success',
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System errors'
             ], 500);
@@ -234,6 +236,7 @@ class UserController extends Controller
                 'result' => 'success',
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System errors'
             ], 500);
@@ -263,6 +266,40 @@ class UserController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
+            return response()->json([
+                'error_message' => $e
+            ], 500);
+        }
+    }
+
+    public function changePassword(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'password' => 'required|string|min:6',
+                'email' => 'required',
+                'uuid' => 'required'
+            ]);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                foreach ($errors as $key => $error) {
+                    return response()->json([
+                        'error_message' => $error
+                    ], 400);
+                }
+            }
+
+            $user = User::where('uuid', $request->input('uuid'))->first();
+            $user->update([
+                'password' => bcrypt($request->input('password')),
+                'uuid' => ''
+            ]);
+            return response()->json([
+                'message' => 'You have successfully changed your password',
+            ], 201);
+        } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);

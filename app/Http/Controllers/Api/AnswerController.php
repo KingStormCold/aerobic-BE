@@ -42,7 +42,7 @@ class AnswerController extends Controller
                 'pageNum' => $answers->currentPage(),
             ], 200);
         } catch (Exception $e) {
-
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -133,8 +133,9 @@ class AnswerController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
-                'error_message' => $e
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -202,9 +203,9 @@ class AnswerController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
-            Log::debug($e);
+            Log::info('[Exception] ' + $e);
             return response()->json([
-                'error_message' => $e
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }
@@ -223,8 +224,9 @@ class AnswerController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
-                'error_message' => $e
+                'error_message' => 'System error. Please try again later'
             ], 500);
         }
     }

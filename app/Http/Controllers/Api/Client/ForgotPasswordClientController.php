@@ -10,28 +10,24 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Log;
 
 class ForgotPasswordClientController extends Controller
 {
     public function forgotPassword(Request $request, $email)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email'
-            ], [
-                'email.required' => 'Email cant be blank'
-            ]);
             $user = User::where('email', $email)->first();
             if (!$user) {
                 return response()->json([
-                    'error_message' => 'Email doesnt exist'
+                    'error_message' => 'Email not found'
                 ], 400);
             } else {
                 $resetUUid = Str::uuid()->toString();
                 $user->uuid = $resetUUid;
                 $result = $user->save();
                 if ($result) {
-                    $resetUrl  = "http://localhost:9000/forgot-password?id=" . $resetUUid;
+                    $resetUrl  = "http://localhost:9000/forgot-password?uuid=" . $resetUUid;
                     Mail::raw('Change password. ' .  $resetUrl, function ($message) use ($email) {
                         $message->to($email)->subject('Change password');
                     });
@@ -41,6 +37,7 @@ class ForgotPasswordClientController extends Controller
                 }
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e->getMessage()
             ], 500);
@@ -51,19 +48,19 @@ class ForgotPasswordClientController extends Controller
         try {
             $user = User::where('uuid', $uuid)->first();
             if ($user !== null) {
-                if ($user->uuid !== null) {
-                    $user->uuid = "";
-                    $user->save();
-                    return response()->json([
-                        'result' => 'success'
-                    ], 200);
-                }
+                return response()->json([
+                    'user' => [
+                        'id' => $user->id,
+                        'email' => $user->email
+                    ]
+                ], 200);
             } else {
                 return response()->json([
-                    'result' => 'No uuid found'
+                    'error_message' => 'No uuid found'
                 ], 400);
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e->getMessage()
             ], 500);

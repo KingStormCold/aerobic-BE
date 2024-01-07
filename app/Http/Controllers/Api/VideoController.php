@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Subject;
 use App\Models\Video;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class VideoController extends Controller
@@ -32,7 +33,7 @@ class VideoController extends Controller
                 ], 401);
             }
 
-            $videos = Video::where('course_id', $id)->paginate(10);
+            $videos = Video::where('course_id', $id)->where('status', 1)->paginate(10);
 
             return response()->json([
                 'courses' => $this->customVideos($videos->items()),
@@ -40,6 +41,7 @@ class VideoController extends Controller
                 'pageNum' => $videos->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] get videos ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -93,6 +95,7 @@ class VideoController extends Controller
                 'videos' => $video
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] show video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -111,13 +114,12 @@ class VideoController extends Controller
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255|unique:videos,name',
+                'name' => 'required|string|max:255',
                 'link_video' => 'required|string|max:255',
                 'course_id' => 'required|exists:courses,id',
                 'finished' => 'required',
             ], [
                 'name.required' => 'Video name cant be blank',
-                'name.unique' => 'Video name already exists',
                 'name.max' => 'Video name cant exceed 255 characters',
                 'link_video.required' => 'Image links must not be blank',
                 'link_video.max' => 'Photo links must not exceed 255 characters',
@@ -143,6 +145,7 @@ class VideoController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] insert video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -167,13 +170,12 @@ class VideoController extends Controller
                 ], 404);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255|unique:videos,name,' . $video->id,
+                'name' => 'required|string|max:255',
                 'link_video' => 'required|string|max:255',
                 'finished' => 'required',
                 'course_id' => 'required|exists:courses,id',
             ], [
                 'name.required' => 'The video name cant be blank',
-                'name.unique' => 'Video name already exists',
                 'name.max' => 'Video name cant exceed 255 characters',
                 'link_video.required' => 'The image link should not be blank',
                 'link_video.max' => 'Photo links must not exceed 255 characters',
@@ -198,6 +200,7 @@ class VideoController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] update video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -221,11 +224,14 @@ class VideoController extends Controller
                     'error_message' => 'Video Not Found'
                 ], 404);
             }
-            $video->delete();
+            $video->update([
+                'status' => 0
+            ]);
             return response()->json([
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] delete video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

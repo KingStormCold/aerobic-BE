@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Api\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Course;
-use App\Models\Subject;
 use App\Models\Video;
 use Exception;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\AuthController;
+use App\Models\Payment;
 use App\Models\VideoUser;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class VideoClientController extends Controller
 {
@@ -23,20 +23,34 @@ class VideoClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You need to register as a member and purchase a course to view the quiz'
+                    'error_message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
-            $videos = Video::where('course_id', $courseId)->orderByDesc('created_at')->get();
+
             $course = Course::find($courseId);
-            if (!$course) {
+            if ($course === null) {
                 return response()->json([
-                    'message' => 'No course found.'
+                    'error_message' => 'No course found.'
                 ], 400);
             }
+            $payment = Payment::where('courses_id', $courseId)->where('users_id', Auth::id())->first();
+            if ($payment === null) {
+                return response()->json([
+                    'error_message' => 'Please, buy this course'
+                ], 400);
+            }
+            if ($payment->price === 0) {
+                $videos = Video::where('course_id', $courseId)->where('free', 1)->orderByDesc('created_at')->get();
+            } else {
+                $videos = Video::where('course_id', $courseId)->orderByDesc('created_at')->get();
+            }
+
+
             return response()->json([
                 'courses' => $this->customfullVideos($videos),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -116,6 +130,7 @@ class VideoClientController extends Controller
                 ]);
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -153,6 +168,7 @@ class VideoClientController extends Controller
                 ]);
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

@@ -37,6 +37,7 @@ class AnswerClientController extends Controller
                 'tests' => $this->customfullAnswers($answers),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

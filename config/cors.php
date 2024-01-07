@@ -21,11 +21,17 @@ return [
 
     'allowed_origins' => ['*'],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => ['*'],
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => ['*'],
+
+    'supportedContentTypes' => [
+        'model/gltf-binary',
+        'application/json',
+        'text/html',
+    ],
 
     'max_age' => 0,
 

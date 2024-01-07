@@ -13,6 +13,7 @@ use App\Models\Payment;
 use App\Models\Video;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class PaymentClientController extends Controller
 {
@@ -45,6 +46,7 @@ class PaymentClientController extends Controller
                     $courses = $subject->courses;
                     $price = 0;
                     $courseId = [];
+                    $priceFull = 0;
                     foreach ($courses as $course) {
                         $price += $course->price;
                         $price -= $course->promotional_price;
@@ -52,17 +54,22 @@ class PaymentClientController extends Controller
                     }
                     $price -= $subject->promotional_price;
                     $user = auth()->user();
-                    $payments = Payment::get();
-                    foreach ($payments as $payment) {
-                        if ($payment->price !== 0) {
-                            return response()->json([
-                                'error_message' => 'You have purchased this course or subject before.'
-                            ], 400);
+
+                    foreach ($courseId as $id) {
+                        $payments = Payment::where('courses_id', $id)->where('users_id', Auth::id())->get();
+                        foreach ($payments as $payment) {
+                            $priceFull += $payment->price;
                         }
+                    }
+
+                    if ($priceFull !== 0) {
+                        return response()->json([
+                            'error_message' => 'You have purchased this course or subject before.'
+                        ], 400);
                     }
                     if ($user->money < $price) {
                         return response()->json([
-                            'error_message' => 'You dont have enough money in your account'
+                            'error_message' => 'You dont have enough money in your account. Please, go to recharge page'
                         ], 400);
                     } else {
                         $user->money -= $price;
@@ -70,21 +77,18 @@ class PaymentClientController extends Controller
                         foreach ($courses as $course) {
                             if ($course->level === 1 && Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
                                 Payment::where('users_id', $user->id)->where('courses_id', $course->id)->update([
-                                    'price' => 0,
-                                    'subject_full' => $subjectFull,
-                                    'users_id' => $user->id,
-                                    'courses_id' => $course->id
+                                    'price' => $course->price - $course->promotional_price,
                                 ]);
                             } else if ($course->level === 1 && !Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
                                 Payment::create([
-                                    'price' => 0,
+                                    'price' => $course->price - $course->promotional_price,
                                     'subject_full' => $subjectFull,
                                     'users_id' => $user->id,
                                     'courses_id' => $course->id
                                 ]);
                             } else {
                                 Payment::create([
-                                    'price' => $course->price,
+                                    'price' => $course->price - $course->promotional_price,
                                     'subject_full' => $subjectFull,
                                     'users_id' => $user->id,
                                     'courses_id' => $course->id
@@ -101,12 +105,15 @@ class PaymentClientController extends Controller
                 $courses = Course::find($courseId);
                 $user = auth()->user();
                 $price = $courses->price - $courses->promotional_price;
-                $payment = Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists();
+                $payment = Payment::where('users_id', $user->id)->where('courses_id', $courseId)->first();
+
                 if ($free === 1) {
-                    if ($payment) {
-                        return response()->json([
-                            'error_message' => 'You have purchased this course or subject before.'
-                        ], 400);
+                    if ($payment !== null) {
+                        if ($payment->price === 0 || $payment->price !== 0) {
+                            return response()->json([
+                                'error_message' => 'You have purchased this course or subject before.'
+                            ], 400);
+                        }
                     }
                     Payment::create([
                         'price' => 0,
@@ -122,35 +129,26 @@ class PaymentClientController extends Controller
                         return response()->json([
                             'error_message' => 'You dont have enough money in your account'
                         ], 400);
-                    } else if ($payment) {
-                        $payments = Payment::get();
-                        $priceFull = 0;
-                        foreach ($payments as $payment) {
-                            $priceFull += $payment->price;
-                        }
-
-                        if ($priceFull > 0) {
+                    }
+                    if ($payment !== null) {
+                        if ($payment->price !== 0) {
                             return response()->json([
                                 'error_message' => 'You have purchased this course or subject before.'
                             ], 400);
-                        } else {
-                            $user->money -= $price;
-                            $user->save();
-                            Payment::where('users_id', $user->id)->where('courses_id', $courses->id)->update([
-                                'price' => $courses->price,
-                                'subject_full' => $subjectFull,
-                                'users_id' => $user->id,
-                                'courses_id' => $courses->id
-                            ]);
-                            return response()->json([
-                                'result' => 'Successful'
-                            ], 200);
                         }
+                        $user->money -= $price;
+                        $user->save();
+                        $payment->update([
+                            'price' => $price,
+                        ]);
+                        return response()->json([
+                            'result' => 'Successful'
+                        ], 200);
                     } else {
                         $user->money -= $price;
                         $user->save();
                         Payment::create([
-                            'price' => $courses->price,
+                            'price' => $price,
                             'subject_full' => $subjectFull,
                             'users_id' => $user->id,
                             'courses_id' => $courses->id
@@ -162,6 +160,7 @@ class PaymentClientController extends Controller
                 }
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -237,6 +236,7 @@ class PaymentClientController extends Controller
                 'error_message' =>  'You havent purchased a course yet.'
             ], 400);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ]);
@@ -262,6 +262,7 @@ class PaymentClientController extends Controller
                 'pageNum' => $payments->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

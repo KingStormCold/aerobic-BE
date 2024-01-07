@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Payment;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 class SendEmail extends Command
@@ -18,7 +19,7 @@ class SendEmail extends Command
     {
         try {
             $payments = Payment::whereNotNull('users_id')->get();
-            if($payments ->isNotEmpty()){
+            if ($payments->isNotEmpty()) {
                 foreach ($payments as $payment) {
                     $user = User::find($payment->users_id);
                     if ($user) {
@@ -34,14 +35,9 @@ class SendEmail extends Command
                         }
                     }
                 }
- 
             }
-          
         } catch (Exception $e) {
             $this->error("Error: {$e->getMessage()}");
         }
     }
-
-    
-    
 }
