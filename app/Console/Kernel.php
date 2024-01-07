@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         Log::info(' Send in 1 minute ');
-        $schedule->command('send:email')->everyMinute();
+        // $schedule->command('send:email')->everyMinute();
+        $schedule->command('send:email')->everyThirtyMinutes();
     }
 }
