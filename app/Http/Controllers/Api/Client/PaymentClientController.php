@@ -48,10 +48,17 @@ class PaymentClientController extends Controller
                     $price = 0;
                     $courseId = [];
                     $priceFull = 0;
+
+
                     foreach ($courses as $course) {
-                        $price += $course->price;
-                        $price -= $course->promotional_price;
-                        $courseId[] = $course->id;
+                        if ($course->status === 0) {
+                            $price += 0;
+                            $courseId[] = $course->id;
+                        } else {
+                            $price += $course->price;
+                            $price -= $course->promotional_price;
+                            $courseId[] = $course->id;
+                        }
                     }
                     $price -= $subject->promotional_price;
                     $user = auth()->user();
@@ -76,18 +83,18 @@ class PaymentClientController extends Controller
                         $user->money -= $price;
                         $user->save();
                         foreach ($courses as $course) {
-                            if ($course->level === 1 && Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
+                            if ($course->level === 1 && $course->status === 1 &&  Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
                                 Payment::where('users_id', $user->id)->where('courses_id', $course->id)->update([
                                     'price' => $course->price - $course->promotional_price,
                                 ]);
-                            } else if ($course->level === 1 && !Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
+                            } else if ($course->level === 1 && $course->status === 1 && !Payment::where('users_id', $user->id)->where('courses_id', $courseId)->exists()) {
                                 Payment::create([
                                     'price' => $course->price - $course->promotional_price,
                                     'subject_full' => $subjectFull,
                                     'users_id' => $user->id,
                                     'courses_id' => $course->id
                                 ]);
-                            } else {
+                            } else if ($course->status === 1) {
                                 Payment::create([
                                     'price' => $course->price - $course->promotional_price,
                                     'subject_full' => $subjectFull,

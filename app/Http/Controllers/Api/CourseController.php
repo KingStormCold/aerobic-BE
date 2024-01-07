@@ -111,15 +111,6 @@ class CourseController extends Controller
                 'level' => [
                     'required',
                     'integer',
-                    function ($attribute, $value, $fail) use ($request) {
-                        $existingLevel = Course::where('subject_id', $request->subject_id)
-                            ->where('level', $value)
-                            ->first();
-
-                        if ($existingLevel) {
-                            $fail('Levels already exist for this subject');
-                        }
-                    },
                 ],
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
@@ -130,7 +121,6 @@ class CourseController extends Controller
                 'description.max' => 'The course description should not exceed 255 characters',
                 'level.required' => 'Course levels must not be empty',
                 'level.integer' => 'The course level must be an integer',
-                'level.unique' => 'Course levels already exist',
                 'price.required' => 'Course prices cant be blank',
                 'price.numeric' => 'The course price should be several',
                 'subject_id.required' => 'Subject IDs cant be blank',
@@ -185,16 +175,6 @@ class CourseController extends Controller
                 'level' => [
                     'required',
                     'integer',
-                    function ($attribute, $value, $fail) use ($request, $course) {
-                        if ($value != $course->level) {
-                            $existingLevel = Course::where('subject_id', $request->subject_id)
-                                ->where('level', $value)
-                                ->first();
-                            if ($existingLevel) {
-                                $fail('Levels already exist for this subject');
-                            }
-                        }
-                    },
                 ],
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
@@ -206,7 +186,6 @@ class CourseController extends Controller
                 'description.max' => 'The course description should not exceed 255 characters',
                 'level.required' => 'Course levels must not be empty',
                 'level.integer' => 'The course level must be an integer',
-                'level.unique' => 'Course levels already exist',
                 'price.required' => 'Course prices cant be blank',
                 'price.numeric' => 'The course price should be several',
                 'subject_id.required' => 'Subject IDs cant be blank',
