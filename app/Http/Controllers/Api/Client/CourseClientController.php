@@ -42,24 +42,23 @@ class CourseClientController extends Controller
             if ($course->level === 1) {
                 $subjectFull = [
                     "course_id" => $course->id,
-                    "course_name" =>  'Khóa học Free',
+                    "course_name" =>   $course->name . '( Học Thử )',
                     "course_description" => $course->description,
                     "level" => $course->level,
                     "price"  => 0,
                     "promotional_price" => 0,
                 ];
                 array_push($courseArray, $subjectFull);
-            } else {
-                $subjectFull = [
-                    "course_id" => $course->id,
-                    "course_name" =>  $course->name,
-                    "course_description" => $course->description,
-                    "level" => $course->level,
-                    "price"  => $course->price,
-                    "promotional_price" => $course->promotional_price,
-                ];
-                array_push($courseArray, $subjectFull);
             }
+            $subjectFull = [
+                "course_id" => $course->id,
+                "course_name" =>  $course->name,
+                "course_description" => $course->description,
+                "level" => $course->level,
+                "price"  => $course->price,
+                "promotional_price" => $course->promotional_price,
+            ];
+            array_push($courseArray, $subjectFull);
         }
         if (empty($courseArray)) {
             return [];

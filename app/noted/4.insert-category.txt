@@ -5,4 +5,7 @@ INSERT INTO `categories` (`id`, `name`, `parent_id`, `created_by`, `updated_by`,
 (4, 'Ashtanga Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:38:53', '2024-01-03 06:38:53'),
 (5, 'Bikram Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:02', '2024-01-03 06:39:02'),
 (6, 'Kundalini Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:15', '2024-01-03 06:39:15'),
+(8, 'thiền', '', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:15', '2024-01-03 06:39:15'),
+(9, 'thiền bất tử', '8', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:15', '2024-01-03 06:39:15'),
+(10, 'thiền bất gần tử', '8', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:15', '2024-01-03 06:39:15'),
 (7, 'Yin Yoga', '1', 'tuan@gmail.com', 'tuan@gmail.com', '2024-01-03 06:39:33', '2024-01-03 06:39:33');
