@@ -114,13 +114,12 @@ class VideoController extends Controller
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255|unique:videos,name',
+                'name' => 'required|string|max:255',
                 'link_video' => 'required|string|max:255',
                 'course_id' => 'required|exists:courses,id',
                 'finished' => 'required',
             ], [
                 'name.required' => 'Video name cant be blank',
-                'name.unique' => 'Video name already exists',
                 'name.max' => 'Video name cant exceed 255 characters',
                 'link_video.required' => 'Image links must not be blank',
                 'link_video.max' => 'Photo links must not exceed 255 characters',
@@ -171,13 +170,12 @@ class VideoController extends Controller
                 ], 404);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255|unique:videos,name,' . $video->id,
+                'name' => 'required|string|max:255',
                 'link_video' => 'required|string|max:255',
                 'finished' => 'required',
                 'course_id' => 'required|exists:courses,id',
             ], [
                 'name.required' => 'The video name cant be blank',
-                'name.unique' => 'Video name already exists',
                 'name.max' => 'Video name cant exceed 255 characters',
                 'link_video.required' => 'The image link should not be blank',
                 'link_video.max' => 'Photo links must not exceed 255 characters',

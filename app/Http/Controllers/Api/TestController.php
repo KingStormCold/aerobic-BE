@@ -122,8 +122,8 @@ class TestController extends Controller
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'test_content' => 'required|unique:tests,test_content',
-                'serial_answer' => 'required|numeric',
+                'test_content' => 'required',
+                'serial_answer' => 'required|numeric|between:1,4',
                 'video_id' => 'required|numeric|exists:videos,id',
                 'answer_1' => 'required',
                 'answer_2' => 'required',
@@ -131,9 +131,9 @@ class TestController extends Controller
                 'answer_4' => 'required'
             ], [
                 'test_content.required' => 'test_content must not be empty',
-                'test_content.unique' => 'test_content not duplicate',
-                'serial_answer.required' => 'serial_answer is not empty',
-                'serial_answer.numeric' => 'serial_answer must be a number',
+                'serial_answer.required' => 'Correct answer is not empty',
+                'serial_answer.numeric' => 'Correct answer must be a number',
+                'serial_answer.between' => 'Correct answer must be 1,2,3 or 4',
                 'video_id.required' => 'video_id is not empty',
                 'video_id.exists' => 'The video source is incorrect',
                 'answer_1.required' => 'Answer 1 should not be blank',
@@ -210,13 +210,12 @@ class TestController extends Controller
                 ], 404);
             }
             $validator = Validator::make($request->all(), [
-                'test_content' => 'required|unique:tests,test_content,' . $test->id,
+                'test_content' => 'required',
                 'serial_answer' => 'required|numeric',
                 'video_id' => 'required|numeric|exists:videos,id',
                 'answers' => 'required'
             ], [
                 'test_content.required' => 'test_content must not be empty',
-                'test_content.unique' => 'test_content not duplicate',
                 'serial_answer.required' => 'serial_answer is not empty',
                 'serial_answer.numeric' => 'serial_answer must be a number',
                 'video_id.required' => 'video_id is not empty',

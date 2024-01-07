@@ -106,7 +106,7 @@ class CourseController extends Controller
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100|unique:courses,name',
+                'name' => 'required|string|max:100',
                 'description' => 'required|string|max:255',
                 'level' => [
                     'required',
@@ -123,10 +123,8 @@ class CourseController extends Controller
                 ],
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
-                //'promotional_price' => 'required',
             ], [
                 'name.required' => 'Course name cant be blank',
-                'name.unique' => 'The course name already exists',
                 'name.max' => 'The course name should not exceed 100 characters',
                 'description.required' => 'Course descriptions cannot be left blank',
                 'description.max' => 'The course description should not exceed 255 characters',
@@ -182,7 +180,7 @@ class CourseController extends Controller
                 ], 404);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100|unique:courses,name,' . $course->id,
+                'name' => 'required|string|max:100',
                 'description' => 'required|string|max:500',
                 'level' => [
                     'required',
@@ -200,9 +198,9 @@ class CourseController extends Controller
                 ],
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
+                ''
             ], [
                 'name.required' => 'Course name cant be blank',
-                'name.unique' => 'The course name already exists',
                 'name.max' => 'The course name should not exceed 100 characters',
                 'description.required' => 'Course descriptions cannot be left blank',
                 'description.max' => 'The course description should not exceed 255 characters',
@@ -224,6 +222,7 @@ class CourseController extends Controller
                 'description' => $request->description,
                 'level' => $request->level,
                 'price' => $request->price,
+                'promotional_price' => $request->promotional_price,
                 'subject_id' => $request->subject_id,
                 'updated_by' => $authController->getEmail()
             ]);
