@@ -97,7 +97,6 @@ Route::group([
     Route::delete('/answer/{id}', [AnswerController::class, 'deleteAnser']);
 
     Route::get('/get-payments', [PaymentController::class, 'getPayments']);
-    Route::get('/get-details', [PaymentController::class, 'getDetail']);
 
     Route::get('/get-tests', [TestController::class, 'getTests']);
     Route::get('/test/{id}', [TestController::class, 'test']);
