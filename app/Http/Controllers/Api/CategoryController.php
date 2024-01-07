@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Subject;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -35,7 +36,7 @@ class CategoryController extends Controller
                     'message' => 'You have no rights.'
                 ], 401);
             }
-            $categories = Category::orderByDesc('parent_id')->paginate(10);
+            $categories = Category::orderByDesc('parent_id')->where('status', 1)->paginate(10);
             return response()->json([
                 'categories' => $this->customCategories($categories->items()),
                 'totalPage' => $categories->lastPage(),
@@ -206,7 +207,16 @@ class CategoryController extends Controller
                     'error_message' => 'Category not found'
                 ], 400);
             }
-            $category->delete();
+            $category->update([
+                'status' => 0
+            ]);
+                
+            $subject = Subject::where('category_id', $id);
+            if($subject !== null){
+                $subject->update([
+                    'status' => 0
+                ]);
+            }
             return response()->json([
                 'result' => 'succes'
             ], 200);

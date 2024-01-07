@@ -29,7 +29,7 @@ class SubjectController extends Controller
                     'message' => 'You have no rights.'
                 ], 401);
             }
-            $subjects = Subject::orderByDesc('category_id')->paginate(10);
+            $subjects = Subject::orderByDesc('category_id')->where('status', 1)->paginate(10);
 
             return response()->json([
                 'subjects' => $this->customSubjects($subjects->items()),
@@ -236,7 +236,9 @@ class SubjectController extends Controller
                     'error_message' => 'No subject found'
                 ], 400);             
             }
-            $subject->delete();           
+            $subject->update([
+                'status' => 0
+                ]);           
             return response()->json([
                 'result' => 'succes'
             ], 200);
