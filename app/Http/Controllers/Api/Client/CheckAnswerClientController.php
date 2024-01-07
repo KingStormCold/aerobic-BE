@@ -74,9 +74,8 @@ class CheckAnswerClientController extends Controller
                         ]);
                     }
                     if ($totalCorrect >= 5) {
-                        $videoUpdate = Video::find($testDetail->video_id);
-                        $videoUpdate->update([
-                            'finished' => 1
+                        $videosUsers->update([
+                            'finished' => 1,
                         ]);
                     }
                 }

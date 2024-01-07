@@ -11,6 +11,7 @@ use App\Models\Course;
 use App\Models\Subject;
 use App\Models\Payment;
 use App\Models\Video;
+use App\Models\VideoUser;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -209,7 +210,7 @@ class PaymentClientController extends Controller
                     foreach ($result as $key => $item) {
                         if ($item['subject_id'] === $courseDetail['subject_id']) {
                             $totalVideo = Video::where('course_id', $courseDetail['id'])->count();
-                            $totalFinishVideo = Video::where('course_id', $courseDetail['id'])->where('finished', 1)->count();
+                            $totalFinishVideo = VideoUser::where('users_id', Auth::id())->where('finished', 1)->count();
                             $data = [
                                 "id" => $courseDetail['id'],
                                 "name" => $courseDetail['name'],

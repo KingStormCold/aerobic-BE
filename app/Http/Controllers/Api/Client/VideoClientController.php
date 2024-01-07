@@ -83,10 +83,12 @@ class VideoClientController extends Controller
             $progress = 0;
             $previousTime = 0;
             $totalCorrect = 0;
+            $finishVideo = 0;
             if ($videosUsers !== null) {
                 $progress = $videosUsers->progress;
                 $previousTime = $videosUsers->previous_time;
                 $totalCorrect = $videosUsers->total_correct;
+                $finishVideo = $videosUsers->finished;
             }
             $courseData = [
                 "video_id" => $video->id,
@@ -97,7 +99,7 @@ class VideoClientController extends Controller
                 "progress" => $progress,
                 "previous_time" => $previousTime,
                 "total_correct" => $totalCorrect,
-                "finished"  => $video->finished,
+                "finished"  => $finishVideo,
             ];
             array_push($videoArray, $courseData);
         }

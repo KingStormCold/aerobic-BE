@@ -11,10 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class SendEmail extends Command
 {
-    protected $signature = 'send:email';
-
-    protected $description = ' Gửi Email nhắc nhở ';
-
     public function handle()
     {
         try {
@@ -22,10 +18,10 @@ class SendEmail extends Command
             if ($payments->isNotEmpty()) {
                 foreach ($payments as $payment) {
                     $user = User::find($payment->users_id);
-                    if ($user) {
+                    if ($user !== null && $user->status === 1) {
                         $email = $user->email;
-                        $result = Mail::raw('Bạn nhớ học nhé.', function ($message) use ($email) {
-                            $message->to($email)->subject('Hôm nay bạn nhớ học nhé');
+                        $result = Mail::raw('Remember to study.', function ($message) use ($email) {
+                            $message->to($email)->subject('Remember to study today. https://earobic4og.xyz');
                         });
                         if ($result) {
                             $this->info("Email sent successfully to {$email}.");

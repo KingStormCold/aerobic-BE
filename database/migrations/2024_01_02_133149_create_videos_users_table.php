@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('videos_id')->references('id')->on('videos');
             $table->integer('progress')->default(0);
             $table->integer('status')->default(1);
+            $table->integer('finished')->default(0);
             $table->integer('previous_time')->default(0);;
             $table->integer('total_correct')->default(0);
         });
