@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Video;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class SearchClientController extends Controller
@@ -39,6 +40,7 @@ class SearchClientController extends Controller
                 'pageNum' => $subjects->currentPage()
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

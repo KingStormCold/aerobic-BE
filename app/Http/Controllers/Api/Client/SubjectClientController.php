@@ -10,6 +10,7 @@ use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class SubjectClientController extends Controller
 {
@@ -32,6 +33,7 @@ class SubjectClientController extends Controller
                 'category' => $this->customfullSubject($subject),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -77,6 +79,7 @@ class SubjectClientController extends Controller
                 'data' => $result
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

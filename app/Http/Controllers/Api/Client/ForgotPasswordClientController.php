@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Log;
 
 class ForgotPasswordClientController extends Controller
 {
@@ -41,6 +42,7 @@ class ForgotPasswordClientController extends Controller
                 }
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e->getMessage()
             ], 500);
@@ -64,6 +66,7 @@ class ForgotPasswordClientController extends Controller
                 ], 400);
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e->getMessage()
             ], 500);

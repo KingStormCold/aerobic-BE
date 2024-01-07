@@ -13,6 +13,7 @@ use App\Models\Payment;
 use App\Models\Video;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class PaymentClientController extends Controller
 {
@@ -159,6 +160,7 @@ class PaymentClientController extends Controller
                 }
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -234,6 +236,7 @@ class PaymentClientController extends Controller
                 'error_message' =>  'You havent purchased a course yet.'
             ], 400);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ]);
@@ -259,6 +262,7 @@ class PaymentClientController extends Controller
                 'pageNum' => $payments->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

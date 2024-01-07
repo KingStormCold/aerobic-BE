@@ -10,6 +10,7 @@ use App\Models\Subject;
 use App\Models\Test;
 use App\Models\Video;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TestController extends Controller
@@ -40,6 +41,7 @@ class TestController extends Controller
                 'pageNum' => $tests->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -101,6 +103,7 @@ class TestController extends Controller
                 'test' => $test
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -182,6 +185,7 @@ class TestController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -244,6 +248,7 @@ class TestController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -272,6 +277,7 @@ class TestController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -311,6 +317,7 @@ class TestController extends Controller
 
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -322,15 +329,15 @@ class TestController extends Controller
         foreach ($tests as $test) {
             $videoName = "";
             $video = Video::find($test->video_id);
-            if ($video) {              
-                $videoName= $video->name;
+            if ($video) {
+                $videoName = $video->name;
             }
             $data = [
                 "video_id" => $test->video_id,
                 "video_name" => $videoName,
                 "id_video" => $test->id,
                 "test_content" => $test->test_content,
-                "serial_answer" => $test->serial_answer,               
+                "serial_answer" => $test->serial_answer,
             ];
             array_push($result, $data);
         }

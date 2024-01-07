@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Models\Payment;
 use App\Models\VideoUser;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class VideoClientController extends Controller
 {
@@ -49,6 +50,7 @@ class VideoClientController extends Controller
                 'courses' => $this->customfullVideos($videos),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -128,6 +130,7 @@ class VideoClientController extends Controller
                 ]);
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -165,6 +168,7 @@ class VideoClientController extends Controller
                 ]);
             }
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

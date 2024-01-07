@@ -43,6 +43,7 @@ class CategoryController extends Controller
                 'pageNum' => $categories->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -139,6 +140,7 @@ class CategoryController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -191,7 +193,7 @@ class CategoryController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
-            Log::debug($e);
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -210,9 +212,9 @@ class CategoryController extends Controller
             $category->update([
                 'status' => 0
             ]);
-                
+
             $subject = Subject::where('category_id', $id);
-            if($subject !== null){
+            if ($subject !== null) {
                 $subject->update([
                     'status' => 0
                 ]);
@@ -221,6 +223,7 @@ class CategoryController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -253,6 +256,7 @@ class CategoryController extends Controller
                 'categories' => $result
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -267,11 +271,11 @@ class CategoryController extends Controller
             'menu' => $menu,
         ], 200);
     }
-    
+
     public function buildMenu($categories)
     {
         $result = [];
-        
+
         foreach ($categories as $category) {
             $categoryData = [
                 'id' => $category->id,
@@ -281,7 +285,7 @@ class CategoryController extends Controller
             if (!$subCategories->isEmpty()) {
                 $categoryData['sub-menu'] = $this->buildMenu($subCategories);
             }
-        
+
             $result[] = $categoryData;
         }
         return $result;

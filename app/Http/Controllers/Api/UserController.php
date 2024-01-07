@@ -53,6 +53,7 @@ class UserController extends Controller
                 'pageNum' => $users->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -165,6 +166,7 @@ class UserController extends Controller
                 'result' => 'success',
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System errors'
             ], 500);
@@ -234,6 +236,7 @@ class UserController extends Controller
                 'result' => 'success',
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System errors'
             ], 500);
@@ -263,6 +266,7 @@ class UserController extends Controller
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);

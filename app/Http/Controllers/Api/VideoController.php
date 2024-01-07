@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Subject;
 use App\Models\Video;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class VideoController extends Controller
@@ -40,6 +41,7 @@ class VideoController extends Controller
                 'pageNum' => $videos->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] get videos ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -93,6 +95,7 @@ class VideoController extends Controller
                 'videos' => $video
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] show video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -143,6 +146,7 @@ class VideoController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] insert video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -198,6 +202,7 @@ class VideoController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] update video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -228,6 +233,7 @@ class VideoController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] delete video ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

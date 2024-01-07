@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Subject;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
@@ -37,6 +38,7 @@ class CourseController extends Controller
                 'pageNum' => $courses->currentPage(),
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -155,6 +157,7 @@ class CourseController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -228,6 +231,7 @@ class CourseController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'Lỗi hệ thống. Vui lòng thử lại sau'
             ], 500);
@@ -258,6 +262,7 @@ class CourseController extends Controller
                 'result' => 'success'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);

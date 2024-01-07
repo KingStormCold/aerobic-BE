@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\user;
 use App\Http\Controllers\Api\CategoryController;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class SubjectController extends Controller
 {
@@ -38,7 +39,7 @@ class SubjectController extends Controller
                 'pageNum' => $subjects->currentPage(),
             ], 200);
         } catch (Exception $e) {
-
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -99,7 +100,7 @@ class SubjectController extends Controller
      */
     public function insertSubject(Request $request)
     {
-        try {        
+        try {
             $authController = new AuthController();
             $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
             if (!$isAuthorization) {
@@ -107,7 +108,7 @@ class SubjectController extends Controller
                     'code' => 'Subject_001',
                     'message' => 'Bạn không có quyền.'
                 ], 401);
-            }          
+            }
             $validator = Validator::make($request->all(), [
                 'subject_content' => 'required',
                 'subject_image' => 'required',
@@ -148,11 +149,12 @@ class SubjectController extends Controller
                 'updated_by' => '',
                 'name' => $subjectName,
                 'category_id' => $request->input('category_id', 1)
-            ]);           
+            ]);
             return response()->json([
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -163,7 +165,7 @@ class SubjectController extends Controller
      */
     public function updateSubject($id,  Request $request)
     {
-        try {        
+        try {
             $authController = new AuthController();
             $isAuthorization = $authController->isAuthorization('ADMIN_SUBJECT');
             if (!$isAuthorization) {
@@ -171,13 +173,13 @@ class SubjectController extends Controller
                     'code' => 'Subject_001',
                     'message' => 'You have no rights.'
                 ], 401);
-            }         
+            }
             $subject = Subject::find($id);
             if ($subject == null) {
                 return response()->json([
                     'error_message' => 'No subject found'
                 ], 400);
-            }          
+            }
             $validator = Validator::make($request->all(), [
                 'subject_content' => 'required',
                 'subject_image' => 'required',
@@ -190,7 +192,7 @@ class SubjectController extends Controller
                 'promotional_price_subject.numeric' => 'The promotional price must be numerical',
                 'category_id.exists' => 'Incorrect category',
                 'category_id.required' => 'The category cant be blank '
-            ]);      
+            ]);
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
                 $categoryId = $request->input('category_id');
@@ -200,7 +202,7 @@ class SubjectController extends Controller
                         'error_message' => $error
                     ], 400);
                 }
-            }        
+            }
             if ($request->category_id != null) {
                 $subjectParent = Category::find($request->category_id);
                 if ($subjectParent == null) {
@@ -208,17 +210,18 @@ class SubjectController extends Controller
                         'error_message' => 'Incorrect parent category'
                     ], 400);
                 }
-            }        
+            }
             $subject->category_id = $request->input('category_id', 1);
             $subject->content = $request->input('subject_content');
             $subject->image = $request->input('subject_image');
             $subject->promotional_price = $request->input('promotional_price_subject');
             $subject->updated_by = auth()->user()->email;
-            $subject->save();         
+            $subject->save();
             return response()->json([
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
@@ -229,20 +232,21 @@ class SubjectController extends Controller
      */
     public function deleteSubject($id)
     {
-        try {     
+        try {
             $subject = Subject::find($id);
             if ($subject == null) {
                 return response()->json([
                     'error_message' => 'No subject found'
-                ], 400);             
+                ], 400);
             }
             $subject->update([
                 'status' => 0
-                ]);           
+            ]);
             return response()->json([
                 'result' => 'succes'
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => $e
             ], 500);
@@ -302,6 +306,7 @@ class SubjectController extends Controller
                 'latest_subjects' => $result,
             ], 200);
         } catch (Exception $e) {
+            Log::info('[Exception] ' + $e);
             return response()->json([
                 'error_message' => 'System error. Please try again later'
             ], 500);
