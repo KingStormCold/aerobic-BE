@@ -44,7 +44,7 @@ class CourseClientController extends Controller
             if ($course->level === 1) {
                 $subjectFull = [
                     "course_id" => $course->id,
-                    "course_name" =>   $course->name . '( Học Thử )',
+                    "course_name" =>   $course->name . '( Free )',
                     "course_description" => $course->description,
                     "level" => $course->level,
                     "price"  => 0,
@@ -67,7 +67,7 @@ class CourseClientController extends Controller
         }
         $subjectFull = [
             "course_id" => 0,
-            "course_name" => 'Toàn bộ khóa học',
+            "course_name" => 'Full course',
             "course_description" => '',
             "level" => '',
             "price"  => $price,
