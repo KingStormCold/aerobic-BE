@@ -29,11 +29,11 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
 
-            $videos = Video::where('course_id', $id)->where('status', 1)->paginate(10);
+            $videos = Video::where('course_id', $id)->paginate(10);
 
             return response()->json([
                 'courses' => $this->customVideos($videos->items()),
@@ -65,6 +65,7 @@ class VideoController extends Controller
                 "course_name" => $courseName,
                 "full_time" => $video->full_time,
                 "free" => $video->free,
+                "status" => $video->status,
                 "created_by" => $video->created_by,
                 "updated_by" => $video->updated_by,
                 "created_at" => $video->created_at,
@@ -83,7 +84,7 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $video = Video::find($id);
@@ -111,7 +112,7 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -140,7 +141,8 @@ class VideoController extends Controller
                 'free' => $request->free,
                 'created_by' => $authController->getEmail(),
                 'full_time' => $request->full_time,
-                'view' => 0
+                'view' => 0,
+                'status' => $request->status,
             ]);
             return response()->json([
                 'result' => 'success'
@@ -161,7 +163,7 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $video = Video::find($id);
@@ -196,6 +198,7 @@ class VideoController extends Controller
                 'free' => $request->free,
                 'updated_by' => $authController->getEmail(),
                 'full_time' => $request->full_time,
+                'status' => $request->status,
             ]);
             return response()->json([
                 'result' => 'success'
@@ -216,7 +219,7 @@ class VideoController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $video = Video::find($id);

@@ -27,10 +27,10 @@ class SubjectController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'SUB_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
-            $subjects = Subject::orderByDesc('category_id')->where('status', 1)->paginate(10);
+            $subjects = Subject::orderByDesc('created_at')->paginate(10);
 
             return response()->json([
                 'subjects' => $this->customSubjects($subjects->items()),
@@ -64,6 +64,7 @@ class SubjectController extends Controller
                 "category_id" => $subject->category_id,
                 "promotional_price" => $subject->promotional_price,
                 "category_name" => $categoryName,
+                "status" => $subject->status,
                 "created_by" => $subject->created_by,
                 "updated_by" => $subject->updated_by,
                 "created_at" => $subject->created_at,
@@ -81,7 +82,7 @@ class SubjectController extends Controller
         if (!$isAuthorization) {
             return response()->json([
                 'code' => 'SUB_001',
-                'message' => 'You have no rights.'
+                'error_message' => 'You have no rights.'
             ], 401);
         }
         $subject = Subject::find($id);
@@ -106,7 +107,7 @@ class SubjectController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'Subject_001',
-                    'message' => 'Bạn không có quyền.'
+                    'error_message' => 'Bạn không có quyền.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -148,6 +149,7 @@ class SubjectController extends Controller
                 'created_by' => auth()->user()->email,
                 'updated_by' => '',
                 'name' => $subjectName,
+                'status' => $request->status,
                 'category_id' => $request->input('category_id', 1)
             ]);
             return response()->json([
@@ -171,7 +173,7 @@ class SubjectController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'Subject_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $subject = Subject::find($id);
@@ -216,6 +218,7 @@ class SubjectController extends Controller
             $subject->image = $request->input('subject_image');
             $subject->promotional_price = $request->input('promotional_price_subject');
             $subject->updated_by = auth()->user()->email;
+            $subject->status = $request->status;
             $subject->save();
             return response()->json([
                 'result' => 'succes'
@@ -277,7 +280,7 @@ class SubjectController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'SUB_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $latestSubjects = Subject::orderByDesc('created_at')->take(5)->get();

@@ -27,7 +27,7 @@ class SearchClientController extends Controller
             $subjects = Subject::with('category')->select('id', 'content', 'name', 'image', 'promotional_price', 'category_id')->where("content", "like", "%" . $content_search . "%")->where('status', 1)->paginate(10);
             if ($subjects->isEmpty()) {
                 return response()->json([
-                    'message' => 'No subject found.'
+                    'error_message' => 'No subject found.'
                 ], 400);
             }
             $results = [];

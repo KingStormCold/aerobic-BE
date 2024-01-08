@@ -24,14 +24,14 @@ class TestClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You need to register as a member and purchase a course to view the quiz'
+                    'error_message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
             $tests = Test::where('video_id', $videoId)->inRandomOrder()->limit(10)->get();
             $video = Video::find($videoId);
             if (!$video) {
                 return response()->json([
-                    'message' => 'Video not found.'
+                    'error_message' => 'Video not found.'
                 ], 400);
             }
             return response()->json([

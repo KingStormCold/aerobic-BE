@@ -19,7 +19,7 @@ class CourseClientController extends Controller
             $subject = Subject::find($subjectId);
             if (!$subject) {
                 return response()->json([
-                    'message' => 'No subject found.'
+                    'error_message' => 'No subject found.'
                 ], 400);
             }
             return response()->json(

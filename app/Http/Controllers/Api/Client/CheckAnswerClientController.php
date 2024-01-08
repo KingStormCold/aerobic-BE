@@ -25,7 +25,7 @@ class CheckAnswerClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You need to sign up for a membership and purchase a course to take the test'
+                    'error_message' => 'You need to sign up for a membership and purchase a course to take the test'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [

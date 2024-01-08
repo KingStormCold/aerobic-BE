@@ -17,7 +17,7 @@ class CategoryClientController extends Controller
 {
     public function getMenu()
     {
-        $categories = Category::where('parent_id', 0)->get();
+        $categories = Category::where('parent_id', 0)->where('status', 1)->get();
         $menu = $this->buildMenu($categories);
         return response()->json([
             'menu' => $menu,
@@ -43,6 +43,6 @@ class CategoryClientController extends Controller
     }
     public function getSubCategories($parentId)
     {
-        return Category::where('parent_id', $parentId)->get();
+        return Category::where('parent_id', $parentId)->where('status', 1)->get();
     }
 }

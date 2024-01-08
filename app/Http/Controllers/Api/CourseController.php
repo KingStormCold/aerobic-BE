@@ -28,10 +28,10 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
-            $courses = Course::where('subject_id', $id)->where('status', 1)->paginate(10);
+            $courses = Course::where('subject_id', $id)->orderByDesc('created_at')->paginate(10);
             return response()->json([
                 'courses' => $this->customCourses($courses->items()),
                 'totalPage' => $courses->lastPage(),
@@ -63,6 +63,7 @@ class CourseController extends Controller
                 "level" => $course->level,
                 "price" => $course->price,
                 "promotional_price" => $course->promotional_price,
+                "status" => $course->status,
                 "created_by" => $course->created_by,
                 "updated_by" => $course->updated_by,
                 "created_at" => $course->created_at,
@@ -80,7 +81,7 @@ class CourseController extends Controller
         if (!$isAuthorization) {
             return response()->json([
                 'code' => 'CATE_001',
-                'message' => 'You have no rights.'
+                'error_message' => 'You have no rights.'
             ], 401);
         }
         $courses = Course::find($id);
@@ -102,25 +103,36 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100',
+                'name' => 'required|string|max:100|unique:courses,name',
                 'description' => 'required|string|max:255',
                 'level' => [
                     'required',
                     'integer',
+                    function ($attribute, $value, $fail) use ($request) {
+                        $existingLevel = Course::where('subject_id', $request->subject_id)
+                            ->where('level', $value)
+                            ->first();
+
+                        if ($existingLevel) {
+                            $fail('Levels already exist for this subject');
+                        }
+                    },
                 ],
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
             ], [
                 'name.required' => 'Course name cant be blank',
                 'name.max' => 'The course name should not exceed 100 characters',
+                'name.unique' => 'The course name already exists',
                 'description.required' => 'Course descriptions cannot be left blank',
                 'description.max' => 'The course description should not exceed 255 characters',
                 'level.required' => 'Course levels must not be empty',
                 'level.integer' => 'The course level must be an integer',
+                'level.unique' => 'Course levels already exist',
                 'price.required' => 'Course prices cant be blank',
                 'price.numeric' => 'The course price should be several',
                 'subject_id.required' => 'Subject IDs cant be blank',
@@ -139,7 +151,8 @@ class CourseController extends Controller
                 'price' => $request->price,
                 'subject_id' => $request->subject_id,
                 'promotional_price' => $request->promotional_price,
-                'created_by' => $authController->getEmail()
+                'created_by' => $authController->getEmail(),
+                'status' => $request->status,
             ]);
             return response()->json([
                 'result' => 'success'
@@ -160,7 +173,7 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $course = Course::find($id);
@@ -170,21 +183,19 @@ class CourseController extends Controller
                 ], 404);
             }
             $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:100',
+                'name' => 'required|string|max:100|unique:courses,name,' . $course->id,
                 'description' => 'required|string|max:500',
-                'level' => [
-                    'required',
-                    'integer',
-                ],
+                'level' => 'required|integer|unique:courses,level,' . $course->id,
                 'price' => 'required|numeric',
                 'subject_id' => 'required|exists:subjects,id',
-                ''
             ], [
                 'name.required' => 'Course name cant be blank',
+                'name.unique' => 'The course name already exists',
                 'name.max' => 'The course name should not exceed 100 characters',
                 'description.required' => 'Course descriptions cannot be left blank',
                 'description.max' => 'The course description should not exceed 255 characters',
                 'level.required' => 'Course levels must not be empty',
+                'level.unique' => 'Course levels already exist',
                 'level.integer' => 'The course level must be an integer',
                 'price.required' => 'Course prices cant be blank',
                 'price.numeric' => 'The course price should be several',
@@ -203,7 +214,8 @@ class CourseController extends Controller
                 'price' => $request->price,
                 'promotional_price' => $request->promotional_price,
                 'subject_id' => $request->subject_id,
-                'updated_by' => $authController->getEmail()
+                'updated_by' => $authController->getEmail(),
+                'status' => $request->status,
             ]);
             return response()->json([
                 'result' => 'success'
@@ -224,7 +236,7 @@ class CourseController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $course = Course::find($id);

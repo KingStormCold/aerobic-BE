@@ -31,7 +31,7 @@ class AnswerController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'SUB_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $answers = Answer::orderByDesc('test_id')->paginate(10);
@@ -82,7 +82,7 @@ class AnswerController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'Answer_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -147,7 +147,7 @@ class AnswerController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_TEST');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $answer = Answer::find($id);

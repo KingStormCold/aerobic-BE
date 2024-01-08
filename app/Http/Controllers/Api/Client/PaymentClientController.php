@@ -24,7 +24,7 @@ class PaymentClientController extends Controller
             if (!Auth::check()) {
                 return response()->json([
                     'code' => 'Course_001',
-                    'message' => 'You need to log in to enroll in the course.'
+                    'error_message' => 'You need to log in to enroll in the course.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -260,7 +260,7 @@ class PaymentClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'SUB_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $payments = Payment::where('users_id', Auth::id())->orderBy('created_at')->paginate(10);

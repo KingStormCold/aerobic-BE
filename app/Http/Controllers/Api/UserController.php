@@ -20,7 +20,7 @@ class UserController extends Controller
         $isAuthorization = $authController->isAuthorization('ADMIN_USER');
         if (!$isAuthorization) {
             return response()->json([
-                'message' => 'You have no rights.'
+                'error_message' => 'You have no rights.'
             ], 401);
         }
         $result = [];
@@ -43,7 +43,7 @@ class UserController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $users = User::orderByDesc('created_at')->paginate(10);
@@ -93,7 +93,7 @@ class UserController extends Controller
         $isAuthorization = $authController->isAuthorization('ADMIN_USER');
         if (!$isAuthorization) {
             return response()->json([
-                'message' => 'You have no rights.'
+                'error_message' => 'You have no rights.'
             ], 401);
         }
         $user = User::find($id);
@@ -114,7 +114,7 @@ class UserController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -180,7 +180,7 @@ class UserController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $user = User::find($id);
@@ -250,7 +250,7 @@ class UserController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $user = User::find($id);
@@ -296,7 +296,7 @@ class UserController extends Controller
                 'uuid' => ''
             ]);
             return response()->json([
-                'message' => 'You have successfully changed your password',
+                'error_message' => 'You have successfully changed your password',
             ], 201);
         } catch (Exception $e) {
             Log::info('[Exception] ' + $e);

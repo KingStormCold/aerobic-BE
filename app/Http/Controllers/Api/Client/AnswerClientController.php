@@ -23,14 +23,14 @@ class AnswerClientController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You need to sign up for membership and purchase a course to see the answer'
+                    'error_message' => 'You need to sign up for membership and purchase a course to see the answer'
                 ], 401);
             }
             $answers = Answer::where('test_id', $testId)->orderByDesc('created_at')->get();
             $test = Test::find($testId);
             if (!$test) {
                 return response()->json([
-                    'message' => 'No test found.'
+                    'error_message' => 'No test found.'
                 ], 400);
             }
             return response()->json([

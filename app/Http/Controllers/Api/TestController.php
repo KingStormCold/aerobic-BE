@@ -31,7 +31,7 @@ class TestController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $tests = Test::with('answers')->where('video_id', $id)->paginate(10);
@@ -90,7 +90,7 @@ class TestController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $test = Test::find($id);
@@ -118,7 +118,7 @@ class TestController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -200,7 +200,7 @@ class TestController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $test = Test::find($id);
@@ -262,7 +262,7 @@ class TestController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $test = Test::find($id);
@@ -307,7 +307,7 @@ class TestController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You need to register as a member and purchase this course.'
+                    'error_message' => 'You need to register as a member and purchase this course.'
                 ], 401);
             }
             $tests = Test::orderByDesc('created_at')->paginate(10);

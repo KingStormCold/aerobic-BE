@@ -29,7 +29,7 @@ class PaymentController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'SUB_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $payments = Payment::orderByDesc('courses_id')->paginate(10);

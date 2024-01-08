@@ -44,6 +44,9 @@ class AuthController extends Controller
         if (!$token = auth()->attempt($validator->validated())) {
             return response()->json(['error' => 'Incorrect account or password'], 401);
         }
+        if (auth()->user()->status !== 1) {
+            return response()->json(['error' => 'Incorrect account or password'], 401);
+        }
         return $this->createNewToken($token);
     }
 
@@ -93,7 +96,7 @@ class AuthController extends Controller
             $defaultRole = Role::where('name', 'USER')->first();
             $user->roles()->attach($defaultRole);
             return response()->json([
-                'message' => 'Successful user registration',
+                'error_message' => 'Successful user registration',
                 'user' => $user,
                 'vai trò' => $defaultRole->name,
             ], 201);
@@ -113,7 +116,7 @@ class AuthController extends Controller
     public function logout()
     {
         auth()->logout();
-        return response()->json(['message' => 'User successfully signed out']);
+        return response()->json(['error_message' => 'User successfully signed out']);
     }
 
     /**
@@ -201,7 +204,7 @@ class AuthController extends Controller
                 'password' => bcrypt($request->new_password)
             ]);
             return response()->json([
-                'message' => 'You have successfully changed your password',
+                'error_message' => 'You have successfully changed your password',
             ], 201);
         } else {
             return response()->json([
@@ -233,13 +236,13 @@ class AuthController extends Controller
         $request->validate(['email' => 'required|email']);
         $user = User::where('email', $request->email)->first();
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['error_message' => 'User not found'], 404);
         }
         $uuid = Str::uuid();
         $user->uuid = $uuid;
         $user->save();
         // Send email with the UUID link here
-        return response()->json(['message' => 'Reset password link sent']);
+        return response()->json(['error_message' => 'Reset password link sent']);
     }
 
     public function postForgotPass(Request $request)
@@ -252,11 +255,11 @@ class AuthController extends Controller
         $request->validate(['uuid' => 'required']);
         $user = User::where('uuid', $request->uuid)->first();
         if (!$user) {
-            return response()->json(['message' => 'Invalid UUID'], 400);
+            return response()->json(['error_message' => 'Invalid UUID'], 400);
         }
         $user->uuid = '';
         $user->save();
-        return response()->json(['message' => 'UUID is valid']);
+        return response()->json(['error_message' => 'UUID is valid']);
     }
 
     public function postGetPass(Request $request)
@@ -267,11 +270,11 @@ class AuthController extends Controller
         ]);
         $user = User::where('uuid', $request->uuid)->first();
         if (!$user) {
-            return response()->json(['message' => 'Invalid UUID'], 400);
+            return response()->json(['error_message' => 'Invalid UUID'], 400);
         }
         $user->password = bcrypt($request->password);
         $user->uuid = '';
         $user->save();
-        return response()->json(['message' => 'Password has been reset']);
+        return response()->json(['error_message' => 'Password has been reset']);
     }
 }

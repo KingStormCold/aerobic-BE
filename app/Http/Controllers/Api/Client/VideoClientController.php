@@ -121,7 +121,7 @@ class VideoClientController extends Controller
             $isAuthorization = $authController->isAuthorization('USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You need to register as a member and purchase a course to view the quiz'
+                    'error_message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
             $video = Video::find($videoId);
@@ -146,7 +146,7 @@ class VideoClientController extends Controller
             $isAuthorization = $authController->isAuthorization('USER');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You need to register as a member and purchase a course to view the quiz'
+                    'error_message' => 'You need to register as a member and purchase a course to view the quiz'
                 ], 401);
             }
             $videosUsers = VideoUser::where('users_id', Auth::id())->where('videos_id', $request->video_id)->first();

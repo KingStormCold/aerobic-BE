@@ -27,7 +27,7 @@ class ForgotPasswordClientController extends Controller
                 $user->uuid = $resetUUid;
                 $result = $user->save();
                 if ($result) {
-                    $resetUrl  = "http://localhost:9000/forgot-password?uuid=" . $resetUUid;
+                    $resetUrl  = "https://earobic4og.xyz/forgot-password?uuid=" . $resetUUid;
                     Mail::raw('Change password. ' .  $resetUrl, function ($message) use ($email) {
                         $message->to($email)->subject('Change password');
                     });

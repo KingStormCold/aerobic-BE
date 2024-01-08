@@ -19,7 +19,7 @@ class CategoryController extends Controller
 
     public function getParentCategories()
     {
-        $categories = Category::where('parent_id', '=', "")->get();
+        $categories = Category::where('parent_id', '=', "")->where('status', 1)->get();
         return response()->json([
             'categories' => $categories
         ], 200);
@@ -33,10 +33,10 @@ class CategoryController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
-            $categories = Category::orderByDesc('parent_id')->where('status', 1)->paginate(10);
+            $categories = Category::orderByDesc('parent_id')->paginate(10);
             return response()->json([
                 'categories' => $this->customCategories($categories->items()),
                 'totalPage' => $categories->lastPage(),
@@ -64,6 +64,7 @@ class CategoryController extends Controller
                 "name" => $category->name,
                 "parent_id" => $category->parent_id,
                 "parent_name" => $parentName,
+                "status" => $category->status,
                 "created_by" => $category->created_by,
                 "updated_by" => $category->updated_by,
                 "created_at" => $category->created_at,
@@ -81,7 +82,7 @@ class CategoryController extends Controller
         if (!$isAuthorization) {
             return response()->json([
                 'code' => 'CATE_001',
-                'message' => 'You have no rights.'
+                'error_message' => 'You have no rights.'
             ], 401);
         }
         $category = Category::find($id);
@@ -104,7 +105,7 @@ class CategoryController extends Controller
             if (!$isAuthorization) {
                 return response()->json([
                     'code' => 'CATE_001',
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $validator = Validator::make($request->all(), [
@@ -134,7 +135,8 @@ class CategoryController extends Controller
                 'name' => $request->category_name,
                 'parent_id' => $request->parent_id == null ? '' : $request->parent_id,
                 'created_by' => $authController->getEmail(),
-                'updated_by' => $authController->getEmail()
+                'updated_by' => $authController->getEmail(),
+                'status' => $request->status
             ]);
             return response()->json([
                 'result' => 'succes'
@@ -154,7 +156,7 @@ class CategoryController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_CATEGORY');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'You have no rights.'
+                    'error_message' => 'You have no rights.'
                 ], 401);
             }
             $category = Category::find($id);
@@ -178,6 +180,12 @@ class CategoryController extends Controller
                 }
             }
             if ($request->parent_id != null) {
+                $checkCategoryParent = Category::where('parent_id', $id)->count();
+                if ($checkCategoryParent !== 0) {
+                    return response()->json([
+                        'error_message' => 'Please delete all subcategories'
+                    ], 400);
+                }
                 $categoryParent = Category::find($request->parent_id);
                 if ($categoryParent == null) {
                     return response()->json([
@@ -186,8 +194,9 @@ class CategoryController extends Controller
                 }
             }
             $category->name = $request->category_name;
-            $category->parent_id = $request->parent_id == null ? '' : $request->parent_id;
+            $category->parent_id = $request->parent_id === null ? '' : $request->parent_id;
             $category->updated_by = $authController->getEmail();
+            $category->status = $request->status;
             $category->save();
             return response()->json([
                 'result' => 'succes'
@@ -219,6 +228,15 @@ class CategoryController extends Controller
                     'status' => 0
                 ]);
             }
+            if ($category->parent_id === "") {
+                $categories = Category::where("parent_id", $id)->get();
+                foreach ($categories as $item) {
+                    $item->update([
+                        'status' => 0
+                    ]);
+                }
+            }
+
             return response()->json([
                 'result' => 'succes'
             ], 200);
@@ -237,7 +255,7 @@ class CategoryController extends Controller
             $isAuthorization = $authController->isAuthorization('ADMIN_CATEGORY');
             if (!$isAuthorization) {
                 return response()->json([
-                    'message' => 'Bạn không có quyền.'
+                    'error_message' => 'Bạn không có quyền.'
                 ], 401);
             }
             $categories = Category::with('subjects')->where('parent_id', '>', "0")->get();
