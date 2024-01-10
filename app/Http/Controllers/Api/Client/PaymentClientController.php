@@ -216,8 +216,15 @@ class PaymentClientController extends Controller
                 foreach ($payment_subject as $courseDetail) {
                     foreach ($result as $key => $item) {
                         if ($item['subject_id'] === $courseDetail['subject_id']) {
-                            $totalVideo = Video::where('course_id', $courseDetail['id'])->count();
-                            $totalFinishVideo = VideoUser::where('users_id', Auth::id())->where('finished', 1)->count();
+                            $totalVideos = Video::where('course_id', $courseDetail['id'])->get();
+                            $totalFinishVideo = 0;
+                            foreach ($totalVideos as $videoDetail) {
+                                $videoUser = VideoUser::where('users_id', Auth::id())->where('videos_id', $videoDetail->id)->where('finished', 1)->first();
+                                if ($videoUser !== null) {
+                                    $totalFinishVideo++;
+                                }
+                            }
+                            $totalVideo = count($totalVideos);
                             $data = [
                                 "id" => $courseDetail['id'],
                                 "name" => $courseDetail['name'],

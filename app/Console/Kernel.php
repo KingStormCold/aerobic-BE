@@ -14,9 +14,9 @@ class Kernel extends ConsoleKernel
     // protected $commands = [
     //     \App\Console\Commands\SendEmail::class, //command SendEmail
     // ];
-    // // /**
-    // //  * Register the commands for the application.
-    // //  */
+    // /**
+    //  * Register the commands for the application.
+    //  */
     // protected function schedule(Schedule $schedule)
     // {
     //     Log::info(' Send in 1 minute ');
